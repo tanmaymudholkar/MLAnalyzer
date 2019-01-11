@@ -54,6 +54,30 @@
 #include "TStyle.h"
 #include "TMath.h"
 
+#include "DataFormats/SiStripDetId/interface/TOBDetId.h"
+#include "DataFormats/SiStripDetId/interface/TECDetId.h"
+#include "DataFormats/SiStripDetId/interface/TIBDetId.h"
+#include "DataFormats/SiStripDetId/interface/TIDDetId.h"
+#include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
+#include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
+
+#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
+#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetType.h"
+#include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
+#include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetType.h"
+
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "Geometry/CommonTopologies/interface/PixelTopology.h"
+#include "Geometry/CommonTopologies/interface/StripTopology.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+
+#include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
+#include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
+
+#include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2DCollection.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DCollection.h"
+
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
 #include "DataFormats/EgammaCandidates/interface/PhotonFwd.h" // reco::PhotonCollection defined here
@@ -101,6 +125,9 @@ class RecHitAnalyzer : public edm::EDAnalyzer  {
     edm::InputTag trackCollectionT_;
     edm::InputTag pfCandCollectionT_;
 
+    edm::InputTag siPixelRecHitCollectionT_;
+    std::vector<edm::InputTag> siStripRecHitCollectionT_;
+
     // Diagnostic histograms
     //TH2D * hEB_adc[EcalDataFrame::MAXSAMPLES]; 
     //TH1D * hHBHE_depth; 
@@ -128,8 +155,8 @@ class RecHitAnalyzer : public edm::EDAnalyzer  {
     void branchesTracksAtEBEE   ( TTree*, edm::Service<TFileService>& );
     void branchesTracksAtECALstitched   ( TTree*, edm::Service<TFileService>& );
     void branchesPFCandsAtECALstitched   ( TTree*, edm::Service<TFileService>& );
-    //void branchesTRKlayersAtEBEE( TTree*, edm::Service<TFileService>& );
-    //void branchesTRKlayersAtECAL( TTree*, edm::Service<TFileService>& );
+    void branchesTRKlayersAtEBEE( TTree*, edm::Service<TFileService>& );
+    void branchesTRKlayersAtECALstitched( TTree*, edm::Service<TFileService>& );
     //void branchesTRKvolumeAtEBEE( TTree*, edm::Service<TFileService>& );
     //void branchesTRKvolumeAtECAL( TTree*, edm::Service<TFileService>& );
 
@@ -144,8 +171,8 @@ class RecHitAnalyzer : public edm::EDAnalyzer  {
     void fillTracksAtEBEE   ( const edm::Event&, const edm::EventSetup& );
     void fillTracksAtECALstitched   ( const edm::Event&, const edm::EventSetup& );
     void fillPFCandsAtECALstitched   ( const edm::Event&, const edm::EventSetup& );
-    //void fillTRKlayersAtEBEE( const edm::Event&, const edm::EventSetup& );
-    //void fillTRKlayersAtECAL( const edm::Event&, const edm::EventSetup& );
+    void fillTRKlayersAtEBEE( const edm::Event&, const edm::EventSetup& );
+    void fillTRKlayersAtECALstitched( const edm::Event&, const edm::EventSetup& );
     //void fillTRKvolumeAtEBEE( const edm::Event&, const edm::EventSetup& );
     //void fillTRKvolumeAtECAL( const edm::Event&, const edm::EventSetup& );
 
@@ -158,6 +185,13 @@ class RecHitAnalyzer : public edm::EDAnalyzer  {
 // constants, enums and typedefs
 //
 static const int nEE = 2;
+static const int nTOB = 6;
+static const int nTEC = 9;
+static const int nTIB = 4;
+static const int nTID = 3;
+static const int nBPIX = 4;
+static const int nFPIX = 3;
+
 static const int EB_IPHI_MIN = 1;
 static const int EB_IPHI_MAX = 360;
 static const int EB_IETA_MIN = 1;

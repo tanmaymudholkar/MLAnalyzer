@@ -71,6 +71,13 @@ process.fevt = cms.EDAnalyzer('RecHitAnalyzer'
     , photonID = cms.InputTag('PhotonIDProd:PhotonCutBasedIDLoose')
     , jetID = cms.InputTag('ak5JetID')
     , pfCandCollection = cms.InputTag('particleFlow')
+    , siPixelRecHitCollection = cms.InputTag('siPixelRecHits')
+    , siStripRecHitCollection =  cms.VInputTag(
+    cms.InputTag('siStripMatchedRecHits:rphiRecHit'),
+    cms.InputTag('siStripMatchedRecHits:stereoRecHit'),
+    cms.InputTag('siStripMatchedRecHits:rphiRecHitUnmatched'),
+    cms.InputTag('siStripMatchedRecHits:stereoRecHitUnmatched')
+    )
     )
 
 process.TFileService = cms.Service("TFileService",

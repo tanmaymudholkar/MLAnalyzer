@@ -34,6 +34,10 @@ RecHitAnalyzer::RecHitAnalyzer(const edm::ParameterSet& iConfig)
   trackCollectionT_ = iConfig.getParameter<edm::InputTag>("trackCollection");
   pfCandCollectionT_ = iConfig.getParameter<edm::InputTag>("pfCandCollection");
 
+
+  siPixelRecHitCollectionT_   = iConfig.getParameter<edm::InputTag>("siPixelRecHitCollection");
+  siStripRecHitCollectionT_ = iConfig.getParameter<std::vector<edm::InputTag> >("siStripRecHitCollection");
+
   // Initialize file writer
   // NOTE: initializing dynamic-memory histograms outside of TFileService
   // will cause memory leaks
@@ -56,8 +60,8 @@ RecHitAnalyzer::RecHitAnalyzer(const edm::ParameterSet& iConfig)
   branchesTracksAtEBEE(RHTree, fs);
   branchesTracksAtECALstitched( RHTree, fs);
   branchesPFCandsAtECALstitched( RHTree, fs);
-  //branchesTRKlayersAtEBEE(RHTree, fs);
-  //branchesTRKlayersAtECAL(RHTree, fs);
+  branchesTRKlayersAtEBEE(RHTree, fs);
+  branchesTRKlayersAtECALstitched(RHTree, fs);
   //branchesTRKvolumeAtEBEE(RHTree, fs);
   //branchesTRKvolumeAtECAL(RHTree, fs);
 
@@ -120,8 +124,8 @@ RecHitAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   fillTracksAtEBEE( iEvent, iSetup );
   fillTracksAtECALstitched( iEvent, iSetup );
   fillPFCandsAtECALstitched( iEvent, iSetup );
-  //fillTRKlayersAtEBEE( iEvent, iSetup );
-  //fillTRKlayersAtECAL( iEvent, iSetup );
+  fillTRKlayersAtEBEE( iEvent, iSetup );
+  fillTRKlayersAtECALstitched( iEvent, iSetup );
   //fillTRKvolumeAtEBEE( iEvent, iSetup );
   //fillTRKvolumeAtECAL( iEvent, iSetup );
 

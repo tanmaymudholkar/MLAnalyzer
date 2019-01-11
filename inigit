@@ -1,0 +1,3 @@
+cd ../../../CMSSW_8_0_30/src/
+cmsenv
+cd -
