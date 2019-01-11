@@ -53,6 +53,7 @@
 #include "TCanvas.h"
 #include "TStyle.h"
 #include "TMath.h"
+#include "TLorentzVector.h"
 
 #include "DataFormats/SiStripDetId/interface/TOBDetId.h"
 #include "DataFormats/SiStripDetId/interface/TECDetId.h"
@@ -179,11 +180,28 @@ class RecHitAnalyzer : public edm::EDAnalyzer  {
     bool has_w2jet_z2invisible( const edm::Event&, const edm::EventSetup& );
     bool has_dijet( const edm::Event&, const edm::EventSetup& );
 
+    void branchesEvtSel_jet_dijet      ( TTree*, edm::Service<TFileService>& );
+    void branchesEvtSel_jet_dijet_gg_qq( TTree*, edm::Service<TFileService>& );
+    bool runEvtSel_jet_dijet      ( const edm::Event&, const edm::EventSetup& );
+    bool runEvtSel_jet_dijet_gg_qq( const edm::Event&, const edm::EventSetup& );
+    void fillEvtSel_jet_dijet      ( const edm::Event&, const edm::EventSetup& );
+    void fillEvtSel_jet_dijet_gg_qq( const edm::Event&, const edm::EventSetup& );
+
+    // Jet level functions
+    std::string mode_;  // EventLevel / JetLevel
+    bool doJets_;
+    int  nJets_;
+    double minJetPt_;
+    double maxJetEta_;
+    std::vector<int> vJetIdxs;
+
 }; // class RecHitAnalyzer
 
 //
 // constants, enums and typedefs
 //
+static const bool debug = true;
+
 static const int nEE = 2;
 static const int nTOB = 6;
 static const int nTEC = 9;

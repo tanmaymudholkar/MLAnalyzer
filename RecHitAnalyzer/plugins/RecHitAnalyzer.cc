@@ -26,17 +26,32 @@ RecHitAnalyzer::RecHitAnalyzer(const edm::ParameterSet& iConfig)
   //TRKRecHitCollectionT_  = iConfig.getParameter<edm::InputTag>("trackRecHitCollection");
 
   genParticleCollectionT_ = iConfig.getParameter<edm::InputTag>("genParticleCollection");
-  //photonCollectionT_ = iConfig.getParameter<edm::InputTag>("gedPhotonCollection");
-  photonCollectionT_ = iConfig.getParameter<edm::InputTag>("photonCollection");
+  photonCollectionT_ = iConfig.getParameter<edm::InputTag>("gedPhotonCollection");
+  //photonCollectionT_ = iConfig.getParameter<edm::InputTag>("photonCollection");
   //jetCollectionT_ = iConfig.getParameter<edm::InputTag>("ak4PFJetCollection");
   jetCollectionT_ = iConfig.getParameter<edm::InputTag>("PFJetCollection");
   genJetCollectionT_ = iConfig.getParameter<edm::InputTag>("genJetCollection");
   trackCollectionT_ = iConfig.getParameter<edm::InputTag>("trackCollection");
-  pfCandCollectionT_ = iConfig.getParameter<edm::InputTag>("pfCandCollection");
+  pfCandCollectionT_ = iConfig.getParameter<edm::InputTag>("pfCollection");
 
 
   siPixelRecHitCollectionT_   = iConfig.getParameter<edm::InputTag>("siPixelRecHitCollection");
   siStripRecHitCollectionT_ = iConfig.getParameter<std::vector<edm::InputTag> >("siStripRecHitCollection");
+
+  mode_      = iConfig.getParameter<std::string>("mode");
+  minJetPt_  = iConfig.getParameter<double>("minJetPt");
+  maxJetEta_ = iConfig.getParameter<double>("maxJetEta");
+  std::cout << " >> Mode set to " << mode_ << std::endl;
+  if ( mode_ == "JetLevel" ) {
+    doJets_ = true;
+    nJets_ = iConfig.getParameter<int>("nJets");
+    std::cout << "\t>> nJets set to " << nJets_ << std::endl;
+  } else if ( mode_ == "EventLevel" ) {
+    doJets_ = false;
+  } else {
+    std::cout << " >> Assuming EventLevel Config. " << std::endl;
+    doJets_ = false;
+  }
 
   // Initialize file writer
   // NOTE: initializing dynamic-memory histograms outside of TFileService
@@ -50,7 +65,12 @@ RecHitAnalyzer::RecHitAnalyzer(const edm::ParameterSet& iConfig)
   // These will be use to create the actual images
   RHTree = fs->make<TTree>("RHTree", "RecHit tree");
   //branchesEvtSel       ( RHTree, fs );
-  branchesEvtSel_jet   ( RHTree, fs );
+  //branchesEvtSel_jet   ( RHTree, fs );
+  if ( doJets_ ) {
+    branchesEvtSel_jet( RHTree, fs );
+  } else {
+    branchesEvtSel( RHTree, fs );
+  }
   branchesEB           ( RHTree, fs );
   branchesEE           ( RHTree, fs );
   branchesHBHE         ( RHTree, fs );
@@ -108,7 +128,13 @@ RecHitAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   //std::cout << "GenCol.size: " << genParticles->size() << std::endl;
   bool passedSelection = false;
   //passedSelection = runEvtSel( iEvent, iSetup );
-  passedSelection = runEvtSel_jet( iEvent, iSetup );
+  //passedSelection = runEvtSel_jet( iEvent, iSetup );
+
+  if ( doJets_ ) {
+    passedSelection = runEvtSel_jet( iEvent, iSetup );
+  } else {
+    passedSelection = runEvtSel( iEvent, iSetup );
+  }
 
   if ( !passedSelection ) {
     h_sel->Fill( 0. );

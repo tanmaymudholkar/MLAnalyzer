@@ -106,6 +106,7 @@ void RecHitAnalyzer::fillPFCandsAtECALstitched ( const edm::Event& iEvent, const
 
   for ( reco::PFCandidateCollection::const_iterator iPFC = pfCandsH_->begin();
         iPFC != pfCandsH_->end(); ++iPFC ) {
+    if(!iPFC->trackRef()) continue;
     const reco::Track* thisTrk = &(*iPFC->trackRef());
     if(!thisTrk) continue;
 
@@ -138,6 +139,7 @@ void RecHitAnalyzer::fillPFCandsAtECALstitched ( const edm::Event& iEvent, const
 
   for ( reco::PFCandidateCollection::const_iterator iPFC = pfCandsH_->begin();
         iPFC != pfCandsH_->end(); ++iPFC ) {
+    if(!iPFC->trackRef()) continue;
     const reco::Track* thisTrk = &(*iPFC->trackRef());
     if(!thisTrk) continue;
 
