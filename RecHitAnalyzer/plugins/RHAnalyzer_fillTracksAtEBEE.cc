@@ -18,9 +18,13 @@ TH2F *hTracks_EE[nEE];
 TH2F *hTracks_EB;
 TH2F *hTracksPt_EE[nEE];
 TH2F *hTracksPt_EB;
+TH2F *hTracksD0_EE[nEE];
+TH2F *hTracksD0_EB;
 std::vector<float> vTracksPt_EE_[nEE];
+std::vector<float> vTracksD0_EE_[nEE];
 std::vector<float> vTracks_EE_[nEE];
 std::vector<float> vTracksPt_EB_;
+std::vector<float> vTracksD0_EB_;
 std::vector<float> vTracks_EB_;
 
 // Initialize branches ____________________________________________________________//
@@ -29,12 +33,16 @@ void RecHitAnalyzer::branchesTracksAtEBEE ( TTree* tree, edm::Service<TFileServi
   // Branches for images
   tree->Branch("Tracks_EB",   &vTracks_EB_);
   tree->Branch("TracksPt_EB", &vTracksPt_EB_);
+  tree->Branch("TracksD0_EB", &vTracksD0_EB_);
 
   // Histograms for monitoring
   hTracks_EB = fs->make<TH2F>("Tracks_EB", "N(i#phi,i#eta);i#phi;i#eta",
       EB_IPHI_MAX  , EB_IPHI_MIN-1, EB_IPHI_MAX,
       2*EB_IETA_MAX,-EB_IETA_MAX,   EB_IETA_MAX );
   hTracksPt_EB = fs->make<TH2F>("TracksPt_EB", "pT(i#phi,i#eta);i#phi;i#eta",
+      EB_IPHI_MAX  , EB_IPHI_MIN-1, EB_IPHI_MAX,
+      2*EB_IETA_MAX,-EB_IETA_MAX,   EB_IETA_MAX );
+  hTracksD0_EB = fs->make<TH2F>("TracksD0_EB", "d0(i#phi,i#eta);i#phi;i#eta",
       EB_IPHI_MAX  , EB_IPHI_MIN-1, EB_IPHI_MAX,
       2*EB_IETA_MAX,-EB_IETA_MAX,   EB_IETA_MAX );
 
@@ -46,6 +54,8 @@ void RecHitAnalyzer::branchesTracksAtEBEE ( TTree* tree, edm::Service<TFileServi
     tree->Branch(hname,        &vTracks_EE_[iz]);
     sprintf(hname, "TracksPt_EE%s",zside);
     tree->Branch(hname,        &vTracksPt_EE_[iz]);
+    sprintf(hname, "TracksD0_EE%s",zside);
+    tree->Branch(hname,       &vTracksD0_EE_[iz]);
 
     // Histograms for monitoring
     sprintf(hname, "Tracks_EE%s",zside);
@@ -56,6 +66,11 @@ void RecHitAnalyzer::branchesTracksAtEBEE ( TTree* tree, edm::Service<TFileServi
     sprintf(hname, "TracksPt_EE%s",zside);
     sprintf(htitle,"pT(ix,iy);ix;iy");
     hTracksPt_EE[iz] = fs->make<TH2F>(hname, htitle,
+        EE_MAX_IX, EE_MIN_IX-1, EE_MAX_IX,
+        EE_MAX_IY, EE_MIN_IY-1, EE_MAX_IY );
+    sprintf(hname, "TracksD0_EE%s",zside);
+    sprintf(htitle,"D0(ix,ix);ix;iy");
+    hTracksD0_EE[iz] = fs->make<TH2F>(hname, htitle,
         EE_MAX_IX, EE_MIN_IX-1, EE_MAX_IX,
         EE_MAX_IY, EE_MIN_IY-1, EE_MAX_IY );
   } // iz
@@ -72,9 +87,11 @@ void RecHitAnalyzer::fillTracksAtEBEE ( const edm::Event& iEvent, const edm::Eve
 
   vTracks_EB_.assign( EBDetId::kSizeForDenseIndexing, 0. );
   vTracksPt_EB_.assign( EBDetId::kSizeForDenseIndexing, 0. );
+  vTracksD0_EB_.assign( EBDetId::kSizeForDenseIndexing, 0. );
   for ( int iz(0); iz < nEE; iz++ ) {
     vTracks_EE_[iz].assign( EE_NC_PER_ZSIDE, 0. );
     vTracksPt_EE_[iz].assign( EE_NC_PER_ZSIDE, 0. );
+    vTracksD0_EE_[iz].assign( EE_NC_PER_ZSIDE, 0. );
   }
 
   edm::Handle<reco::TrackCollection> tracksH_;
@@ -100,10 +117,12 @@ void RecHitAnalyzer::fillTracksAtEBEE ( const edm::Event& iEvent, const edm::Eve
       // Fill histograms for monitoring
       hTracks_EB->Fill( iphi_, ieta_ );
       hTracksPt_EB->Fill( iphi_, ieta_, iTk->pt() );
+      hTracksD0_EB->Fill( iphi_, ieta_, iTk->d0() );
       idx_ = ebId.hashedIndex(); // (ieta_+EB_IETA_MAX)*EB_IPHI_MAX + iphi_
       // Fill vectors for images
       vTracks_EB_[idx_] += 1.;
       vTracksPt_EB_[idx_] += iTk->pt();
+      vTracksD0_EB_[idx_] += iTk->d0();
     } else if ( id.subdetId() == EcalEndcap ) {
       EEDetId eeId( id );
       ix_ = eeId.ix() - 1;
@@ -112,12 +131,25 @@ void RecHitAnalyzer::fillTracksAtEBEE ( const edm::Event& iEvent, const edm::Eve
       // Fill histograms for monitoring
       hTracks_EE[iz_]->Fill( ix_, iy_ );
       hTracksPt_EE[iz_]->Fill( ix_, iy_, iTk->pt() );
+      hTracksD0_EE[iz_]->Fill( ix_, iy_, iTk->d0() );
       // Create hashed Index: maps from [iy][ix] -> [idx_]
       idx_ = iy_*EE_MAX_IX + ix_;
       // Fill vectors for images
       vTracks_EE_[iz_][idx_] += 1.;
       vTracksPt_EE_[iz_][idx_] += iTk->pt();
+      vTracksD0_EE_[iz_][idx_] += iTk->d0();
     } 
   } // tracks
+
+  //Get average D0 for each position
+  for (unsigned int idx__=0;idx__<vTracks_EB_.size();idx__++) {
+    if (vTracks_EB_[idx__] != 0) { vTracksD0_EB_[idx__] = vTracksD0_EB_[idx__] / vTracks_EB_[idx__]; }
+  }
+  for (int iz__=0;iz__<nEE;iz__++) {
+    for (unsigned int idx__=0;idx__<vTracks_EE_[iz__].size();idx__++) {
+      if (vTracks_EE_[iz__][idx__] != 0) { vTracksD0_EE_[iz__][idx__] = vTracksD0_EE_[iz__][idx__] / vTracks_EE_[iz__][idx__]; }
+    }
+  }
+
 
 } // fillEB()
