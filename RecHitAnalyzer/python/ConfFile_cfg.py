@@ -70,9 +70,18 @@ process.load("RecoLocalTracker.SiStripRecHitConverter.SiStripRecHitConverter_cfi
 process.load("MLAnalyzer.RecHitAnalyzer.RHAnalyzer_cfi")
 process.fevt.mode = cms.string(options.processMode)
 
+jet_radius=0.8
+from RecoJets.Configuration.GenJetParticles_cff import genParticlesForJets
+process.genParticlesForJets=genParticlesForJets.clone()
+from RecoJets.JetProducers.ak5PFJets_cfi import ak5PFJets
+process.ak8PFJets = ak5PFJets.clone( rParam = jet_radius)
+process.ak8PFJets.doAreaFastjet = True
+from RecoJets.JetProducers.ak5GenJets_cfi import ak5GenJets
+process.ak8GenJets      = ak5GenJets.clone( rParam = jet_radius )
+
 if options.UseAK8:
-    process.fevt.PFJetCollection = cms.InputTag('ak7PFJets')
-    process.fevt.genJetCollection = cms.InputTag('ak7GenJets')
+    process.fevt.PFJetCollection = cms.InputTag('ak8PFJets')
+    process.fevt.genJetCollection = cms.InputTag('ak8GenJets')
 else:
     process.fevt.PFJetCollection = cms.InputTag('ak5PFJets')
     process.fevt.genJetCollection = cms.InputTag('ak5GenJets')
@@ -87,4 +96,8 @@ process.TFileService = cms.Service("TFileService",
     )
 
 #process.SimpleMemoryCheck = cms.Service( "SimpleMemoryCheck", ignoreTotal = cms.untracked.int32(1) )
+#process.p = cms.Path(process.siStripMatchedRecHits*process.siPixelRecHits*process.fevt)
 process.p = cms.Path(process.siStripMatchedRecHits*process.siPixelRecHits*process.fevt)
+if options.UseAK8:
+    process.p = cms.Path(process.siStripMatchedRecHits*process.siPixelRecHits*process.genParticlesForJets*process.ak8PFJets*process.ak8GenJets*process.fevt)
+    
