@@ -20,12 +20,24 @@ TH2F *hTracksPt_EE[nEE];
 TH2F *hTracksPt_EB;
 TH2F *hTracksD0_EE[nEE];
 TH2F *hTracksD0_EB;
+TH2F *hTracksDz_EE[nEE];
+TH2F *hTracksDz_EB;
+
 std::vector<float> vTracksPt_EE_[nEE];
 std::vector<float> vTracksD0_EE_[nEE];
+std::vector<float> vTracksDz_EE_[nEE];
 std::vector<float> vTracks_EE_[nEE];
 std::vector<float> vTracksPt_EB_;
 std::vector<float> vTracksD0_EB_;
+std::vector<float> vTracksDz_EB_;
 std::vector<float> vTracks_EB_;
+
+std::vector<float> vTracksPt_EE_max_[nEE];
+std::vector<float> vTracksD0_EE_max_[nEE];
+std::vector<float> vTracksDz_EE_max_[nEE];
+std::vector<float> vTracksPt_EB_max_;
+std::vector<float> vTracksD0_EB_max_;
+std::vector<float> vTracksDz_EB_max_;
 
 // Initialize branches ____________________________________________________________//
 void RecHitAnalyzer::branchesTracksAtEBEE ( TTree* tree, edm::Service<TFileService> &fs ) {
@@ -34,6 +46,10 @@ void RecHitAnalyzer::branchesTracksAtEBEE ( TTree* tree, edm::Service<TFileServi
   tree->Branch("Tracks_EB",   &vTracks_EB_);
   tree->Branch("TracksPt_EB", &vTracksPt_EB_);
   tree->Branch("TracksD0_EB", &vTracksD0_EB_);
+  tree->Branch("TracksDz_EB", &vTracksDz_EB_);
+  tree->Branch("TracksPt_EB_maxPt", &vTracksPt_EB_max_);
+  tree->Branch("TracksD0_EB_maxPt", &vTracksD0_EB_max_);
+  tree->Branch("TracksDz_EB_maxPt", &vTracksDz_EB_max_);
 
   // Histograms for monitoring
   hTracks_EB = fs->make<TH2F>("Tracks_EB", "N(i#phi,i#eta);i#phi;i#eta",
@@ -43,6 +59,9 @@ void RecHitAnalyzer::branchesTracksAtEBEE ( TTree* tree, edm::Service<TFileServi
       EB_IPHI_MAX  , EB_IPHI_MIN-1, EB_IPHI_MAX,
       2*EB_IETA_MAX,-EB_IETA_MAX,   EB_IETA_MAX );
   hTracksD0_EB = fs->make<TH2F>("TracksD0_EB", "d0(i#phi,i#eta);i#phi;i#eta",
+      EB_IPHI_MAX  , EB_IPHI_MIN-1, EB_IPHI_MAX,
+      2*EB_IETA_MAX,-EB_IETA_MAX,   EB_IETA_MAX );
+  hTracksDz_EB = fs->make<TH2F>("TracksDz_EB", "dz(i#phi,i#eta);i#phi;i#eta",
       EB_IPHI_MAX  , EB_IPHI_MIN-1, EB_IPHI_MAX,
       2*EB_IETA_MAX,-EB_IETA_MAX,   EB_IETA_MAX );
 
@@ -55,7 +74,15 @@ void RecHitAnalyzer::branchesTracksAtEBEE ( TTree* tree, edm::Service<TFileServi
     sprintf(hname, "TracksPt_EE%s",zside);
     tree->Branch(hname,        &vTracksPt_EE_[iz]);
     sprintf(hname, "TracksD0_EE%s",zside);
-    tree->Branch(hname,       &vTracksD0_EE_[iz]);
+    tree->Branch(hname,        &vTracksD0_EE_[iz]);
+    sprintf(hname, "TracksDz_EE%s",zside);
+    tree->Branch(hname,        &vTracksDz_EE_[iz]);
+    sprintf(hname, "TracksPt_EE%s_maxPt",zside);
+    tree->Branch(hname,        &vTracksPt_EE_max_[iz]);
+    sprintf(hname, "TracksD0_EE%s_maxPt",zside);
+    tree->Branch(hname,        &vTracksD0_EE_max_[iz]);
+    sprintf(hname, "TracksDz_EE%s_maxPt",zside);
+    tree->Branch(hname,        &vTracksDz_EE_max_[iz]);
 
     // Histograms for monitoring
     sprintf(hname, "Tracks_EE%s",zside);
@@ -73,6 +100,11 @@ void RecHitAnalyzer::branchesTracksAtEBEE ( TTree* tree, edm::Service<TFileServi
     hTracksD0_EE[iz] = fs->make<TH2F>(hname, htitle,
         EE_MAX_IX, EE_MIN_IX-1, EE_MAX_IX,
         EE_MAX_IY, EE_MIN_IY-1, EE_MAX_IY );
+    sprintf(hname, "TracksDz_EE%s",zside);
+    sprintf(htitle,"Dz(ix,ix);ix;iy");
+    hTracksDz_EE[iz] = fs->make<TH2F>(hname, htitle,
+        EE_MAX_IX, EE_MIN_IX-1, EE_MAX_IX,
+        EE_MAX_IY, EE_MIN_IY-1, EE_MAX_IY );
   } // iz
 
 } // branchesEB()
@@ -88,10 +120,18 @@ void RecHitAnalyzer::fillTracksAtEBEE ( const edm::Event& iEvent, const edm::Eve
   vTracks_EB_.assign( EBDetId::kSizeForDenseIndexing, 0. );
   vTracksPt_EB_.assign( EBDetId::kSizeForDenseIndexing, 0. );
   vTracksD0_EB_.assign( EBDetId::kSizeForDenseIndexing, 0. );
+  vTracksDz_EB_.assign( EBDetId::kSizeForDenseIndexing, 0. );
+  vTracksPt_EB_max_.assign( EBDetId::kSizeForDenseIndexing, 0. );
+  vTracksD0_EB_max_.assign( EBDetId::kSizeForDenseIndexing, 0. );
+  vTracksDz_EB_max_.assign( EBDetId::kSizeForDenseIndexing, 0. );
   for ( int iz(0); iz < nEE; iz++ ) {
     vTracks_EE_[iz].assign( EE_NC_PER_ZSIDE, 0. );
     vTracksPt_EE_[iz].assign( EE_NC_PER_ZSIDE, 0. );
     vTracksD0_EE_[iz].assign( EE_NC_PER_ZSIDE, 0. );
+    vTracksDz_EE_[iz].assign( EE_NC_PER_ZSIDE, 0. );
+    vTracksPt_EE_max_[iz].assign( EE_NC_PER_ZSIDE, 0. );
+    vTracksD0_EE_max_[iz].assign( EE_NC_PER_ZSIDE, 0. );
+    vTracksDz_EE_max_[iz].assign( EE_NC_PER_ZSIDE, 0. );
   }
 
   edm::Handle<reco::TrackCollection> tracksH_;
@@ -118,11 +158,18 @@ void RecHitAnalyzer::fillTracksAtEBEE ( const edm::Event& iEvent, const edm::Eve
       hTracks_EB->Fill( iphi_, ieta_ );
       hTracksPt_EB->Fill( iphi_, ieta_, iTk->pt() );
       hTracksD0_EB->Fill( iphi_, ieta_, iTk->d0() );
+      hTracksDz_EB->Fill( iphi_, ieta_, iTk->dz() );
       idx_ = ebId.hashedIndex(); // (ieta_+EB_IETA_MAX)*EB_IPHI_MAX + iphi_
       // Fill vectors for images
       vTracks_EB_[idx_] += 1.;
       vTracksPt_EB_[idx_] += iTk->pt();
       vTracksD0_EB_[idx_] += iTk->d0();
+      vTracksDz_EB_[idx_] += iTk->dz();
+      if (iTk->pt() > vTracksPt_EB_max_[idx_]) {
+        vTracksPt_EB_max_[idx_] = iTk->pt();
+        vTracksD0_EB_max_[idx_] = iTk->d0();
+        vTracksDz_EB_max_[idx_] = iTk->dz();
+      }
     } else if ( id.subdetId() == EcalEndcap ) {
       EEDetId eeId( id );
       ix_ = eeId.ix() - 1;
@@ -132,24 +179,36 @@ void RecHitAnalyzer::fillTracksAtEBEE ( const edm::Event& iEvent, const edm::Eve
       hTracks_EE[iz_]->Fill( ix_, iy_ );
       hTracksPt_EE[iz_]->Fill( ix_, iy_, iTk->pt() );
       hTracksD0_EE[iz_]->Fill( ix_, iy_, iTk->d0() );
+      hTracksDz_EE[iz_]->Fill( ix_, iy_, iTk->dz() );
       // Create hashed Index: maps from [iy][ix] -> [idx_]
       idx_ = iy_*EE_MAX_IX + ix_;
       // Fill vectors for images
       vTracks_EE_[iz_][idx_] += 1.;
       vTracksPt_EE_[iz_][idx_] += iTk->pt();
       vTracksD0_EE_[iz_][idx_] += iTk->d0();
+      vTracksDz_EE_[iz_][idx_] += iTk->dz();
+      if (iTk->pt() > vTracksPt_EE_max_[iz_][idx_]) {
+        vTracksPt_EE_max_[iz_][idx_] = iTk->pt();
+        vTracksD0_EE_max_[iz_][idx_] = iTk->d0();
+        vTracksDz_EE_max_[iz_][idx_] = iTk->dz();
+      }
     } 
   } // tracks
 
-  //Get average D0 for each position
-  for (unsigned int idx__=0;idx__<vTracks_EB_.size();idx__++) {
-    if (vTracks_EB_[idx__] != 0) { vTracksD0_EB_[idx__] = vTracksD0_EB_[idx__] / vTracks_EB_[idx__]; }
-  }
-  for (int iz__=0;iz__<nEE;iz__++) {
-    for (unsigned int idx__=0;idx__<vTracks_EE_[iz__].size();idx__++) {
-      if (vTracks_EE_[iz__][idx__] != 0) { vTracksD0_EE_[iz__][idx__] = vTracksD0_EE_[iz__][idx__] / vTracks_EE_[iz__][idx__]; }
+  // Get average D0 and Dz for each position
+  for (unsigned int idx_=0;idx_<vTracks_EB_.size();idx_++) {
+    if (vTracks_EB_[idx_] != 0) {
+      vTracksD0_EB_[idx_] = vTracksD0_EB_[idx_] / vTracks_EB_[idx_];
+      vTracksDz_EB_[idx_] = vTracksDz_EB_[idx_] / vTracks_EB_[idx_];
     }
   }
-
+  for (int iz_=0;iz_<nEE;iz_++) {
+    for (unsigned int idx_=0;idx_<vTracks_EE_[iz_].size();idx_++) {
+      if (vTracks_EE_[iz_][idx_] != 0) {
+        vTracksD0_EE_[iz_][idx_] = vTracksD0_EE_[iz_][idx_] / vTracks_EE_[iz_][idx_];
+        vTracksDz_EE_[iz_][idx_] = vTracksDz_EE_[iz_][idx_] / vTracks_EE_[iz_][idx_];
+      }
+    }
+  }
 
 } // fillEB()
