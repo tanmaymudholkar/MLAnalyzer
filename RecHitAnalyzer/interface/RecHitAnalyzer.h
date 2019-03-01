@@ -266,6 +266,8 @@ static const int runTotal[3] = {14907, 22323, 20195}; //57425
 //static const int runTotal[3] = {21200, 31899, 28868}; //63052+18915
 //static const int runTotal[3] = {35141, 47885, 52576}; //135602
 
+static const string projections[3] = {"", "_atECAL", "_atHCAL"}; //57425
+
 //
 // static data member definitions
 //
