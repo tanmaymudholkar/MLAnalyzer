@@ -89,6 +89,10 @@
 
 #include "DataFormats/Math/interface/deltaR.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
+
+#include "MagneticField/Engine/interface/MagneticField.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+#include "Calibration/IsolatedParticles/interface/CaloPropagateTrack.h"
 //
 // class declaration
 //
@@ -170,7 +174,7 @@ class RecHitAnalyzer : public edm::EDAnalyzer  {
     void fillECALstitched   ( const edm::Event&, const edm::EventSetup& );
     void fillHCALatEBEE     ( const edm::Event&, const edm::EventSetup& );
     void fillTracksAtEBEE   ( const edm::Event&, const edm::EventSetup& );
-    void fillTracksAtECALstitched   ( const edm::Event&, const edm::EventSetup& );
+    void fillTracksAtECALstitched   ( const edm::Event&, const edm::EventSetup&, int proj );
     void fillPFCandsAtECALstitched   ( const edm::Event&, const edm::EventSetup& );
     void fillTRKlayersAtEBEE( const edm::Event&, const edm::EventSetup& );
     void fillTRKlayersAtECALstitched( const edm::Event&, const edm::EventSetup& );
@@ -266,7 +270,7 @@ static const int runTotal[3] = {14907, 22323, 20195}; //57425
 //static const int runTotal[3] = {21200, 31899, 28868}; //63052+18915
 //static const int runTotal[3] = {35141, 47885, 52576}; //135602
 
-static const string projections[3] = {"", "_atECAL", "_atHCAL"}; //57425
+static const std::string projections[3] = {"", "_atECAL", "_atHCAL"}; //57425
 
 //
 // static data member definitions

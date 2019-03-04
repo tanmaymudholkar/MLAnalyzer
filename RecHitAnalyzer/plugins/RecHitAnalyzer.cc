@@ -148,7 +148,10 @@ RecHitAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   fillECALstitched( iEvent, iSetup );
   fillHCALatEBEE( iEvent, iSetup );
   fillTracksAtEBEE( iEvent, iSetup );
-  fillTracksAtECALstitched( iEvent, iSetup );
+  for (int i=0;i<3;i++)
+  {
+    fillTracksAtECALstitched( iEvent, iSetup, i );
+  }
   fillPFCandsAtECALstitched( iEvent, iSetup );
   fillTRKlayersAtEBEE( iEvent, iSetup );
   fillTRKlayersAtECALstitched( iEvent, iSetup );
