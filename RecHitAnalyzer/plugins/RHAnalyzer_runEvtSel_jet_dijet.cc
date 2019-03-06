@@ -15,7 +15,7 @@ vector<float> vDijet_jet_eta_;
 // Initialize branches _____________________________________________________//
 void RecHitAnalyzer::branchesEvtSel_jet_dijet( TTree* tree, edm::Service<TFileService> &fs ) {
 
-  h_dijet_jet_pT    = fs->make<TH1D>("h_jet_pT"  , "p_{T};p_{T};Particles", 100,  0., 500.);
+  h_dijet_jet_pT    = fs->make<TH1D>("h_jet_pT"  , "p_{T};p_{T};Particles", 300,  0., 1500.);
   h_dijet_jet_E     = fs->make<TH1D>("h_jet_E"   , "E;E;Particles"        , 100,  0., 800.);
   h_dijet_jet_eta   = fs->make<TH1D>("h_jet_eta" , "#eta;#eta;Particles"  , 100, -5., 5.);
   h_dijet_jet_nJet  = fs->make<TH1D>("h_jet_nJet", "nJet;nJet;Events"     ,  10,  0., 10.);
@@ -41,7 +41,10 @@ bool RecHitAnalyzer::runEvtSel_jet_dijet( const edm::Event& iEvent, const edm::E
   vDijet_jet_m0_.clear();
   vDijet_jet_eta_.clear();
 
+  int nJet = 0;
+
   std::vector<TLorentzVector> had_tops,bdau,wdau;
+  if (isTTbar_) { //is a ttbar sample
   for (const auto & p : *genParticles.product())
   {
     int id = p.pdgId();
@@ -73,7 +76,7 @@ bool RecHitAnalyzer::runEvtSel_jet_dijet( const edm::Event& iEvent, const edm::E
     bdau.push_back(the_b);
   }
 
-  int nJet = 0;
+
   // Loop over jets
   for ( unsigned ihad=0;ihad<had_tops.size();ihad++)
   {
@@ -98,7 +101,21 @@ bool RecHitAnalyzer::runEvtSel_jet_dijet( const edm::Event& iEvent, const edm::E
     } // jets
     if ( (nJets_ > 0) && (nJet >= nJets_) ) break;
   } // hadronic tops
+  } // isTTbar
+  else { //is QCD
+    for ( unsigned iJ(0); iJ != jets->size(); ++iJ )
+    {
+      reco::PFJetRef iJet( jets, iJ );
+      if ( std::abs(iJet->pt()) < minJetPt_ ) continue;
+      if ( std::abs(iJet->eta()) > maxJetEta_ ) continue;
+      
+      if ( debug ) std::cout << " >> jet[" << iJ << "]Pt:" << iJet->pt() << " jetE:" << iJet->energy() << " jetM:" << iJet->mass() << std::endl;
 
+      vJetIdxs.push_back(iJ);
+      nJet++;
+      if ( (nJets_ > 0) && (nJet >= nJets_) ) break;
+    }
+  } // is QCD
 
   if ( debug ) {
     for(int thisJetIdx : vJetIdxs)

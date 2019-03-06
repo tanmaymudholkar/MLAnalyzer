@@ -36,8 +36,8 @@ void RecHitAnalyzer::branchesEvtSel ( TTree* tree, edm::Service<TFileService> &f
   h_phoE   = fs->make<TH1F>("h_phoE"  , "E;E;Particles"        , 100,  0., 800.);
   h_phoEta = fs->make<TH1F>("h_phoEta", "#eta;#eta;Particles"  , 100, -5., 5.);
   h_phoMva = fs->make<TH1F>("h_phoMva", "#mva;#mva;Particles"  , 100, -1., 1.);
-  h_jetPt  = fs->make<TH1F>("h_jetPt" , "p_{T};p_{T};Particles", 100,  0., 500.);
-  h_jetE   = fs->make<TH1F>("h_jetE"  , "E;E;Particles"        , 100,  0., 800.);
+  h_jetPt  = fs->make<TH1F>("h_jetPt" , "p_{T};p_{T};Particles", 120,  300., 1500.);
+  h_jetE   = fs->make<TH1F>("h_jetE"  , "E;E;Particles"        , 150,  300., 1800.);
   h_jetEta = fs->make<TH1F>("h_jetEta", "#eta;#eta;Particles"  , 100, -5., 5.);
 
   tree->Branch("eventId",        &eventId_);

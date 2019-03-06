@@ -24,6 +24,11 @@ options.register('UseAK8',
     mult=VarParsing.VarParsing.multiplicity.singleton,
     mytype=VarParsing.VarParsing.varType.int,
     info = 'Whether or not you use AK8 jets: True or False')
+options.register('isTTbar',
+    default=0,
+    mult=VarParsing.VarParsing.multiplicity.singleton,
+    mytype=VarParsing.VarParsing.varType.int,
+    info = 'Whether same is ttbar, True or False')
 options.parseArguments()
 
 process = cms.Process("FEVTAnalyzer")
@@ -69,6 +74,10 @@ process.load("RecoLocalTracker.SiPixelRecHits.PixelCPEGeneric_cfi")
 process.load("RecoLocalTracker.SiStripRecHitConverter.SiStripRecHitConverter_cfi")
 process.load("MLAnalyzer.RecHitAnalyzer.RHAnalyzer_cfi")
 process.fevt.mode = cms.string(options.processMode)
+if options.isTTbar:
+    process.fevt.isTTbar = cms.bool(True)
+else:
+    process.fevt.isTTbar = cms.bool(False)
 
 jet_radius=0.8
 from RecoJets.Configuration.GenJetParticles_cff import genParticlesForJets
