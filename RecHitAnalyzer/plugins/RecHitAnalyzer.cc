@@ -33,6 +33,7 @@ RecHitAnalyzer::RecHitAnalyzer(const edm::ParameterSet& iConfig)
   genJetCollectionT_ = iConfig.getParameter<edm::InputTag>("genJetCollection");
   trackCollectionT_ = iConfig.getParameter<edm::InputTag>("trackCollection");
   pfCandCollectionT_ = iConfig.getParameter<edm::InputTag>("pfCollection");
+  pvCollectionT_ = iConfig.getParameter<edm::InputTag>("pvCollection");
 
 
   siPixelRecHitCollectionT_   = iConfig.getParameter<edm::InputTag>("siPixelRecHitCollection");
@@ -149,13 +150,17 @@ RecHitAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   fillECALstitched( iEvent, iSetup );
   fillHCALatEBEE( iEvent, iSetup );
   fillTracksAtEBEE( iEvent, iSetup );
-  for (int i=0;i<3;i++)
+  for (unsigned int i=0;i<Nproj;i++)
   {
     fillTracksAtECALstitched( iEvent, iSetup, i );
   }
+  for (unsigned int i=0;i<Nhitproj;i++)
+  {
+    fillTRKlayersAtECALstitched( iEvent, iSetup, i );
+  }
   fillPFCandsAtECALstitched( iEvent, iSetup );
   fillTRKlayersAtEBEE( iEvent, iSetup );
-  fillTRKlayersAtECALstitched( iEvent, iSetup );
+  //fillTRKlayersAtECALstitched( iEvent, iSetup );
   //fillTRKvolumeAtEBEE( iEvent, iSetup );
   //fillTRKvolumeAtECAL( iEvent, iSetup );
 

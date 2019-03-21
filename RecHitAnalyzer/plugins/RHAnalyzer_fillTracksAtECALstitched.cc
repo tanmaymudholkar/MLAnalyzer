@@ -25,20 +25,20 @@ TH2F *hEvt_EE_tracksD0_max[nEE];
 TH2F *hEvt_EE_tracksDz_max[nEE];
 
 
-TProfile2D *hECAL_tracks[3];
-TProfile2D *hECAL_tracksPt[3];
-TProfile2D *hECAL_tracksQPt[3];
-TProfile2D *hECAL_tracksD0[3];
-TProfile2D *hECAL_tracksDz[3];
+TProfile2D *hECAL_tracks[Nproj];
+TProfile2D *hECAL_tracksPt[Nproj];
+TProfile2D *hECAL_tracksQPt[Nproj];
+TProfile2D *hECAL_tracksD0[Nproj];
+TProfile2D *hECAL_tracksDz[Nproj];
 
-std::vector<float> vECAL_tracksPt_[3];
-std::vector<float> vECAL_tracksQPt_[3];
-std::vector<float> vECAL_tracksD0_[3];
-std::vector<float> vECAL_tracksDz_[3];
-std::vector<float> vECAL_tracks_[3];
-std::vector<float> vECAL_tracksPt_max_[3];
-std::vector<float> vECAL_tracksD0_max_[3];
-std::vector<float> vECAL_tracksDz_max_[3];
+std::vector<float> vECAL_tracksPt_[Nproj];
+std::vector<float> vECAL_tracksQPt_[Nproj];
+std::vector<float> vECAL_tracksD0_[Nproj];
+std::vector<float> vECAL_tracksDz_[Nproj];
+std::vector<float> vECAL_tracks_[Nproj];
+std::vector<float> vECAL_tracksPt_max_[Nproj];
+std::vector<float> vECAL_tracksD0_max_[Nproj];
+std::vector<float> vECAL_tracksDz_max_[Nproj];
 // //at ECAL
 // std::vector<float> vECAL_tracksPt_atECAL_;
 // std::vector<float> vECAL_tracksQPt_atECAL_;
@@ -117,7 +117,7 @@ void RecHitAnalyzer::branchesTracksAtECALstitched ( TTree* tree, edm::Service<TF
       5*(HBHE_IETA_MAX_HE-1-HBHE_IETA_MAX_EB), eta_bins_EEp );
 
   
-  for (unsigned int proj=0; proj<3; proj++)
+  for (unsigned int proj=0; proj<Nproj; proj++)
   {
     // Branches for images
     tree->Branch((std::string("ECAL_tracks")+projections[proj]).c_str(),      &(vECAL_tracks_[proj]));
@@ -205,7 +205,7 @@ void fillTracksAtECAL_with_EEproj ( int side, int ieta_global_offset, int ieta_s
 } // fillTracksAtECAL_with_EEproj
 
 // Fill stitched EE-, EB, EE+ rechits ________________________________________________________//
-void RecHitAnalyzer::fillTracksAtECALstitched ( const edm::Event& iEvent, const edm::EventSetup& iSetup, int proj ) {
+void RecHitAnalyzer::fillTracksAtECALstitched ( const edm::Event& iEvent, const edm::EventSetup& iSetup, unsigned int proj ) {
 
   int iphi_, ieta_, iz_, idx_;
   int ieta_global, ieta_signed;

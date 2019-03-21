@@ -18,6 +18,7 @@ fevt = cms.EDAnalyzer('RecHitAnalyzer'
     #, genJetCollection = cms.InputTag('ak4GenJets')
     , trackRecHitCollection = cms.InputTag('generalTracks')
     , trackCollection = cms.InputTag("generalTracks")
+    , pvCollection = cms.InputTag("offlinePrimaryVerticesWithBS")
     , pfCollection = cms.InputTag("particleFlow")
     , mode = cms.string("JetLevel")
 

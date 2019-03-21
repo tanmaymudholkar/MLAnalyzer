@@ -54,6 +54,7 @@
 #include "TStyle.h"
 #include "TMath.h"
 #include "TLorentzVector.h"
+#include "TVector3.h"
 
 #include "DataFormats/SiStripDetId/interface/TOBDetId.h"
 #include "DataFormats/SiStripDetId/interface/TECDetId.h"
@@ -93,6 +94,9 @@
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "Calibration/IsolatedParticles/interface/CaloPropagateTrack.h"
+
+#include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
 //
 // class declaration
 //
@@ -129,6 +133,7 @@ class RecHitAnalyzer : public edm::EDAnalyzer  {
     edm::InputTag genJetCollectionT_;
     edm::InputTag trackCollectionT_;
     edm::InputTag pfCandCollectionT_;
+    edm::InputTag pvCollectionT_;
 
     edm::InputTag siPixelRecHitCollectionT_;
     std::vector<edm::InputTag> siStripRecHitCollectionT_;
@@ -174,10 +179,10 @@ class RecHitAnalyzer : public edm::EDAnalyzer  {
     void fillECALstitched   ( const edm::Event&, const edm::EventSetup& );
     void fillHCALatEBEE     ( const edm::Event&, const edm::EventSetup& );
     void fillTracksAtEBEE   ( const edm::Event&, const edm::EventSetup& );
-    void fillTracksAtECALstitched   ( const edm::Event&, const edm::EventSetup&, int proj );
+    void fillTracksAtECALstitched   ( const edm::Event&, const edm::EventSetup&, unsigned int proj );
     void fillPFCandsAtECALstitched   ( const edm::Event&, const edm::EventSetup& );
     void fillTRKlayersAtEBEE( const edm::Event&, const edm::EventSetup& );
-    void fillTRKlayersAtECALstitched( const edm::Event&, const edm::EventSetup& );
+    void fillTRKlayersAtECALstitched( const edm::Event&, const edm::EventSetup&, unsigned int proj );
     //void fillTRKvolumeAtEBEE( const edm::Event&, const edm::EventSetup& );
     //void fillTRKvolumeAtECAL( const edm::Event&, const edm::EventSetup& );
 
@@ -271,7 +276,10 @@ static const int runTotal[3] = {14907, 22323, 20195}; //57425
 //static const int runTotal[3] = {21200, 31899, 28868}; //63052+18915
 //static const int runTotal[3] = {35141, 47885, 52576}; //135602
 
-static const std::string projections[3] = {"", "_atECAL", "_atHCAL"}; //57425
+static const unsigned int Nproj = 3;
+static const unsigned int Nhitproj = 2;
+static const std::string projections[Nproj] = {"", "_atECAL", "_atHCAL"}; //57425
+static const std::string hit_projections[Nhitproj] = {"", "_atPV"};
 
 //
 // static data member definitions
