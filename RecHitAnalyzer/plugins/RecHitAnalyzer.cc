@@ -62,6 +62,12 @@ RecHitAnalyzer::RecHitAnalyzer(const edm::ParameterSet& iConfig)
   edm::Service<TFileService> fs;
   h_sel = fs->make<TH1F>("h_sel", "isSelected;isSelected;Events", 2, 0., 2.);
 
+  granularityMultiPhi[0]  = iConfig.getParameter<int>("granularityMultiPhi");
+  granularityMultiEta[0]  = iConfig.getParameter<int>("granularityMultiEta");
+
+  granularityMultiPhi[1] = 3;
+  granularityMultiEta[1] = 3;
+
   //////////// TTree //////////
 
   // These will be use to create the actual images
@@ -86,6 +92,8 @@ RecHitAnalyzer::RecHitAnalyzer(const edm::ParameterSet& iConfig)
   branchesTRKlayersAtECALstitched(RHTree, fs);
   //branchesTRKvolumeAtEBEE(RHTree, fs);
   //branchesTRKvolumeAtECAL(RHTree, fs);
+  branchesTracksAtECALadjustable( RHTree, fs);
+  branchesTRKlayersAtECALadjustable(RHTree, fs);
 
   // For FC inputs
   //RHTree->Branch("FC_inputs",      &vFC_inputs_);
@@ -157,6 +165,11 @@ RecHitAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   for (unsigned int i=0;i<Nhitproj;i++)
   {
     fillTRKlayersAtECALstitched( iEvent, iSetup, i );
+  }
+  for (unsigned int i=0;i<Nadjproj;i++)
+  {
+    fillTracksAtECALadjustable( iEvent, iSetup, i );
+    fillTRKlayersAtECALadjustable( iEvent, iSetup, i );
   }
   fillPFCandsAtECALstitched( iEvent, iSetup );
   fillTRKlayersAtEBEE( iEvent, iSetup );

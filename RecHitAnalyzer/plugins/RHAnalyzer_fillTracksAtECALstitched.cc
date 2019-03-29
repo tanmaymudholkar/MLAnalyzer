@@ -1,5 +1,5 @@
 #include "MLAnalyzer/RecHitAnalyzer/interface/RecHitAnalyzer.h"
-#include "Calibration/IsolatedParticles/interface/DetIdFromEtaPhi.h"
+//#include "Calibration/IsolatedParticles/interface/DetIdFromEtaPhi.h"
 
 // Fill stitched EEm_EB_EEp image /////////////////////............/
 // Store all ECAL event rechits into a stitched EEm_EB_EEp image 
@@ -246,12 +246,41 @@ void RecHitAnalyzer::fillTracksAtECALstitched ( const edm::Event& iEvent, const 
   edm::Handle<reco::TrackCollection> tracksH_;
   iEvent.getByLabel( trackCollectionT_, tracksH_ );
 
+  bool isPVgood=false;
+  edm::Handle<reco::VertexCollection> pvColl;
+  iEvent.getByLabel(pvCollectionT_, pvColl);
+  isPVgood = pvColl.product()->size()>0;
+  reco::Vertex the_PV;
+  if (isPVgood) the_PV = pvColl.product()->at(0);
+
+
   reco::Track::TrackQuality tkQt_ = reco::Track::qualityByName("highPurity");
 
   int bin;
   for ( reco::TrackCollection::const_iterator iTk = tracksH_->begin();
         iTk != tracksH_->end(); ++iTk ) {
+
+    if(iTk->pt()<=0.5)continue; 
+    if(iTk->charge()==0) continue;// NO neutral objects
     if ( !(iTk->quality(tkQt_)) ) continue;
+
+    if (proj==4)
+    {
+      bool pv_match=false;
+      for ( reco::Vertex::trackRef_iterator iTkPV = the_PV.tracks_begin();
+            iTkPV != the_PV.tracks_end(); ++iTkPV ) {
+        if (fabs(iTk->pt()-iTkPV->get()->pt())<0.001 &&
+            fabs(iTk->eta()-iTkPV->get()->eta())<0.001 &&
+            fabs(iTk->phi()-iTkPV->get()->phi())<0.001)
+        {
+          pv_match=true;
+          break;
+        }
+      }
+      if (!pv_match)continue;
+    }    
+
+
     bool isPropagationOk=false;
     eta = 0.;
     phi = 0.;
@@ -265,7 +294,7 @@ void RecHitAnalyzer::fillTracksAtECALstitched ( const edm::Event& iEvent, const 
       }
       break;
 
-      case 1:
+      case 1: case 3: case 4:
       {
         auto propagatedECALTrack = spr::propagateTrackToECAL(&*iTk, magfield.product());
         isPropagationOk=propagatedECALTrack.ok;
@@ -301,21 +330,36 @@ void RecHitAnalyzer::fillTracksAtECALstitched ( const edm::Event& iEvent, const 
     if ( id.subdetId() == EcalBarrel ) continue;
     if ( id.subdetId() == EcalEndcap ) {
       iz_ = (eta > 0.) ? 1 : 0;
+      switch(proj)
+      {
+        case 0: case 1: case 2:
+        {
+          trackD0_ = iTk->d0();
+          trackDz_ = iTk->dz();
+          break;
+        }
+        case 3: case 4: default:
+        {
+          trackD0_ = -iTk->dxy(the_PV.position());
+          trackDz_ = iTk->dz(the_PV.position());
+          break;
+        }
+      }
       // Fill intermediate helper histogram by eta,phi
       hEvt_EE_tracks[iz_]->Fill( phi, eta );
       hEvt_EE_tracksPt[iz_]->Fill( phi, eta, iTk->pt() );
       hEvt_EE_tracksQPt[iz_]->Fill( phi, eta, iTk->pt()*iTk->charge() );
-      hEvt_EE_tracksD0[iz_]->Fill( phi, eta, iTk->d0() );
-      hEvt_EE_tracksDz[iz_]->Fill( phi, eta, iTk->dz() );
+      hEvt_EE_tracksD0[iz_]->Fill( phi, eta, trackD0_ );
+      hEvt_EE_tracksDz[iz_]->Fill( phi, eta, trackDz_ );
       bin = hEvt_EE_tracks[iz_]->FindBin( phi, eta );
       if ( iTk->pt() > hEvt_EE_tracksPt_max[iz_]->GetBinContent( bin ) ) {
         hEvt_EE_tracksPt_max[iz_]->SetBinContent( bin, iTk->pt() );
-        hEvt_EE_tracksD0_max[iz_]->SetBinContent( bin, iTk->d0() );
-        hEvt_EE_tracksDz_max[iz_]->SetBinContent( bin, iTk->dz() );
+        hEvt_EE_tracksD0_max[iz_]->SetBinContent( bin, trackD0_ );
+        hEvt_EE_tracksDz_max[iz_]->SetBinContent( bin, trackDz_ );
       }
     }
   } // tracks
- 
+
   // Map EE-(phi,eta) to bottom part of ECAL(iphi,ieta)
   ieta_global_offset = 0;
   ieta_signed_offset = -ECAL_IETA_MAX_EXT;
@@ -327,6 +371,27 @@ void RecHitAnalyzer::fillTracksAtECALstitched ( const edm::Event& iEvent, const 
   for ( reco::TrackCollection::const_iterator iTk = tracksH_->begin();
         iTk != tracksH_->end(); ++iTk ) { 
     if ( !(iTk->quality(tkQt_)) ) continue;
+    if(iTk->pt()<=0.5)continue; 
+    if(iTk->charge()==0) continue;
+
+
+    if (proj==4)
+    {
+      bool pv_match=false;
+      for ( reco::Vertex::trackRef_iterator iTkPV = the_PV.tracks_begin();
+            iTkPV != the_PV.tracks_end(); ++iTkPV ) {
+        if (fabs(iTk->pt()-iTkPV->get()->pt())<0.001 &&
+            fabs(iTk->eta()-iTkPV->get()->eta())<0.001 &&
+            fabs(iTk->phi()-iTkPV->get()->phi())<0.001)
+        {
+          pv_match=true;
+          break;
+        }
+      }
+      if (!pv_match)continue;
+    }
+
+
     bool isPropagationOk=false;
     eta = 0.;
     phi = 0.;
@@ -340,7 +405,7 @@ void RecHitAnalyzer::fillTracksAtECALstitched ( const edm::Event& iEvent, const 
       }
       break;
 
-      case 1:
+      case 1: case 3: case 4:
       {
         auto propagatedECALTrack = spr::propagateTrackToECAL(&*iTk, magfield.product());
         isPropagationOk=propagatedECALTrack.ok;
@@ -375,9 +440,22 @@ void RecHitAnalyzer::fillTracksAtECALstitched ( const edm::Event& iEvent, const 
 
     trackPt_ = iTk->pt();
     trackQPt_ = iTk->pt()*iTk->charge();
-    trackD0_ = iTk->d0();
-    trackDz_ = iTk->dz();
-    //if ( std::abs(eta) > 3. ) continue;
+    switch(proj)
+    {
+      case 0: case 1: case 2:
+      {
+        trackD0_ = iTk->d0();
+        trackDz_ = iTk->dz();
+        break;
+      }
+      case 3: case 4: default:
+      {
+        trackD0_ = -iTk->dxy(the_PV.position());
+        trackDz_ = iTk->dz(the_PV.position());
+        break;
+      }
+    }
+    
     DetId id( spr::findDetIdECAL( caloGeom, eta, phi, false ) );
     if ( id.subdetId() == EcalEndcap ) continue;
     if ( id.subdetId() == EcalBarrel ) { 

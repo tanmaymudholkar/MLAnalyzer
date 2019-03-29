@@ -35,4 +35,8 @@ fevt = cms.EDAnalyzer('RecHitAnalyzer'
     , minJetPt = cms.double(400.)
     , maxJetEta = cms.double(2.4)
     , isTTbar = cms.bool(True)
+
+    #granularity multiplier wrt ECAL maps for tracker and tracking RH images
+    , granularityMultiPhi = cms.int32(5)
+    , granularityMultiEta = cms.int32(5)
     )

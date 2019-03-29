@@ -15,6 +15,8 @@
 // system include files
 #include <memory>
 #include <vector>
+#include <numeric>  
+#include <algorithm> 
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -29,6 +31,7 @@
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
+#include "Calibration/IsolatedParticles/interface/DetIdFromEtaPhi.h"
 
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 //#include "DataFormats/HcalDetId/interface/HcalDetId.h"
@@ -55,6 +58,7 @@
 #include "TMath.h"
 #include "TLorentzVector.h"
 #include "TVector3.h"
+#include "TVector2.h"
 
 #include "DataFormats/SiStripDetId/interface/TOBDetId.h"
 #include "DataFormats/SiStripDetId/interface/TECDetId.h"
@@ -167,6 +171,8 @@ class RecHitAnalyzer : public edm::EDAnalyzer  {
     void branchesPFCandsAtECALstitched   ( TTree*, edm::Service<TFileService>& );
     void branchesTRKlayersAtEBEE( TTree*, edm::Service<TFileService>& );
     void branchesTRKlayersAtECALstitched( TTree*, edm::Service<TFileService>& );
+    void branchesTracksAtECALadjustable   ( TTree*, edm::Service<TFileService>& );
+    void branchesTRKlayersAtECALadjustable( TTree*, edm::Service<TFileService>& );
     //void branchesTRKvolumeAtEBEE( TTree*, edm::Service<TFileService>& );
     //void branchesTRKvolumeAtECAL( TTree*, edm::Service<TFileService>& );
 
@@ -183,6 +189,8 @@ class RecHitAnalyzer : public edm::EDAnalyzer  {
     void fillPFCandsAtECALstitched   ( const edm::Event&, const edm::EventSetup& );
     void fillTRKlayersAtEBEE( const edm::Event&, const edm::EventSetup& );
     void fillTRKlayersAtECALstitched( const edm::Event&, const edm::EventSetup&, unsigned int proj );
+    void fillTracksAtECALadjustable   ( const edm::Event&, const edm::EventSetup&, unsigned int proj );
+    void fillTRKlayersAtECALadjustable( const edm::Event&, const edm::EventSetup&, unsigned int proj );
     //void fillTRKvolumeAtEBEE( const edm::Event&, const edm::EventSetup& );
     //void fillTRKvolumeAtECAL( const edm::Event&, const edm::EventSetup& );
 
@@ -196,6 +204,8 @@ class RecHitAnalyzer : public edm::EDAnalyzer  {
     void fillEvtSel_jet_dijet      ( const edm::Event&, const edm::EventSetup& );
     void fillEvtSel_jet_dijet_gg_qq( const edm::Event&, const edm::EventSetup& );
 
+    std::vector<int> findSubcrystal(const CaloGeometry* caloGeom, const float& eta, const float& phi, const int& granularityMultiEta, const int& granularityMultiPhi);
+
     // Jet level functions
     std::string mode_;  // EventLevel / JetLevel
     bool doJets_;
@@ -204,6 +214,16 @@ class RecHitAnalyzer : public edm::EDAnalyzer  {
     double maxJetEta_;
     bool isTTbar_;
     std::vector<int> vJetIdxs;
+
+
+
+unsigned int granularityMultiPhi[Nadjproj];
+unsigned int granularityMultiEta[Nadjproj];
+const int granularityMultiECAL=5;
+// std::vector<double> adjEtaBins[Nadjproj];
+// std::vector<double> adjPhiBins[Nadjproj];
+int totalEtaBins[Nadjproj];// = totalMultiEta*(eta_nbins_HBHE);
+int totalPhiBins[Nadjproj];// = granularityMultiPhi * granularityMultiECAL*HBHE_IPHI_NUM;
 
 }; // class RecHitAnalyzer
 
@@ -263,6 +283,13 @@ static const double eta_bins_EEp[5*(HBHE_IETA_MAX_HE-1-HBHE_IETA_MAX_EB)+1] =
                     2.172 ,  2.202 ,  2.232 ,  2.262 ,  2.292 ,  2.322 ,  2.3576,
                     2.3932,  2.4288,  2.4644,  2.5   ,  2.53  ,  2.56  ,  2.59  ,
                     2.62  ,  2.65  ,  2.72  ,  2.79  ,  2.86  ,  2.93  ,  3.    }; // 56
+
+static const double eta_bins_HBHE[2*(HBHE_IETA_MAX_HE-1)+1] =
+                  {-3.000, -2.650, -2.500, -2.322, -2.172, -2.043, -1.930, -1.830, -1.740, -1.653, -1.566, -1.479, -1.392, -1.305,
+                   -1.218, -1.131, -1.044, -0.957, -0.870, -0.783, -0.695, -0.609, -0.522, -0.435, -0.348, -0.261, -0.174, -0.087, 0.000,
+                    0.087,  0.174,  0.261,  0.348,  0.435,  0.522,  0.609,  0.695,  0.783,  0.870,  0.957,  1.044,  1.131,  1.218,
+                    1.305,  1.392,  1.479,  1.566,  1.653,  1.740,  1.830,  1.930,  2.043,  2.172,  2.322,  2.500,  2.650,  3.000}; // 57
+
 // MGG80, pt/m0 cut
 static const int runTotal[3] = {14907, 22323, 20195}; //57425
 // MGG80
@@ -276,10 +303,14 @@ static const int runTotal[3] = {14907, 22323, 20195}; //57425
 //static const int runTotal[3] = {21200, 31899, 28868}; //63052+18915
 //static const int runTotal[3] = {35141, 47885, 52576}; //135602
 
-static const unsigned int Nproj = 3;
+static const unsigned int Nproj = 5;
 static const unsigned int Nhitproj = 2;
-static const std::string projections[Nproj] = {"", "_atECAL", "_atHCAL"}; //57425
+static const unsigned int Nadjproj = 2;
+static const std::string projections[Nproj] = {"", "_atECAL", "_atHCAL","_atECALfixIP","_atECALfixIPfromPV"}; //57425
 static const std::string hit_projections[Nhitproj] = {"", "_atPV"};
+static const std::string adj_projections[Nadjproj] = {"_5x5", "_3x3"};
+
+
 
 //
 // static data member definitions
