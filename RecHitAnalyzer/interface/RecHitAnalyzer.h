@@ -205,6 +205,10 @@ class RecHitAnalyzer : public edm::EDAnalyzer  {
     void fillEvtSel_jet_dijet_gg_qq( const edm::Event&, const edm::EventSetup& );
 
     std::vector<int> findSubcrystal(const CaloGeometry* caloGeom, const float& eta, const float& phi, const int& granularityMultiEta, const int& granularityMultiPhi);
+    void fillByBinNumber(TH2F * histo, const std::vector<int>& phi_eta, const float& value);
+    void fillTRKlayerHelper (int layer_, unsigned int proj, TH2F *hSUBDET_ECAL[][Nadjproj], TH2F *hEvt_Adj_SUBDET[][Nadjproj], const CaloGeometry* caloGeom, const float& eta, const float& phi);
+    unsigned int getLayer(const DetId& detid);
+{
 
     // Jet level functions
     std::string mode_;  // EventLevel / JetLevel

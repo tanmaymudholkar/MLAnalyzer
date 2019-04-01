@@ -255,58 +255,6 @@ void fillHelperAtEE ( float phi_, float eta_, int layer_, TH2F *hEvt_EE_SUBDET[]
 }
 
 
-unsigned int getLayer(const DetId& detid)
-{
-
-  unsigned int subid=detid.subdetId();
-
-          switch(subid)
-          {
-            case 1://BPIX
-            {
-              PXBDetId pdetId = PXBDetId(detid);
-              return pdetId.layer();
-            }
-
-            case 2://FPIX
-            {
-              PXFDetId pdetId = PXFDetId(detid.rawId());
-              return pdetId.disk();
-            }
-
-            case 3://TIB
-            {
-              TIBDetId pdetId = TIBDetId(detid);
-              return pdetId.layer();
-            }
-            break;
-
-            case 4://TID
-            {
-              TIDDetId pdetId = TIDDetId(detid);
-              return pdetId.wheel();
-            }
-            break;
-
-            case 5://TOB
-            {
-              TOBDetId pdetId = TOBDetId(detid);
-              return pdetId.layer();
-            }
-            break;
-
-            case 6://TEC
-            {
-              TECDetId pdetId = TECDetId(detid);
-              return pdetId.wheel();
-            }
-            break;
-          }
-          return 999;
-
-}
-
-
 // Fill TRK rechits at ECAL stitched ______________________________________________________________//
 void RecHitAnalyzer::fillTRKlayersAtECALstitched ( const edm::Event& iEvent, const edm::EventSetup& iSetup, unsigned int proj ) {
 
