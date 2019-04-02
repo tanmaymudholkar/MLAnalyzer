@@ -111,6 +111,11 @@
 // constructor "usesResource("TFileService");"
 // This will improve performance in multithreaded jobs.
 
+static const unsigned int Nproj = 5;
+static const unsigned int Nhitproj = 2;
+static const unsigned int Nadjproj = 2;
+
+
 //class RecHitAnalyzer : public edm::one::EDAnalyzer<edm::one::SharedResources>  {
 class RecHitAnalyzer : public edm::EDAnalyzer  {
   public:
@@ -208,7 +213,7 @@ class RecHitAnalyzer : public edm::EDAnalyzer  {
     void fillByBinNumber(TH2F * histo, const std::vector<int>& phi_eta, const float& value);
     void fillTRKlayerHelper (int layer_, unsigned int proj, TH2F *hSUBDET_ECAL[][Nadjproj], TH2F *hEvt_Adj_SUBDET[][Nadjproj], const CaloGeometry* caloGeom, const float& eta, const float& phi);
     unsigned int getLayer(const DetId& detid);
-{
+
 
     // Jet level functions
     std::string mode_;  // EventLevel / JetLevel
@@ -223,11 +228,13 @@ class RecHitAnalyzer : public edm::EDAnalyzer  {
 
 unsigned int granularityMultiPhi[Nadjproj];
 unsigned int granularityMultiEta[Nadjproj];
-const int granularityMultiECAL=5;
+
 // std::vector<double> adjEtaBins[Nadjproj];
 // std::vector<double> adjPhiBins[Nadjproj];
 int totalEtaBins[Nadjproj];// = totalMultiEta*(eta_nbins_HBHE);
 int totalPhiBins[Nadjproj];// = granularityMultiPhi * granularityMultiECAL*HBHE_IPHI_NUM;
+std::vector<double> adjEtaBins[Nadjproj];
+//std::vector<double> adjPhiBins[Nadjproj];
 
 }; // class RecHitAnalyzer
 
@@ -307,14 +314,12 @@ static const int runTotal[3] = {14907, 22323, 20195}; //57425
 //static const int runTotal[3] = {21200, 31899, 28868}; //63052+18915
 //static const int runTotal[3] = {35141, 47885, 52576}; //135602
 
-static const unsigned int Nproj = 5;
-static const unsigned int Nhitproj = 2;
-static const unsigned int Nadjproj = 2;
+
 static const std::string projections[Nproj] = {"", "_atECAL", "_atHCAL","_atECALfixIP","_atECALfixIPfromPV"}; //57425
 static const std::string hit_projections[Nhitproj] = {"", "_atPV"};
 static const std::string adj_projections[Nadjproj] = {"_5x5", "_3x3"};
-
-
+static const int eta_nbins_HBHE = 2*(HBHE_IETA_MAX_HE-1);
+static const int granularityMultiECAL=5;
 
 //
 // static data member definitions

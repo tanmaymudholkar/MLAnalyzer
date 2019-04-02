@@ -62,11 +62,34 @@ RecHitAnalyzer::RecHitAnalyzer(const edm::ParameterSet& iConfig)
   edm::Service<TFileService> fs;
   h_sel = fs->make<TH1F>("h_sel", "isSelected;isSelected;Events", 2, 0., 2.);
 
+
+  ///////////adjustable granularity stuff
+
   granularityMultiPhi[0]  = iConfig.getParameter<int>("granularityMultiPhi");
   granularityMultiEta[0]  = iConfig.getParameter<int>("granularityMultiEta");
 
   granularityMultiPhi[1] = 3;
   granularityMultiEta[1] = 3;
+
+  for (unsigned int proj=0; proj<Nadjproj; proj++)
+  {
+  
+    int totalMultiEta = granularityMultiEta[proj] * granularityMultiECAL;
+
+    for (int i=0; i<eta_nbins_HBHE; i++)
+    {
+      double step=(eta_bins_HBHE[i+1]-eta_bins_HBHE[i])/totalMultiEta;
+      for (int j=0; j<totalMultiEta; j++)
+      {
+        adjEtaBins[proj].push_back(eta_bins_HBHE[i]+step*j);
+      }
+    }
+    adjEtaBins[proj].push_back(eta_bins_HBHE[eta_nbins_HBHE]);
+
+    totalEtaBins[proj] = totalMultiEta*(eta_nbins_HBHE);
+    totalPhiBins[proj] = granularityMultiPhi[proj] * granularityMultiECAL*HBHE_IPHI_NUM;
+
+  }
 
   //////////// TTree //////////
 

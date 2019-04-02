@@ -57,68 +57,68 @@ void RecHitAnalyzer::branchesTracksAtECALadjustable ( TTree* tree, edm::Service<
     tree->Branch((std::string("ECALadj_tracksD0_maxPt")+adj_projections[proj]).c_str(),    &(vECALadj_tracksD0_max_[proj]));
     tree->Branch((std::string("ECALadj_tracksDz_maxPt")+adj_projections[proj]).c_str(),    &(vECALadj_tracksDz_max_[proj]));
 
-    std::vector<double> adjEtaBins;
-    std::vector<double> adjPhiBins;
+    // std::vector<double> adjEtaBins;
+    // std::vector<double> adjPhiBins;
 
-    int eta_nbins_HBHE = 2*(hcaldqm::constants::IETA_MAX_HE-1);
-    int totalMultiEta[proj] = granularityMultiEta[proj] * granularityMultiECAL[proj];
+    // //int eta_nbins_HBHE = 2*(hcaldqm::constants::IETA_MAX_HE-1);
+    // int totalMultiEta[proj] = granularityMultiEta[proj] * granularityMultiECAL[proj];
 
-    for (int i=0; i<eta_nbins_HBHE; i++)
-    {
-      double step=(eta_bins_HBHE[i+1]-eta_bins_HBHE[i])/totalMultiEta[proj];
-      for (int j=0; j<totalMultiEta; j++)
-      {
-        adjEtaBins.push_back(eta_bins_HBHE[i]+step*j);
-      }
-    }
-    adjEtaBins.push_back(eta_bins_HBHE[eta_nbins_HBHE]);
+    // for (int i=0; i<eta_nbins_HBHE; i++)
+    // {
+    //   double step=(eta_bins_HBHE[i+1]-eta_bins_HBHE[i])/totalMultiEta[proj];
+    //   for (int j=0; j<totalMultiEta; j++)
+    //   {
+    //     adjEtaBins.push_back(eta_bins_HBHE[i]+step*j);
+    //   }
+    // }
+    // adjEtaBins.push_back(eta_bins_HBHE[eta_nbins_HBHE]);
 
-    totalEtaBins = totalMultiEta*(eta_nbins_HBHE);
-    totalPhiBins = granularityMultiPhi * granularityMultiECAL*HBHE_IPHI_NUM;
+    // totalEtaBins = totalMultiEta*(eta_nbins_HBHE);
+    // totalPhiBins = granularityMultiPhi * granularityMultiECAL*HBHE_IPHI_NUM;
 
 
     // Histograms for monitoring
     hECALadj_tracks[proj] = fs->make<TH2F>((std::string("ECALadj_tracks")+adj_projections[proj]).c_str(), "E(#phi,#eta);#phi;#eta",
-        totalPhiBins, -TMath::Pi(), TMath::Pi(),
-        adjEtaBins.size()-1, &adjEtaBins[0] );
+        totalPhiBins[proj], -TMath::Pi(), TMath::Pi(),
+        adjEtaBins[proj].size()-1, &adjEtaBins[proj][0] );
     hECALadj_tracksPt[proj] = fs->make<TH2F>((std::string("ECALadj_tracksPt")+adj_projections[proj]).c_str(), "E(#phi,#eta);#phi;#eta",
-        totalPhiBins, -TMath::Pi(), TMath::Pi(),
-        adjEtaBins.size()-1, &adjEtaBins[0] );
+        totalPhiBins[proj], -TMath::Pi(), TMath::Pi(),
+        adjEtaBins[proj].size()-1, &adjEtaBins[proj][0] );
     hECALadj_tracksQPt[proj] = fs->make<TH2F>((std::string("ECALadj_tracksQPt")+adj_projections[proj]).c_str(), "E(#phi,#eta);#phi;#eta",
-        totalPhiBins, -TMath::Pi(), TMath::Pi(),
-        adjEtaBins.size()-1, &adjEtaBins[0] );
+        totalPhiBins[proj], -TMath::Pi(), TMath::Pi(),
+        adjEtaBins[proj].size()-1, &adjEtaBins[proj][0] );
     hECALadj_tracksD0[proj] = fs->make<TH2F>((std::string("ECALadj_tracksD0")+adj_projections[proj]).c_str(), "E(#phi,#eta);#phi;#eta",
-        totalPhiBins, -TMath::Pi(), TMath::Pi(),
-        adjEtaBins.size()-1, &adjEtaBins[0] );
+        totalPhiBins[proj], -TMath::Pi(), TMath::Pi(),
+        adjEtaBins[proj].size()-1, &adjEtaBins[proj][0] );
     hECALadj_tracksDz[proj] = fs->make<TH2F>((std::string("ECALadj_tracksDz")+adj_projections[proj]).c_str(), "E(#phi,#eta);#phi;#eta",
-        totalPhiBins, -TMath::Pi(), TMath::Pi(),
-        adjEtaBins.size()-1, &adjEtaBins[0] );
+        totalPhiBins[proj], -TMath::Pi(), TMath::Pi(),
+        adjEtaBins[proj].size()-1, &adjEtaBins[proj][0] );
 
 
     hEvt_Adj_tracks[proj] = new TH2F((std::string("evt_Adj_tracks")+adj_projections[proj]).c_str(), "E(#phi,#eta);#phi;#eta",
-        totalPhiBins, -TMath::Pi(), TMath::Pi(),
-        adjEtaBins.size()-1, &adjEtaBins[0] );
+        totalPhiBins[proj], -TMath::Pi(), TMath::Pi(),
+        adjEtaBins[proj].size()-1, &adjEtaBins[proj][0] );
     hEvt_Adj_tracksPt[proj] = new TH2F((std::string("evt_Adj_tracksPt")+adj_projections[proj]).c_str(), "E(#phi,#eta);#phi;#eta",
-        totalPhiBins, -TMath::Pi(), TMath::Pi(),
-        adjEtaBins.size()-1, &adjEtaBins[0] );
+        totalPhiBins[proj], -TMath::Pi(), TMath::Pi(),
+        adjEtaBins[proj].size()-1, &adjEtaBins[proj][0] );
     hEvt_Adj_tracksQPt[proj] = new TH2F((std::string("evt_Adj_tracksQPt")+adj_projections[proj]).c_str(), "E(#phi,#eta);#phi;#eta",
-        totalPhiBins, -TMath::Pi(), TMath::Pi(),
-        adjEtaBins.size()-1, &adjEtaBins[0] );
+        totalPhiBins[proj], -TMath::Pi(), TMath::Pi(),
+        adjEtaBins[proj].size()-1, &adjEtaBins[proj][0] );
     hEvt_Adj_tracksD0[proj] = new TH2F((std::string("evt_Adj_tracksD0")+adj_projections[proj]).c_str(), "E(#phi,#eta);#phi;#eta",
-        totalPhiBins, -TMath::Pi(), TMath::Pi(),
-        adjEtaBins.size()-1, &adjEtaBins[0] );
+        totalPhiBins[proj], -TMath::Pi(), TMath::Pi(),
+        adjEtaBins[proj].size()-1, &adjEtaBins[proj][0] );
     hEvt_Adj_tracksDz[proj] = new TH2F((std::string("evt_Adj_tracksDz")+adj_projections[proj]).c_str(), "E(#phi,#eta);#phi;#eta",
-        totalPhiBins, -TMath::Pi(), TMath::Pi(),
-        adjEtaBins.size()-1, &adjEtaBins[0] );
+        totalPhiBins[proj], -TMath::Pi(), TMath::Pi(),
+        adjEtaBins[proj].size()-1, &adjEtaBins[proj][0] );
     hEvt_Adj_tracksPt_max[proj] = new TH2F((std::string("evt_Adj_tracksPt_max")+adj_projections[proj]).c_str(), "E(#phi,#eta);#phi;#eta",
-        totalPhiBins, -TMath::Pi(), TMath::Pi(),
-        adjEtaBins.size()-1, &adjEtaBins[0] );
+        totalPhiBins[proj], -TMath::Pi(), TMath::Pi(),
+        adjEtaBins[proj].size()-1, &adjEtaBins[proj][0] );
     hEvt_Adj_tracksD0_max[proj] = new TH2F((std::string("evt_Adj_tracksD0_max")+adj_projections[proj]).c_str(), "E(#phi,#eta);#phi;#eta",
-        totalPhiBins, -TMath::Pi(), TMath::Pi(),
-        adjEtaBins.size()-1, &adjEtaBins[0] );
+        totalPhiBins[proj], -TMath::Pi(), TMath::Pi(),
+        adjEtaBins[proj].size()-1, &adjEtaBins[proj][0] );
     hEvt_Adj_tracksDz_max[proj] = new TH2F((std::string("evt_Adj_tracksDz_max")+adj_projections[proj]).c_str(), "E(#phi,#eta);#phi;#eta",
-        totalPhiBins, -TMath::Pi(), TMath::Pi(),
-        adjEtaBins.size()-1, &adjEtaBins[0] );
+        totalPhiBins[proj], -TMath::Pi(), TMath::Pi(),
+        adjEtaBins[proj].size()-1, &adjEtaBins[proj][0] );
 
 
   }
@@ -129,19 +129,26 @@ std::vector<int> RecHitAnalyzer::findSubcrystal(const CaloGeometry* caloGeom, co
 {
 
     DetId id( spr::findDetIdECAL( caloGeom, eta, phi, false ) );
+    std::vector<int> return_vector;
     if ( id.subdetId() == EcalBarrel )
     { 
       auto subDetGeometry = caloGeom->getSubdetectorGeometry(id);
       auto caloCellGeometry = subDetGeometry->getGeometry(id);
-      auto corners = caloCellGeometry->getCornersREP();
+      auto cornersXYZ = caloCellGeometry->getCorners();
+      std::vector<TVector3> corners;
+      for (int i=0; i<5; i++)
+      {
+        TVector3 corner(cornersXYZ[i].x(),cornersXYZ[i].y(),cornersXYZ[i].z());
+        corners.push_back(corner);
+      }
       //float kappa= 4*TMath::Pi()/HBHE_IPHI_NUM;
       // if (phi>-kappa)
       //   phi=phi+kappa-TMath::Pi();
       // else  
       //   phi=phi+kappa+TMath::Pi();
 
-      std::vector<float> eta_corners = {corners[0].eta(),corners[1].eta(),corners[2].eta(),corners[3].eta()};
-      std::vector<float> phi_corners = {corners[0].phi(),corners[1].phi(),corners[2].phi(),corners[3].phi()};
+      std::vector<float> eta_corners = {(float)corners[0].Eta(),(float)corners[1].Eta(),(float)corners[2].Eta(),(float)corners[3].Eta()};
+      std::vector<float> phi_corners = {(float)corners[0].Phi(),(float)corners[1].Phi(),(float)corners[2].Phi(),(float)corners[3].Phi()};
 
       auto lowEta_lowPhi_index = 4;
       auto highEta_lowPhi_index = 4;
@@ -178,17 +185,17 @@ std::vector<int> RecHitAnalyzer::findSubcrystal(const CaloGeometry* caloGeom, co
       //     lowEta_highPhi_index ==4 ||
       //     highEta_highPhi_index==4 ) std::cout<<"something went wrong\n";
 
-      TVector2 lowEta_lowPhi_corner(corners[lowEta_lowPhi_index].eta(),corners[lowEta_lowPhi_index].phi());
-      TVector2 highEta_lowPhi_corner(corners[highEta_lowPhi_index].eta(),corners[highEta_lowPhi_index].phi());
-      TVector2 lowEta_highPhi_corner(corners[lowEta_highPhi_index].eta(),corners[lowEta_highPhi_index].phi());
-      TVector2 highEta_highPhi_corner(corners[highEta_highPhi_index].eta(),corners[highEta_highPhi_index].phi());
+      TVector2 lowEta_lowPhi_corner(corners[lowEta_lowPhi_index].Eta(),corners[lowEta_lowPhi_index].Phi());
+      TVector2 highEta_lowPhi_corner(corners[highEta_lowPhi_index].Eta(),corners[highEta_lowPhi_index].Phi());
+      TVector2 lowEta_highPhi_corner(corners[lowEta_highPhi_index].Eta(),corners[lowEta_highPhi_index].Phi());
+      TVector2 highEta_highPhi_corner(corners[highEta_highPhi_index].Eta(),corners[highEta_highPhi_index].Phi());
 
       float subcrystal_eta_edges[granularityMultiEta+1][granularityMultiPhi+1];
       float subcrystal_phi_edges[granularityMultiEta+1][granularityMultiPhi+1];
 
-      for (unsigned int etaIndex=0; etaIndex<granularityMultiEta+1; etaIndex++)
+      for (int etaIndex=0; etaIndex<granularityMultiEta+1; etaIndex++)
       {
-        for (unsigned int phiIndex=0; phiIndex<granularityMultiPhi+1; phiIndex++)
+        for (int phiIndex=0; phiIndex<granularityMultiPhi+1; phiIndex++)
         {
            TVector2 aveEta_lowPhi_corner (((granularityMultiEta-etaIndex)*lowEta_lowPhi_corner   + etaIndex*highEta_lowPhi_corner)/granularityMultiEta);
            TVector2 aveEta_highPhi_corner(((granularityMultiEta-etaIndex)*lowEta_highPhi_corner  + etaIndex*highEta_highPhi_corner)/granularityMultiEta);
@@ -201,9 +208,9 @@ std::vector<int> RecHitAnalyzer::findSubcrystal(const CaloGeometry* caloGeom, co
       float subcrystal_eta_centers[granularityMultiEta][granularityMultiPhi];
       float subcrystal_phi_centers[granularityMultiEta][granularityMultiPhi];
 
-      for (unsigned int etaIndex=0; etaIndex<granularityMultiEta; etaIndex++)
+      for (int etaIndex=0; etaIndex<granularityMultiEta; etaIndex++)
       {
-        for (unsigned int phiIndex=0; phiIndex<granularityMultiPhi; phiIndex++)
+        for (int phiIndex=0; phiIndex<granularityMultiPhi; phiIndex++)
         {
           float centerEta = (subcrystal_eta_edges[etaIndex][phiIndex]+
                              subcrystal_eta_edges[etaIndex+1][phiIndex+1]+
@@ -224,9 +231,9 @@ std::vector<int> RecHitAnalyzer::findSubcrystal(const CaloGeometry* caloGeom, co
       float minSubDist = 999;
       unsigned int subcrystal_phi_index=0;
       unsigned int subcrystal_eta_index=0;
-      for (unsigned int etaIndex=0; etaIndex<granularityMultiEta; etaIndex++)
+      for (int etaIndex=0; etaIndex<granularityMultiEta; etaIndex++)
       {
-        for (unsigned int phiIndex=0; phiIndex<granularityMultiPhi; phiIndex++)
+        for (int phiIndex=0; phiIndex<granularityMultiPhi; phiIndex++)
         {
           float d=reco::deltaR(eta,phi,subcrystal_eta_centers[etaIndex][phiIndex],subcrystal_phi_centers[etaIndex][phiIndex]);
           if (d<minSubDist)
@@ -248,10 +255,11 @@ std::vector<int> RecHitAnalyzer::findSubcrystal(const CaloGeometry* caloGeom, co
       phi_base_coordinate = (phi_base_coordinate - 1) * granularityMultiPhi + subcrystal_phi_index+1;
       eta_base_coordinate = (eta_base_coordinate - 1) * granularityMultiEta + subcrystal_eta_index+1;
 
-      std::vector<int> return_vector;
+      
       return_vector.push_back(phi_base_coordinate);
       return_vector.push_back(eta_base_coordinate);
-      return return_vector;
+    }
+    return return_vector;
 }
 
 
@@ -265,23 +273,23 @@ void RecHitAnalyzer::fillByBinNumber(TH2F * histo, const std::vector<int>& phi_e
 // Fill adjustable EE-, EB, EE+ rechits ________________________________________________________//
 void RecHitAnalyzer::fillTracksAtECALadjustable ( const edm::Event& iEvent, const edm::EventSetup& iSetup, unsigned int proj ) {
 
-  int iphi_, ieta_, iz_, idx_;
-  int ieta_global, ieta_signed;
-  int ieta_global_offset, ieta_signed_offset;
+  //int iphi_, ieta_, iz_, idx_;
+  //int ieta_global, ieta_signed;
+  //int ieta_global_offset, ieta_signed_offset;
   float eta, phi, trackPt_, trackQPt_,trackD0_, trackDz_;
   GlobalPoint pos;
 
   edm::ESHandle<MagneticField> magfield;
   iSetup.get<IdealMagneticFieldRecord>().get(magfield);
 
-  vECAL_tracks_[proj].assign( totalEtaBins[proj]*totalPhiBins[proj], 0. );
-  vECAL_tracksPt_[proj].assign( totalEtaBins[proj]*totalPhiBins[proj], 0. );
-  vECAL_tracksQPt_[proj].assign( totalEtaBins[proj]*totalPhiBins[proj], 0. );
-  vECAL_tracksD0_[proj].assign( totalEtaBins[proj]*totalPhiBins[proj], 0. );
-  vECAL_tracksDz_[proj].assign( totalEtaBins[proj]*totalPhiBins[proj], 0. );
-  vECAL_tracksPt_max_[proj].assign( totalEtaBins[proj]*totalPhiBins[proj], 0. );
-  vECAL_tracksD0_max_[proj].assign( totalEtaBins[proj]*totalPhiBins[proj], 0. );
-  vECAL_tracksDz_max_[proj].assign( totalEtaBins[proj]*totalPhiBins[proj], 0. );
+  vECALadj_tracks_[proj].assign( totalEtaBins[proj]*totalPhiBins[proj], 0. );
+  vECALadj_tracksPt_[proj].assign( totalEtaBins[proj]*totalPhiBins[proj], 0. );
+  vECALadj_tracksQPt_[proj].assign( totalEtaBins[proj]*totalPhiBins[proj], 0. );
+  vECALadj_tracksD0_[proj].assign( totalEtaBins[proj]*totalPhiBins[proj], 0. );
+  vECALadj_tracksDz_[proj].assign( totalEtaBins[proj]*totalPhiBins[proj], 0. );
+  vECALadj_tracksPt_max_[proj].assign( totalEtaBins[proj]*totalPhiBins[proj], 0. );
+  vECALadj_tracksD0_max_[proj].assign( totalEtaBins[proj]*totalPhiBins[proj], 0. );
+  vECALadj_tracksDz_max_[proj].assign( totalEtaBins[proj]*totalPhiBins[proj], 0. );
   hEvt_Adj_tracks[proj]->Reset();
   hEvt_Adj_tracksPt[proj]->Reset();
   hEvt_Adj_tracksQPt[proj]->Reset();
@@ -391,7 +399,7 @@ void RecHitAnalyzer::fillTracksAtECALadjustable ( const edm::Event& iEvent, cons
       fillByBinNumber(hECALadj_tracksQPt[proj], phi_eta, trackQPt_);
       fillByBinNumber(hECALadj_tracksD0[proj], phi_eta, trackD0_);
       fillByBinNumber(hECALadj_tracksDz[proj], phi_eta, trackDz_);
-
+    }
   } //tracks loop
 
   int index1d=0;
@@ -401,23 +409,23 @@ void RecHitAnalyzer::fillTracksAtECALadjustable ( const edm::Event& iEvent, cons
     {
       index1d= (ieta-1)*totalPhiBins[proj]+iphi-1;//ieta_global*EB_IPHI_MAX + iphi_; 
 
-      vECALadj_tracksPt_[proj][index1d]=hEvt_Adj_tracksPt->GetBinContent(iphi,ieta);
-      vECALadj_tracksQPt_[proj][index1d]=hEvt_Adj_tracksQPt->GetBinContent(iphi,ieta);
-      vECALadj_tracksD0_[proj][index1d]=hEvt_Adj_tracksD0->GetBinContent(iphi,ieta);
-      vECALadj_tracksDz_[proj][index1d]=hEvt_Adj_tracksDz->GetBinContent(iphi,ieta);
-      vECALadj_tracks_[proj][index1d]=hEvt_Adj_tracks->GetBinContent(iphi,ieta);
-      vECALadj_tracksPt_max_[proj][index1d]=hEvt_Adj_tracksPt_max->GetBinContent(iphi,ieta);
-      vECALadj_tracksD0_max_[proj][index1d]=hEvt_Adj_tracksD0_max->GetBinContent(iphi,ieta);
-      vECALadj_tracksDz_max_[proj][index1d]=hEvt_Adj_tracksDz_max->GetBinContent(iphi,ieta);
+      vECALadj_tracksPt_[proj][index1d]=hEvt_Adj_tracksPt[proj]->GetBinContent(iphi,ieta);
+      vECALadj_tracksQPt_[proj][index1d]=hEvt_Adj_tracksQPt[proj]->GetBinContent(iphi,ieta);
+      vECALadj_tracksD0_[proj][index1d]=hEvt_Adj_tracksD0[proj]->GetBinContent(iphi,ieta);
+      vECALadj_tracksDz_[proj][index1d]=hEvt_Adj_tracksDz[proj]->GetBinContent(iphi,ieta);
+      vECALadj_tracks_[proj][index1d]=hEvt_Adj_tracks[proj]->GetBinContent(iphi,ieta);
+      vECALadj_tracksPt_max_[proj][index1d]=hEvt_Adj_tracksPt_max[proj]->GetBinContent(iphi,ieta);
+      vECALadj_tracksD0_max_[proj][index1d]=hEvt_Adj_tracksD0_max[proj]->GetBinContent(iphi,ieta);
+      vECALadj_tracksDz_max_[proj][index1d]=hEvt_Adj_tracksDz_max[proj]->GetBinContent(iphi,ieta);
 
     }
   }
 
   // Get average D0 and Dz for each position
-  for (unsigned int idx_=0;idx_<vECAL_tracks_[proj].size();idx_++) {
-    if (vECAL_tracks_[proj][idx_] != 0) {
-      vECAL_tracksD0_[proj][idx_] = vECAL_tracksD0_[proj][idx_] / vECAL_tracks_[proj][idx_];
-      vECAL_tracksDz_[proj][idx_] = vECAL_tracksDz_[proj][idx_] / vECAL_tracks_[proj][idx_];
+  for (unsigned int idx_=0;idx_<vECALadj_tracks_[proj].size();idx_++) {
+    if (vECALadj_tracks_[proj][idx_] != 0) {
+      vECALadj_tracksD0_[proj][idx_] = vECALadj_tracksD0_[proj][idx_] / vECALadj_tracks_[proj][idx_];
+      vECALadj_tracksDz_[proj][idx_] = vECALadj_tracksDz_[proj][idx_] / vECALadj_tracks_[proj][idx_];
     }
   }
 
