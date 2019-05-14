@@ -4,10 +4,11 @@
 void SCRegressor::branchesPhoVars ( TTree* tree, edm::Service<TFileService> &fs )
 {
 
-  tree->Branch("pho_pT",    &vPho_pT_);
-  tree->Branch("pho_E",     &vPho_E_);
-  tree->Branch("pho_eta",   &vPho_eta_);
-  tree->Branch("pho_phi",   &vPho_phi_);
+  tree->Branch("pho_pT",             &vPho_pT_);
+  tree->Branch("pho_E",              &vPho_E_);
+  tree->Branch("pho_eta",            &vPho_eta_);
+  tree->Branch("pho_phi",            &vPho_phi_);
+  tree->Branch("pho_ecalEPostCorr",  &vPho_ecalEPostCorr_);
 
   tree->Branch("pho_r9",             &vPho_r9_);
   tree->Branch("pho_sieie",          &vPho_sieie_);
@@ -71,6 +72,7 @@ void SCRegressor::fillPhoVars ( const edm::Event& iEvent, const edm::EventSetup&
     vPho_E_.push_back( iPho->energy() );
     vPho_eta_.push_back( iPho->eta() );
     vPho_phi_.push_back( iPho->phi() );
+    vPho_ecalEPostCorr_.push_back( iPho->userFloat("ecalEnergyPostCorr") );
   } // photons
 
   vPho_r9_.clear();

@@ -36,17 +36,16 @@ void SCRegressor::fillSC ( const edm::Event& iEvent, const edm::EventSetup& iSet
   std::vector<float> SC_energyT;
   std::vector<float> SC_energyZ;
   std::vector<float> SC_time;
-  for ( unsigned int iP = 0; iP < nPho; iP++ ) { 
-    SC_energy.assign(crop_size*crop_size,0.);
-    SC_energyT.assign(crop_size*crop_size,0.);
-    SC_energyZ.assign(crop_size*crop_size,0.);
-    SC_time.assign(crop_size*crop_size,0.);
-  }
 
   int iphi_, ieta_, idx_; // rows:ieta, cols:iphi
   int iphi_shift, ieta_shift;
   int iphi_crop, ieta_crop;
   for ( unsigned int iP(0); iP < nPho; iP++ ) {
+
+    SC_energy.assign(crop_size*crop_size,0.);
+    SC_energyT.assign(crop_size*crop_size,0.);
+    SC_energyZ.assign(crop_size*crop_size,0.);
+    SC_time.assign(crop_size*crop_size,0.);
 
     iphi_shift = vIphi_Emax_[iP] - 15;
     ieta_shift = vIeta_Emax_[iP] - 15;
@@ -71,15 +70,15 @@ void SCRegressor::fillSC ( const edm::Event& iEvent, const edm::EventSetup& iSet
 
       if ( ieta_crop < 0 || ieta_crop > crop_size-1 ) continue;
       if ( iphi_crop < 0 || iphi_crop > crop_size-1 ) continue;
-      
-      // Convert to [0,...,32*32-1] 
+
+      // Convert to [0,...,32*32-1]
       idx_ = ieta_crop*crop_size + iphi_crop;
 
       // Cell geometry provides access to (rho,eta,phi) coordinates of cell center
       //auto cell = caloGeom->getGeometry(ebId);
       auto pos = caloGeom->getPosition(ebId);
-      
-      // Fill branch arrays 
+
+      // Fill branch arrays
       SC_energy[idx_] = iRHit->energy();
       //SC_energyT[idx_] = iRHit->energy()/TMath::CosH(vPho_eta_);
       SC_energyT[idx_] = iRHit->energy()/TMath::CosH(pos.eta());
@@ -89,6 +88,7 @@ void SCRegressor::fillSC ( const edm::Event& iEvent, const edm::EventSetup& iSet
       vEB_SCenergy_[ebId.hashedIndex()] = iRHit->energy();
       */
       //std::cout << " >> " << iP << ": iphi_,ieta_,E: " << iphi_crop << ", " << ieta_crop << ", " << iRHit->energy() << std::endl; 
+      //std::cout << "idx,ieta,iphi,E:" <<idx_<<","<< ieta_crop << "," << iphi_crop << "," << iRHit->energy() << std::endl; 
 
       // Fill histograms to monitor cumulative distributions
       hSC_energy->Fill( iphi_crop,ieta_crop,iRHit->energy() );
@@ -101,5 +101,13 @@ void SCRegressor::fillSC ( const edm::Event& iEvent, const edm::EventSetup& iSet
     vSC_time_.push_back( SC_time );
 
   } // photons
+  /*
+  for(auto const& e:vSC_energy_) {
+    std::cout << "array" << std::endl;
+    for ( int i =0;i < 32*32;i++) {
+      //if (e[i] > 0.) std::cout << "idx,ieta,iphi,E:" <<i<<","<< (int)(i/32) << ","<< i % 32  <<","<< e[i] << std::endl;
+    };
+  };
+  */
 
 } // fillSC()

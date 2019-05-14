@@ -93,7 +93,7 @@ bool SCRegressor::runDiPhotonSel ( const edm::Event& iEvent, const edm::EventSet
       ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > vDiPho = jPho->p4() + kPho->p4();
       if ( debug ) std::cout << " >> m0:" << vDiPho.mass() << std::endl;
 
-      if ( vDiPho.mass() > 95. ) {
+      if ( vDiPho.mass() > 90. ) {
         vPhoIdxs.push_back( vPhos[j].idx );
         vPhoIdxs.push_back( vPhos[k].idx );
         m0_ = vDiPho.mass();
@@ -127,7 +127,6 @@ bool SCRegressor::runDiPhotonSel ( const edm::Event& iEvent, const edm::EventSet
   if ( debug ) std::cout << " Reco pho size:" << vPhos.size() << std::endl;
   if ( debug ) std::cout << " >> Passed selection. " << std::endl;
 
-  /*
   edm::Handle<edm::TriggerResults> trgs;
   iEvent.getByToken( trgResultsT_, trgs );
 
@@ -156,7 +155,6 @@ bool SCRegressor::runDiPhotonSel ( const edm::Event& iEvent, const edm::EventSet
     }
   }
   hltAccept_ = hltAccept;
-  */
 
   return true;
 }

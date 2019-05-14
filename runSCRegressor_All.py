@@ -31,8 +31,8 @@ skipEvents_=0
 #decay=decay.replace('_AODSIM','')
 decay=decay.replace('_MINIAODSIM','')
 #cmd="cmsRun %s inputFiles_load=%s maxEvents=%d skipEvents=%d outputFile=%s/IMG/CUTS_GEN/%s_IMG.root"%(cfg,listname,maxEvents_,skipEvents_,eosDir,decay)
-cmd="cmsRun %s inputFiles_load=%s maxEvents=%d skipEvents=%d outputFile=%s/IMG/CUTS_KIN/%s_IMG.root"%(cfg,listname,maxEvents_,skipEvents_,eosDir,decay)
-#cmd="cmsRun %s inputFiles_load=%s maxEvents=%d skipEvents=%d outputFile=test_IMG.root"%(cfg,listname,maxEvents_,skipEvents_)
+#cmd="cmsRun %s inputFiles_load=%s maxEvents=%d skipEvents=%d outputFile=%s/IMG/CUTS_KIN/%s_IMG.root"%(cfg,listname,maxEvents_,skipEvents_,eosDir,decay)
+cmd="cmsRun %s inputFiles_load=%s maxEvents=%d skipEvents=%d outputFile=test_IMG.root"%(cfg,listname,maxEvents_,skipEvents_)
 #print '%s'%cmd
 os.system(cmd)
 

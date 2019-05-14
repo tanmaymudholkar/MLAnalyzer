@@ -43,6 +43,8 @@ process.source = cms.Source("PoolSource",
       options.inputFiles
       )
     , skipEvents = cms.untracked.uint32(options.skipEvents)
+    #, lumisToProcess = cms.untracked.VLuminosityBlockRange('1:2133-1:2133')
+    #, lumisToProcess = cms.untracked.VLuminosityBlockRange('1:3393-1:3393')
     )
 
 #process.options = cms.untracked.PSet(
@@ -80,7 +82,7 @@ process.TFileService = cms.Service("TFileService",
 process.hltFilter = cms.EDFilter("HLTHighLevel",
                                           eventSetupPathsKey = cms.string(''),
                                           TriggerResultsTag = cms.InputTag("TriggerResults","","HLT"),
-                                          HLTPaths = cms.vstring('HLT_Diphoton30PV_18PV_R9Id_AND_IsoCaloId_AND_HE_R9Id_PixelVeto_Mass55_v*'),
+                                          HLTPaths = cms.vstring('HLT_Diphoton30PV_18PV_R9Id_AND_IsoCaloId_AND_HE_R9Id_*_Mass55_v*'),
                                           andOr = cms.bool(True),
                                           throw = cms.bool(False)
                                           )

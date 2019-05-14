@@ -26,12 +26,17 @@ cfg='RecHitAnalyzer/python/SCRegressor_cfg.py'
 #inputFiles_='/store/user/lpcml/mandrews/AODSIM/h24gamma_1j_1M_100MeV_2016_25ns_Moriond17MC_PoissonOOTPU_AODSIM/180903_152402/0000/step_full_1.root'
 #inputFiles_='/store/user/lpcml/mandrews/AODSIM/h24gamma_1j_1M_400MeV_2016_25ns_Moriond17MC_PoissonOOTPU_AODSIM/180908_013040/0000/step_full_1.root'
 #inputFiles_='/store/user/lpcml/mandrews/AODSIM/h24gamma_1j_1M_1GeV_2016_25ns_Moriond17MC_PoissonOOTPU_AODSIM/180902_213131/0000/step_full_1.root'
-inputFiles_='/store/user/lpcml/mandrews/MINIAODSIM/h24gamma_1j_1M_100MeV_PU2017_MINIAODSIM/190409_144816/0000/step_miniaodsim_1.root'
+#inputFiles_='/store/user/lpcml/mandrews/MINIAODSIM/h24gamma_1j_1M_100MeV_PU2017_MINIAODSIM/190409_144816/0000/step_miniaodsim_10.root'
 #inputFiles_='/store/user/lpcml/mandrews/MINIAODSIM/h24gamma_1j_1M_200MeV_PU2017_MINIAODSIM/190410_034928/0000/step_miniaodsim_1.root'
 #inputFiles_='/store/user/lpcml/mandrews/MINIAODSIM/h24gamma_1j_1M_400MeV_PU2017_MINIAODSIM/190410_035004/0000/step_miniaodsim_1.root'
 #inputFiles_='/store/user/lpcml/mandrews/MINIAODSIM/h24gamma_1j_1M_1GeV_PU2017_MINIAODSIM/190410_034853/0000/step_miniaodsim_1.root'
+#inputFiles_='/store/user/lpcml/mandrews/MINIAODSIM/h24gamma_1j_1M_1GeV_PU2017_MINIAODSIM/190410_034853/0000/step_miniaodsim_13.root'
+#inputFiles_='/store/user/lpcml/mandrews/AODSIM/h24gamma_1j_1M_400MeV_PU2017_AODSIM/190404_040951/0000/step_aodsim_1.root'
+inputFiles_='/store/user/lpcml/mandrews/MINIAODSIM/DoublePi0Pt15To100_m0To1600_pythia8_PU2017_MINIAODSIM/190510_220104/0000/step_MINIAODSIM_1.root'
+#inputFiles_='/store/user/lpcml/mandrews/MINIAODSIM/DoublePhotonPt15To100_pythia8_PU2017_MINIAODSIM/190430_014319/0000/step_MINIAODSIM_1.root'
 #inputFiles_='file:step_full_filtered.root'
 #inputFiles_='root://cmseos.fnal.gov/%s'%inputFiles_
+#inputFiles_='file:/eos/uscms%s'%inputFiles_
 #root://cmsxrootd-site.fnal.gov
 
 maxEvents_=-1

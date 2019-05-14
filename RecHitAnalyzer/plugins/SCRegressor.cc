@@ -43,12 +43,12 @@ SCRegressor::SCRegressor(const edm::ParameterSet& iConfig)
   RHTree->Branch("SC_iphi", &vIphi_Emax_);
   RHTree->Branch("SC_ieta", &vIeta_Emax_);
 
-  //branchesPiSel ( RHTree, fs );
+  branchesPiSel ( RHTree, fs );
   //branchesPhotonSel ( RHTree, fs );
-  branchesDiPhotonSel ( RHTree, fs );
-  branchesH2aaSel ( RHTree, fs );
+  //branchesDiPhotonSel ( RHTree, fs );
+  //branchesH2aaSel ( RHTree, fs );
   branchesSC     ( RHTree, fs );
-  //branchesEB     ( RHTree, fs );
+  branchesEB     ( RHTree, fs );
   //branchesTracksAtEBEE     ( RHTree, fs );
   branchesPhoVars     ( RHTree, fs );
 
@@ -70,7 +70,18 @@ SCRegressor::~SCRegressor()
 void
 SCRegressor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
+
   using namespace edm;
+
+  eventId_ = iEvent.id().event();
+  runId_ = iEvent.id().run();
+  lumiId_ = iEvent.id().luminosityBlock();
+  /*
+  if ( runId_ == 1 && lumiId_ == 2133 && eventId_ == 76 ) {
+    std::cout << runId_<<":"<<lumiId_ <<":"<<eventId_ <<std::endl;
+  }
+  else return;
+  */
 
   edm::Handle<EcalRecHitCollection> EBRecHitsH;
   iEvent.getByToken(EBRecHitCollectionT_, EBRecHitsH);
@@ -87,12 +98,12 @@ SCRegressor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   bool hasPassed;
   vPreselPhoIdxs_.clear();
   nTotal += nPhotons;
-  //hasPassed = runPiSel ( iEvent, iSetup ); //TODO: add config-level switch
+  hasPassed = runPiSel ( iEvent, iSetup ); //TODO: add config-level switch
   //hasPassed = runPhotonSel ( iEvent, iSetup );
-  hasPassed = runDiPhotonSel ( iEvent, iSetup );
+  //hasPassed = runDiPhotonSel ( iEvent, iSetup );
   //hasPassed = runH2aaSel ( iEvent, iSetup );
   if ( !hasPassed ) return;
-  bool runGen = runH2aaSel ( iEvent, iSetup );
+  //runH2aaSel ( iEvent, iSetup );
 
   // Get coordinates of photon supercluster seed
   nPho = 0;
@@ -162,22 +173,19 @@ SCRegressor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   // Enforce selection
   if ( debug ) std::cout << " >> nPho: " << nPho << std::endl;
-  //if ( nPho == 0 ) return;
-  if ( nPho != 2 ) return;
+  if ( nPho == 0 ) return; // Pi/Photon gun selection
+  //if ( nPho != 2 ) return; // Diphoton physics selection
   if ( debug ) std::cout << " >> Passed cropping. " << std::endl;
 
-  //fillPiSel ( iEvent, iSetup );
+  fillPiSel ( iEvent, iSetup );
   //fillPhotonSel ( iEvent, iSetup );
-  fillDiPhotonSel ( iEvent, iSetup );
-  fillH2aaSel ( iEvent, iSetup );
+  //fillDiPhotonSel ( iEvent, iSetup );
+  //fillH2aaSel ( iEvent, iSetup );
   fillSC     ( iEvent, iSetup );
-  //fillEB     ( iEvent, iSetup );
+  fillEB     ( iEvent, iSetup );
   //fillTracksAtEBEE     ( iEvent, iSetup );
   fillPhoVars     ( iEvent, iSetup );
 
-  eventId_ = iEvent.id().event();
-  runId_ = iEvent.id().run();
-  lumiId_ = iEvent.id().luminosityBlock();
   //nPassed++;
   nPassed += nPho;
 
@@ -207,7 +215,7 @@ SCRegressor::beginJob()
 void
 SCRegressor::endJob()
 {
-  std::cout << " selected: " << nPassed << "/" << nTotal << std::endl;
+  std::cout << ">> selected: " << nPassed << "/" << nTotal << std::endl;
 }
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------

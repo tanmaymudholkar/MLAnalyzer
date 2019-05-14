@@ -47,7 +47,7 @@ bool SCRegressor::runPiSel ( const edm::Event& iEvent, const edm::EventSetup& iS
     mGenPi0_RecoPho.insert( std::pair<unsigned int, std::vector<unsigned int>>(iG, std::vector<unsigned int>()) );
 
   } // genParticle loop: count good photons
-  if ( debug ) std::cout << " >> mGenPi0.size: " << mGenPi0_RecoPho.size() << std::endl;
+  if ( debug ) std::cout << " >> mGenPi0_RecoPho.size: " << mGenPi0_RecoPho.size() << std::endl;
   if ( mGenPi0_RecoPho.empty() ) return false;
 
   ////////// Apply selection //////////
@@ -89,7 +89,7 @@ bool SCRegressor::runPiSel ( const edm::Event& iEvent, const edm::EventSetup& iS
       mG.second.push_back( minDR_idx );
       if ( debug ) std::cout << "   >> !minDR_idx:" << minDR_idx << std::endl;
 
-    } // gen photons 
+    } // gen photons
     dR = reco::deltaR( iGen->daughter(0)->eta(),iGen->daughter(0)->phi(), iGen->daughter(1)->eta(),iGen->daughter(1)->phi() );
     if ( debug ) std::cout << " >> gen dR:" << dR << std::endl;
 
@@ -127,7 +127,7 @@ bool SCRegressor::runPiSel ( const edm::Event& iEvent, const edm::EventSetup& iS
     if ( std::abs(iPho->eta()) >= etaCut ) continue;
     if ( debug ) std::cout << " >> pT: " << iPho->pt() << " eta: " << iPho->eta() << std::endl;
 
-    ///*
+    /*
     if ( iPho->full5x5_r9() <= 0.5 ) continue;
     if ( iPho->hadTowOverEm() >= 0.08 ) continue;
     if ( iPho->hasPixelSeed() == true ) continue;
@@ -140,7 +140,7 @@ bool SCRegressor::runPiSel ( const edm::Event& iEvent, const edm::EventSetup& iS
       if ( iPho->trkSumPtHollowConeDR03() >= 6. ) continue;
       //if ( iPho->trackIso() >= 6. ) continue;
     }
-    //*/
+    */
 
     ///*
     // Ensure pre-sel photons are isolated
@@ -214,7 +214,7 @@ void SCRegressor::fillPiSel ( const edm::Event& iEvent, const edm::EventSetup& i
     if ( debug ) std::cout << " >> m0:" << mPi0 << " dR:" << dR << " dPhi:" << dPhi << std::endl;
 
     vSC_DR_.push_back( dR );
-    vSC_pT_.push_back( iGen->pt() ); 
+    vSC_pT_.push_back( iGen->pt() );
     vSC_mass_.push_back( mPi0 );
 
     //hPt->Fill( ptPi0 );

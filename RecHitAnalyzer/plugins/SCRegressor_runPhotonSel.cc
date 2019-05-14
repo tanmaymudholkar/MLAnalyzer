@@ -29,7 +29,8 @@ bool SCRegressor::runPhotonSel ( const edm::Event& iEvent, const edm::EventSetup
 
     reco::GenParticleRef iGen( genParticles, iG );
 
-    if ( iGen->pdgId() != 22 ) continue;
+    if ( iGen->pdgId() != 22 ) continue; //photon
+    //if ( iGen->pdgId() != 11 ) continue; //electron
     if ( iGen->status() != 1 ) continue;
 
     mGenPi0_RecoPho.insert( std::pair<unsigned int, std::vector<unsigned int>>(iG, std::vector<unsigned int>()) );
@@ -60,7 +61,7 @@ bool SCRegressor::runPhotonSel ( const edm::Event& iEvent, const edm::EventSetup
   float ptCut = 15., etaCut = 1.44;
 
   if ( debug ) std::cout << " >> PhoCol.size: " << photons->size() << std::endl;
-  // Ensure only 1 reco photon associated to each gen pho 
+  // Ensure only 1 reco photon associated to each gen pho
   std::vector<unsigned int> vRecoPhoIdxs_;
   for ( auto const& mG : mGenPi0_RecoPho ) {
     if ( mG.second.empty() ) continue;
@@ -81,7 +82,7 @@ bool SCRegressor::runPhotonSel ( const edm::Event& iEvent, const edm::EventSetup
     if ( std::abs(iPho->eta()) >= etaCut ) continue;
     if ( debug ) std::cout << " >> pT: " << iPho->pt() << " eta: " << iPho->eta() << std::endl;
 
-    ///*
+    /*
     if ( iPho->full5x5_r9() <= 0.5 ) continue;
     if ( iPho->hadTowOverEm() >= 0.08 ) continue;
     if ( iPho->hasPixelSeed() == true ) continue;
@@ -94,7 +95,7 @@ bool SCRegressor::runPhotonSel ( const edm::Event& iEvent, const edm::EventSetup
       if ( iPho->trkSumPtHollowConeDR03() >= 6. ) continue;
       //if ( iPho->trackIso() >= 6. ) continue;
     }
-    //*/
+    */
 
     ///*
     // Ensure pre-sel photons are isolated
@@ -159,7 +160,7 @@ void SCRegressor::fillPhotonSel ( const edm::Event& iEvent, const edm::EventSetu
   for ( auto const& mG : mGenPi0_RecoPho ) {
     reco::GenParticleRef iGen( genParticles, mG.first );
     vSC_DR_.push_back( 0. );
-    vSC_pT_.push_back( iGen->pt() ); 
+    vSC_pT_.push_back( iGen->pt() );
     vSC_mass_.push_back( 0. );
 
     hSC_pT->Fill( iGen->pt() );
