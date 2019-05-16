@@ -1,5 +1,7 @@
 #include "MLAnalyzer/RecHitAnalyzer/interface/SCRegressor.h"
 
+//TODO: Copy pi0 struct implementation in runPiSel()
+
 // Initialize branches _____________________________________________________//
 void SCRegressor::branchesPhotonSel ( TTree* tree, edm::Service<TFileService> &fs )
 {
@@ -104,7 +106,8 @@ bool SCRegressor::runPhotonSel ( const edm::Event& iEvent, const edm::EventSetup
 
       if ( j == vRecoPhoIdxs_[i] ) continue;
       PhotonRef jPho( photons, j );
-      if ( jPho->pt() < 5. ) continue;
+      //if ( jPho->pt() < 5. ) continue;
+      if ( iPho->pt() < 10. ) continue; // pat/miniaod threshold is pt > 10 GeV
       dR = reco::deltaR( iPho->eta(),iPho->phi(), jPho->eta(),jPho->phi() );
       if ( debug ) std::cout << "   >> reco dR:" << dR << std::endl;
       if ( dR > 16*.0174 ) continue;

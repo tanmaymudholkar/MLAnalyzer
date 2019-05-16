@@ -32,15 +32,19 @@ cfg='RecHitAnalyzer/python/SCRegressor_cfg.py'
 #inputFiles_='/store/user/lpcml/mandrews/MINIAODSIM/h24gamma_1j_1M_1GeV_PU2017_MINIAODSIM/190410_034853/0000/step_miniaodsim_1.root'
 #inputFiles_='/store/user/lpcml/mandrews/MINIAODSIM/h24gamma_1j_1M_1GeV_PU2017_MINIAODSIM/190410_034853/0000/step_miniaodsim_13.root'
 #inputFiles_='/store/user/lpcml/mandrews/AODSIM/h24gamma_1j_1M_400MeV_PU2017_AODSIM/190404_040951/0000/step_aodsim_1.root'
-inputFiles_='/store/user/lpcml/mandrews/MINIAODSIM/DoublePi0Pt15To100_m0To1600_pythia8_PU2017_MINIAODSIM/190510_220104/0000/step_MINIAODSIM_1.root'
+#inputFiles_='/store/user/lpcml/mandrews/MINIAODSIM/DoublePi0Pt15To100_m0To1600_pythia8_PU2017_MINIAODSIM/190510_220104/0000/step_MINIAODSIM_1.root'
 #inputFiles_='/store/user/lpcml/mandrews/MINIAODSIM/DoublePhotonPt15To100_pythia8_PU2017_MINIAODSIM/190430_014319/0000/step_MINIAODSIM_1.root'
+#inputFiles_='/store/user/lpcml/mandrews/MINIAODSIM/DoublePi0Pt15To100_m0To1600_pythia8_PU2017_MINIAODSIM/190510_220104/0000/step_MINIAODSIM_1.root'
+#inputFiles_='/store/user/lpcml/mandrews/AODSIM/DoublePi0Pt15To100_m0To1600_pythia8_PU2017_AODSIM/190426_023521/0000/step_AODSIM_1.root'
+inputFiles_='/store/user/lpcml/mandrews/MINIAODSIM/DoublePi0Pt15To100_m0To1600_pythia8_PU2017_MINIAODSIM_ext/190516_022844/0000/step_MINIAODSIMext_1.root'
 #inputFiles_='file:step_full_filtered.root'
 #inputFiles_='root://cmseos.fnal.gov/%s'%inputFiles_
 #inputFiles_='file:/eos/uscms%s'%inputFiles_
 #root://cmsxrootd-site.fnal.gov
 
 maxEvents_=-1
-maxEvents_=1000
+#maxEvents_=100
+#maxEvents_=1
 skipEvents_=0
 #outputFile_='output.root'
 #inputTag=inputFiles_.strip('file:').strip('_FEVTDEBUG.root')

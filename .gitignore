@@ -1,4 +1,5 @@
 *.root
+*.npz
 *.log
 *.txt
 *.pyc

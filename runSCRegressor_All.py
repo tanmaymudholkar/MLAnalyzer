@@ -16,6 +16,7 @@ decay='%s'%args.decay
 cfg='RecHitAnalyzer/python/SCRegressor_cfg.py'
 #inputFiles_ = ['file:%s'%path for path in glob('%s/AODSIM/%s/*/*/step*root'%(eosDir,decay))]
 #inputFiles_ = ['%s/%s'%(xrootd,path) for path in glob('%s/AODSIM/%s/*/*/step*root'%(eosDir,decay))]
+#inputFiles_ = ['%s/%s'%(xrootd,path.replace('/eos/uscms','')) for path in glob('%s/AODSIM/%s/*/*/step*root'%(eosDir,decay))]
 inputFiles_ = ['%s/%s'%(xrootd,path.replace('/eos/uscms','')) for path in glob('%s/MINIAODSIM/%s/*/*/step*root'%(eosDir,decay))]
 #print(inputFiles_)
 
@@ -25,7 +26,7 @@ with open(listname, 'w') as list_file:
         list_file.write("%s\n" % inputFile)
 
 maxEvents_=-1
-maxEvents_=100000
+maxEvents_=10000
 skipEvents_=0
 
 #decay=decay.replace('_AODSIM','')

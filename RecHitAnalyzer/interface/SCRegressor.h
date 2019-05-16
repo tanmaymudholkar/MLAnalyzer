@@ -199,6 +199,8 @@ class SCRegressor : public edm::one::EDAnalyzer<edm::one::SharedResources>  {
     std::vector<float> vSC_mass_;
     std::vector<float> vSC_DR_;
     std::vector<float> vSC_pT_;
+    std::vector<float> vSC_eta_;
+    std::vector<float> vSC_phi_;
 
     std::vector<float> vA_pT_;
     std::vector<float> vA_eta_;
@@ -216,6 +218,8 @@ class SCRegressor : public edm::one::EDAnalyzer<edm::one::SharedResources>  {
     TH2F * hdPhidEta_nPhoGt2;
     TProfile2D * hdPhidEta_jphoPt_o_iphoPt;
     TH1F * hjphoPt_o_iphoPt;
+    TH1F * hMinDRgenRecoPho;
+    TH1F * hMinDRrecoPtoGenPt;
 
     float m0_;
     std::vector<float> vFC_inputs_;
