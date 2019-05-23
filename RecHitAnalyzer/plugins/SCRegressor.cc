@@ -77,10 +77,10 @@ SCRegressor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   runId_ = iEvent.id().run();
   lumiId_ = iEvent.id().luminosityBlock();
   /*
-  if ( runId_ == 1 && lumiId_ == 2133 && eventId_ == 76 ) {
+  if ( runId_ == 1 && lumiId_ == 1 && (eventId_ == 3 || eventId_ == 22 || eventId_ == 28) ) {
     std::cout << runId_<<":"<<lumiId_ <<":"<<eventId_ <<std::endl;
   }
-  else return;
+  //else return;
   */
 
   edm::Handle<EcalRecHitCollection> EBRecHitsH;

@@ -111,6 +111,7 @@ void SCRegressor::fillPhoVars ( const edm::Event& iEvent, const edm::EventSetup&
     vPho_hasPxlSeed_.push_back(     iPho->hasPixelSeed() );
     vPho_HoE_.push_back(            iPho->hadTowOverEm() );
 
+    ///*
     float EAPho = iPho->eta() < 1.0 ? 0.1113 : 0.0953;
     vPho_phoIsoCorr_.push_back(     std::max(iPho->userFloat("phoPhotonIsolation") - rho*EAPho, (float)0.) );
     vPho_ecalIsoCorr_.push_back(    std::max(iPho->ecalPFClusterIso() - rho*EAPho, (float)0.) );
@@ -120,6 +121,7 @@ void SCRegressor::fillPhoVars ( const edm::Event& iEvent, const edm::EventSetup&
     vPho_neuIso_.push_back(         iPho->userFloat("phoNeutralHadronIsolation") );
     vPho_ecalIso_.push_back(        iPho->ecalPFClusterIso() );
     vPho_passEleVeto_.push_back(    iPho->passElectronVeto() );
+    //*/
 
     /*
     std::cout << "HoE:" << iPho->hadTowOverEm() << std::endl;

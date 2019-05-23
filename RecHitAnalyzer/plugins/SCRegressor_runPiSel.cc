@@ -17,6 +17,7 @@ void SCRegressor::branchesPiSel ( TTree* tree, edm::Service<TFileService> &fs )
 
   tree->Branch("SC_mass",   &vSC_mass_);
   tree->Branch("SC_DR",     &vSC_DR_);
+  tree->Branch("SC_E",      &vSC_E_);
   tree->Branch("SC_pT",     &vSC_pT_);
   tree->Branch("SC_eta",    &vSC_eta_);
   tree->Branch("SC_phi",    &vSC_phi_);
@@ -59,6 +60,7 @@ bool SCRegressor::runPiSel ( const edm::Event& iEvent, const edm::EventSetup& iS
       if ( debug ) std::cout << "  >> iD[" << iD <<"]: pdgId:" << iGenPho->pdgId() << " pt:" << iGenPho->pt() << " eta:" << iGenPho->eta() << std::endl;
     }
     if ( iGen->numberOfDaughters() != 2 ) continue;
+    //if ( iGen->mass() < 0.8 ) continue;
 
     // Minimize producing images where second reco photon is out of image window
     // Work backwards from: image window size => reco DR requirement => gen DR requirement
@@ -147,6 +149,7 @@ bool SCRegressor::runPiSel ( const edm::Event& iEvent, const edm::EventSetup& iS
       if ( iPho->full5x5_r9() <= 0.85 ) {
         if ( iPho->full5x5_sigmaIetaIeta() >= 0.015 ) continue;
         if ( iPho->userFloat("phoPhotonIsolation") >= 4.0 ) continue;
+        //if ( iPho->photonIso() >= 4.0 ) continue;
         if ( iPho->trkSumPtHollowConeDR03() >= 6. ) continue;
         //if ( iPho->trackIso() >= 6. ) continue;
       }
@@ -213,6 +216,7 @@ void SCRegressor::fillPiSel ( const edm::Event& iEvent, const edm::EventSetup& i
 
   vSC_DR_.clear();
   vSC_mass_.clear();
+  vSC_E_.clear();
   vSC_pT_.clear();
   vSC_eta_.clear();
   vSC_phi_.clear();
@@ -233,6 +237,7 @@ void SCRegressor::fillPiSel ( const edm::Event& iEvent, const edm::EventSetup& i
 
     vSC_DR_.push_back( dR );
     vSC_mass_.push_back( mPi0 );
+    vSC_E_.push_back( iGen->energy() );
     vSC_pT_.push_back( iGen->pt() );
     vSC_eta_.push_back( iGen->eta() );
     vSC_phi_.push_back( iGen->phi() );
