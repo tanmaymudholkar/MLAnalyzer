@@ -16,13 +16,13 @@ void SCRegressor::branchesPhotonSel ( TTree* tree, edm::Service<TFileService> &f
 
 }
 
-// Define struct to handle mapping for gen pi0<->matched reco photons<->matched presel photons
-struct pi0_obj {
+// Define struct to handle mapping for gen pho<->matched reco photons<->matched presel photons
+struct pho_map {
   unsigned int idx;
   std::vector<unsigned int> matchedRecoPhoIdxs;
   std::vector<unsigned int> matchedPreselPhoIdxs;
 };
-std::vector<pi0_obj> vPhos;
+std::vector<pho_map> vPhos;
 
 // Run event selection ___________________________________________________________________//
 bool SCRegressor::runPhotonSel ( const edm::Event& iEvent, const edm::EventSetup& iSetup ) {
@@ -35,8 +35,8 @@ bool SCRegressor::runPhotonSel ( const edm::Event& iEvent, const edm::EventSetup
 
   ////////// Gen-level validation //////////
 
-  // Identify valid gen pi0s decays from the event
-  // (Assumed that event contains multiple pi0 guns)
+  // Identify particle gun gen phos from the event
+  // (Assumed that event contains multiple pho guns)
   // WARNING: the MINIAODSIM prunedGenParticles collection clips particles with pt < 10 GeV from the truth table!
   float dR;
   std::vector<unsigned int> vGenPhoIdxs;
@@ -54,23 +54,23 @@ bool SCRegressor::runPhotonSel ( const edm::Event& iEvent, const edm::EventSetup
   if ( debug ) std::cout << " >> vGenPhoIdxs.size: " << vGenPhoIdxs.size() << std::endl;
   if ( vGenPhoIdxs.empty() ) return false;
 
-  ////////// Build gen pi0-reco photon mapping //////////
+  ////////// Build gen pho-reco photon mapping //////////
 
   float ptCut = 15., etaCut = 1.44;
   //float ptCut = 10., etaCut = 1.44;
 
-  // Create mapping between gen pi0<->matched reco photons<->matched presel photons
-  // For each pi0, first find "reco" photons matched to pi0's daughter gen photons,
+  // Create mapping between gen pho<->matched reco photons<->matched presel photons
+  // For each gen pho, find "reco" photons matched to it,
   // then check if that reco photon passes photon preselection criteria
   float minDR = 100.;
   float minDR_fpt = -10.;
   int minDR_idx = -1;
   vPhos.clear();
-  // Loop over valid gen pi0 idxs
-  for ( auto& iPho : vGenPhoIdxs ) {
+  // Loop over valid gen pho idxs
+  for ( auto& iG : vGenPhoIdxs ) {
 
-    reco::GenParticleRef iGenPho( genParticles, iPho );
-    if ( debug ) std::cout << " >> pi0[" << iPho << "]" << " pt:" << iGenPho->pt() << " eta:" << iGenPho->eta() << std::endl;
+    reco::GenParticleRef iGenPho( genParticles, iG );
+    if ( debug ) std::cout << " >> genPho[" << iG << "]" << " pt:" << iGenPho->pt() << " eta:" << iGenPho->eta() << std::endl;
 
     std::vector<unsigned int> vMatchedRecoPhoIdxs;
     std::vector<unsigned int> vMatchedPreselPhoIdxs;
@@ -104,7 +104,7 @@ bool SCRegressor::runPhotonSel ( const edm::Event& iEvent, const edm::EventSetup
     // minDR only needs to be generous enough so that one of the gen photons match to a reco photon for analysis
     if ( minDR > 0.04 ) continue;
 
-    // Declare reco photon matching to gen pi0: only store unique reco idxs
+    // Declare reco photon matching to gen pho: only store unique reco idxs
     if ( std::find(vMatchedRecoPhoIdxs.begin(), vMatchedRecoPhoIdxs.end(), minDR_idx) != vMatchedRecoPhoIdxs.end() ) continue;
     vMatchedRecoPhoIdxs.push_back( minDR_idx );
     if ( debug ) std::cout << "   >> !minDR_idx:" << minDR_idx << " f_pt(reco/gen):" << minDR_fpt << std::endl;
@@ -124,6 +124,7 @@ bool SCRegressor::runPhotonSel ( const edm::Event& iEvent, const edm::EventSetup
     if ( iRecoPho->full5x5_r9() <= 0.85 ) {
       if ( iRecoPho->full5x5_sigmaIetaIeta() >= 0.015 ) continue;
       if ( iRecoPho->userFloat("phoPhotonIsolation") >= 4.0 ) continue;
+      //if ( iRecoPho->photonIso() >= 4.0 ) continue;
       if ( iRecoPho->trkSumPtHollowConeDR03() >= 6. ) continue;
       //if ( iRecoPho->trackIso() >= 6. ) continue;
     }
@@ -132,20 +133,20 @@ bool SCRegressor::runPhotonSel ( const edm::Event& iEvent, const edm::EventSetup
     if ( debug ) std::cout << " >> presel photon: pT: " << iRecoPho->pt() << " eta: " << iRecoPho->eta() << std::endl;
 
     // Store this mapping
-    pi0_obj iPho_obj = { iPho, vMatchedRecoPhoIdxs, vMatchedPreselPhoIdxs };
+    pho_map iPho_obj = { iG, vMatchedRecoPhoIdxs, vMatchedPreselPhoIdxs };
     vPhos.push_back( iPho_obj );
 
-  } // gen pi0s
+  } // gen phos
 
   ////////// Apply selection criteria //////////
 
-  // Ensure only 1 presel photon associated to each gen pi0
+  // Ensure only 1 presel photon associated to each gen pho
   // Missing here: a check if no other reco photons (e.g. PU photons) are around the presel photon
   // NOTE: only unique reco idxs are stored
   vPreselPhoIdxs_.clear();
   for ( auto const& iPho : vPhos ) {
 
-    if ( debug ) std::cout << " >> pi0[" << iPho.idx
+    if ( debug ) std::cout << " >> pho[" << iPho.idx
       << "], reco size:" << iPho.matchedRecoPhoIdxs.size()
       << ", presel size:"<< iPho.matchedPreselPhoIdxs.size()<< std::endl;
 
@@ -173,7 +174,7 @@ void SCRegressor::fillPhotonSel ( const edm::Event& iEvent, const edm::EventSetu
   edm::Handle<reco::GenParticleCollection> genParticles;
   iEvent.getByToken(genParticleCollectionT_, genParticles);
 
-  ////////// Store gen-level pi0 kinematics //////////
+  ////////// Store gen-level pho kinematics //////////
 
   vSC_DR_.clear();
   vSC_mass_.clear();
@@ -183,7 +184,7 @@ void SCRegressor::fillPhotonSel ( const edm::Event& iEvent, const edm::EventSetu
   vSC_phi_.clear();
   for ( auto const& iPho : vPhos ) {
 
-    // Skip pi0s which are not valid for regression
+    // Skip phos which are not valid for regression
     if ( iPho.matchedPreselPhoIdxs.empty() || iPho.matchedPreselPhoIdxs.size() > 1 ) continue;
     if ( std::find(vRegressPhoIdxs_.begin(), vRegressPhoIdxs_.end(), iPho.matchedPreselPhoIdxs[0]) == vRegressPhoIdxs_.end() ) continue;
 
@@ -198,6 +199,6 @@ void SCRegressor::fillPhotonSel ( const edm::Event& iEvent, const edm::EventSetu
 
     hSC_pT->Fill( iGen->pt() );
 
-  } // gen pi0s
+  } // gen phos
 
 } // fillPhotonSel()

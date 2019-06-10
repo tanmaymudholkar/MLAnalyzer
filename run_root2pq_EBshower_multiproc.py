@@ -33,18 +33,10 @@ xrootd='root://cmsxrootd.fnal.gov' # FNAL
 eosDir='/eos/uscms/store/user/lpcml/mandrews/IMG'
 #eosDir='/eos/uscms/store/user/lpcml/mandrews'
 
-decay = 'DoublePi0Pt10To100_m0To1600_pythia8_PU2017_MINIAODSIM_ext2'
-#decay = 'DoublePi0Pt15To100_m000_pythia8_PU2017_MINIAODSIM_ext'
-#decay = 'DoublePhotonPt15To100_pythia8_PU2017_MINIAODSIM_ext2'
-#decay = 'DoubleElectronPt15To100_pythia8_PU2017_MINIAODSIM'
-#decay = 'DoublePhotonPt15To100_pythia8_%s'%pu
-#decay = '%s_genDR%d_recoDR16_IMG'%(decay, genDR)
-#decay = '%s_genDR%d_recoDR16_seedPos_phoVars_IMG'%(decay, genDR)
-date_str = '190522_041152'
-#date_str = '190518_174132' # DR10
-#date_str = '190518_174336'
-#date_str = '190522_115731'
-#date_str = '190517_195312'
+#decay = 'DoublePi0Pt10To100_m0To1600_pythia8_PU2017_MINIAODSIM_ext3'
+decay = 'DoublePhotonPt15To100_pythia8_PU2017_MINIAODSIM_ext3'
+#date_str = '190524_020936'
+date_str = '190524_020731'
 
 #decay = 'DiPhotonJets_MGG-80toInf_13TeV_amcatnloFXFX_pythia8'
 #decay = 'GluGluHToGG_M125_13TeV_amcatnloFXFX_pythia8'

@@ -12,6 +12,7 @@ void SCRegressor::branchesDiPhotonSel ( TTree* tree, edm::Service<TFileService> 
   tree->Branch("FC_inputs", &vFC_inputs_);
   tree->Branch("hltAccept", &hltAccept_);
   tree->Branch("nRecoPho",  &nRecoPho_);
+  tree->Branch("minDR",     &vMinDR_);
 }
 
 // Run event selection ___________________________________________________________________//
@@ -28,7 +29,8 @@ bool SCRegressor::runDiPhotonSel ( const edm::Event& iEvent, const edm::EventSet
   std::vector<unsigned int> vRecoPhoIdxs;
   for ( unsigned int iP = 0; iP < photons->size(); iP++ ) {
     PhotonRef iPho( photons, iP );
-    if ( std::abs(iPho->pt()) < 5. ) continue;
+    //if ( std::abs(iPho->pt()) < 5. ) continue;
+    if ( std::abs(iPho->pt()) < 10. ) continue;
     vRecoPhoIdxs.push_back( iP );
   }
   if ( vRecoPhoIdxs.size() < 2 ) return false;
@@ -48,20 +50,21 @@ bool SCRegressor::runDiPhotonSel ( const edm::Event& iEvent, const edm::EventSet
     if ( std::abs(iPho->pt()) <= 18. ) continue;
     if ( std::abs(iPho->eta()) >= 1.442 ) continue;
 
-    /*
+    ///*
     if ( iPho->full5x5_r9() <= 0.5 ) continue;
     if ( iPho->hadTowOverEm() >= 0.08 ) continue;
-    //if ( iPho->hasPixelSeed() == true ) continue;
+    if ( iPho->hasPixelSeed() == true ) continue;
     //if ( iPho->passElectronVeto() == true ) continue;
     //if ( iPho->userFloat("phoChargedIsolation")/std::abs(iPho->pt()) > 0.3 ) continue;
 
     if ( iPho->full5x5_r9() <= 0.85 ) {
       if ( iPho->full5x5_sigmaIetaIeta() >= 0.015 ) continue;
       if ( iPho->userFloat("phoPhotonIsolation") >= 4.0 ) continue;
+      //if ( iPho->photonIso() >= 4.0 ) continue;
       if ( iPho->trkSumPtHollowConeDR03() >= 6. ) continue;
       //if ( iPho->trackIso() >= 6. ) continue;
     }
-    */
+    //*/
     if ( debug ) std::cout << " >> pT:" << iPho->pt() << " eta:" << iPho->eta() << " phi: " << iPho->phi() << " E:" << iPho->energy() << std::endl;
 
     //vDiPho += iPho->p4();
@@ -71,7 +74,8 @@ bool SCRegressor::runDiPhotonSel ( const edm::Event& iEvent, const edm::EventSet
 
   } // reco photons
   if ( debug ) std::cout << " Presel pho size:" << vPhos.size() << std::endl;
-  if ( vPhos.size() < 2 ) return false;
+  //if ( vPhos.size() < 2 ) return false;
+  if ( vPhos.size() != 2 ) return false;
 
   // Sort photons by pT, for abitrary N
   std::sort( vPhos.begin(), vPhos.end(), [](auto const &a, auto const &b) { return a.pt > b.pt; } );
@@ -122,8 +126,8 @@ bool SCRegressor::runDiPhotonSel ( const edm::Event& iEvent, const edm::EventSet
     vPreselPhoIdxs_.push_back( vPhoIdxs[iP] );
 
   } // vPhoIdxs
-
   if ( vPreselPhoIdxs_.size() != 2 ) return false;
+
   if ( debug ) std::cout << " Reco pho size:" << vPhos.size() << std::endl;
   if ( debug ) std::cout << " >> Passed selection. " << std::endl;
 
@@ -176,5 +180,20 @@ void SCRegressor::fillDiPhotonSel ( const edm::Event& iEvent, const edm::EventSe
     dphi[iP] = iPho->phi();
   }
   vFC_inputs_.push_back( TMath::Cos(reco::deltaPhi(dphi[0], dphi[1])) );
+
+  // Get dR of closest reco photon to presel photon
+  float minDR, dR;
+  vMinDR_.clear();
+  for ( unsigned int jP = 0; jP < vRegressPhoIdxs_.size(); jP++ ) {
+    PhotonRef jPho( photons, vRegressPhoIdxs_[jP] );
+    minDR = 100.;
+    for ( unsigned int kP = 0; kP < photons->size(); kP++ ) {
+      if ( std::find(vRegressPhoIdxs_.begin(), vRegressPhoIdxs_.end(), kP) != vRegressPhoIdxs_.end() ) continue;
+      PhotonRef kPho( photons, kP );
+      dR = reco::deltaR( jPho->eta(),jPho->phi(), kPho->eta(),kPho->phi() );
+      if ( dR < minDR ) minDR = dR;
+    } //k
+    vMinDR_.push_back( minDR );
+  } //j
 
 }

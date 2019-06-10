@@ -8,7 +8,7 @@ void SCRegressor::branchesPiSel ( TTree* tree, edm::Service<TFileService> &fs )
   //hdR = fs->make<TH1F>("dR_seed_subJet", "#DeltaR(seed,subJet);#DeltaR",50, 0., 50.*0.0174);
   //hdEta = fs->make<TH1F>("dEta_seed_subJet", "#Delta#eta(seed,subJet);#Delta#eta",50, 0., 50.*0.0174);
   //hdPhi = fs->make<TH1F>("dPhi_seed_subJet", "#Delta#phi(seed,subJet);#Delta#phi",50, 0., 50.*0.0174);
-  hdPhidEta = fs->make<TH3F>("dPhidEta_GG", "#Delta(#phi,#eta,m);#Delta#phi(#gamma,#gamma);#Delta#eta(#gamma,#gamma);m",
+  hdPhidEtaM = fs->make<TH3F>("dPhidEta_GG", "#Delta(#phi,#eta,m);#Delta#phi(#gamma,#gamma);#Delta#eta(#gamma,#gamma);m",
       6, 0., 6.*0.0174, 6, 0., 6.*0.0174, 16., 0.,1.6);
   hnPho = fs->make<TH2F>("nPho", "N(m_{#pi},p_{T,#pi})_{reco};m_{#pi^{0}};p_{T,#pi^0}",
       16, 0., 1.6, 17, 15., 100.);
@@ -25,12 +25,12 @@ void SCRegressor::branchesPiSel ( TTree* tree, edm::Service<TFileService> &fs )
 }
 
 // Define struct to handle mapping for gen pi0<->matched reco photons<->matched presel photons
-struct pi0_obj {
+struct pi0_map {
   unsigned int idx;
   std::vector<unsigned int> matchedRecoPhoIdxs;
   std::vector<unsigned int> matchedPreselPhoIdxs;
 };
-std::vector<pi0_obj> vPi0s;
+std::vector<pi0_map> vPi0s;
 
 // Run event selection ___________________________________________________________________//
 bool SCRegressor::runPiSel ( const edm::Event& iEvent, const edm::EventSetup& iSetup ) {
@@ -162,7 +162,7 @@ bool SCRegressor::runPiSel ( const edm::Event& iEvent, const edm::EventSetup& iS
     if ( debug ) std::cout << " >> gen dR:" << dR << std::endl;
 
     // Store this mapping
-    pi0_obj iPi0_obj = { iPi0, vMatchedRecoPhoIdxs, vMatchedPreselPhoIdxs };
+    pi0_map iPi0_obj = { iPi0, vMatchedRecoPhoIdxs, vMatchedPreselPhoIdxs };
     vPi0s.push_back( iPi0_obj );
 
   } // gen pi0s
@@ -243,7 +243,7 @@ void SCRegressor::fillPiSel ( const edm::Event& iEvent, const edm::EventSetup& i
     vSC_phi_.push_back( iGen->phi() );
 
     //hPt->Fill( ptPi0 );
-    hdPhidEta->Fill( dPhi, dEta, mPi0 );
+    hdPhidEtaM->Fill( dPhi, dEta, mPi0 );
     //hnPho->Fill( mPi0, iGen->pt() );
     hnPho->Fill( mPi0, ptPi0 );
     //hSC_mass->Fill( mPi0 );

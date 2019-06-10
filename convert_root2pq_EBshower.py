@@ -63,7 +63,8 @@ for f in rhTreeStr:
 nEvts = rhTree.GetEntries()
 assert nEvts > 0
 print " >> nEvts:",nEvts
-outStr = '%s/%s.parquet.%d'%(args.outdir, args.decay, args.idx)
+#outStr = '%s/%s.parquet.%d'%(args.outdir, args.decay, args.idx)
+outStr = '%s/%s.tzfixed.parquet.%d'%(args.outdir, args.decay, args.idx)
 #outStr = '%s/%s.reg_2reco.parquet.%d'%(args.outdir, args.decay, args.idx)
 print " >> Output file:",outStr
 
@@ -96,6 +97,10 @@ for iEvt in range(iEvtStart,iEvtEnd):
     SC_energyT = rhTree.SC_energyT
     SC_energyZ = rhTree.SC_energyZ
     SC_energy  = rhTree.SC_energy
+
+    SCaod_energyT = rhTree.SCaod_energyT
+    SCaod_energyZ = rhTree.SCaod_energyZ
+    SCaod_energy  = rhTree.SCaod_energy
 
     pi0_mass = rhTree.SC_mass
     pi0_iphi = rhTree.SC_iphi
@@ -130,7 +135,8 @@ for iEvt in range(iEvtStart,iEvtEnd):
     #X_EB = np.array(rhTree.EB_energy).reshape(1,170,360)
 
     nPhoEvt = len(pi0_mass)
-    rands = np.random.random((nPhoEvt, nPasses))
+    if args.wgt_files is not None:
+        rands = np.random.random((nPhoEvt, nPasses))
     for i in range(nPhoEvt):
 
         data['idx'] = idx + [i]
@@ -175,8 +181,13 @@ for iEvt in range(iEvtStart,iEvtEnd):
 
         data['X'] = np.array(SC_energy[i]).reshape(1,32,32)
         sc_energyT = np.array(SC_energyT[i]).reshape(1,32,32)
-        sc_energyZ = np.array(SC_energyT[i]).reshape(1,32,32)
+        sc_energyZ = np.array(SC_energyZ[i]).reshape(1,32,32)
         data['Xtz'] = np.concatenate((sc_energyT, sc_energyZ), axis=0)
+
+        data['X_aod'] = np.array(SCaod_energy[i]).reshape(1,32,32)
+        scaod_energyT = np.array(SCaod_energyT[i]).reshape(1,32,32)
+        scaod_energyZ = np.array(SCaod_energyZ[i]).reshape(1,32,32)
+        data['Xtz_aod'] = np.concatenate((scaod_energyT, scaod_energyZ), axis=0)
 
         #sc_cms = crop_EBshower(X_EB, data['iphi'], data['ieta'])
         #if sc_cms.shape != data['Xtz'].shape:
