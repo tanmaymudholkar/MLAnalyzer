@@ -21,9 +21,12 @@ SCRegressor::SCRegressor(const edm::ParameterSet& iConfig)
   //electronCollectionT_ = consumes<edm::View<reco::GsfElectron>>(iConfig.getParameter<edm::InputTag>("gsfElectronCollection"));
   electronCollectionT_ = consumes<reco::GsfElectronCollection>(iConfig.getParameter<edm::InputTag>("gsfElectronCollection"));
   photonCollectionT_ = consumes<PhotonCollection>(iConfig.getParameter<edm::InputTag>("photonCollection"));
-  EBRecHitCollectionT_ = consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("reducedEBRecHitCollection"));
+  EBRecHitCollectionT_    = consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("reducedEBRecHitCollection"));
   EERecHitCollectionT_    = consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("reducedEERecHitCollection"));
   ESRecHitCollectionT_    = consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("reducedESRecHitCollection"));
+  AODEBRecHitCollectionT_ = consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("reducedAODEBRecHitCollection"));
+  AODEERecHitCollectionT_ = consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("reducedAODEERecHitCollection"));
+  AODESRecHitCollectionT_ = consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("reducedAODESRecHitCollection"));
   genParticleCollectionT_ = consumes<reco::GenParticleCollection>(iConfig.getParameter<edm::InputTag>("genParticleCollection"));
   genJetCollectionT_ = consumes<reco::GenJetCollection>(iConfig.getParameter<edm::InputTag>("genJetCollection"));
   trackCollectionT_ = consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("trackCollection"));
@@ -48,7 +51,8 @@ SCRegressor::SCRegressor(const edm::ParameterSet& iConfig)
   branchesDiPhotonSel ( RHTree, fs );
   branchesH2aaSel ( RHTree, fs );
   branchesSC     ( RHTree, fs );
-  //branchesEB     ( RHTree, fs );
+  branchesSCaod  ( RHTree, fs );
+  branchesEB     ( RHTree, fs );
   //branchesTracksAtEBEE     ( RHTree, fs );
   branchesPhoVars     ( RHTree, fs );
 
@@ -70,7 +74,18 @@ SCRegressor::~SCRegressor()
 void
 SCRegressor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
+
   using namespace edm;
+
+  eventId_ = iEvent.id().event();
+  runId_ = iEvent.id().run();
+  lumiId_ = iEvent.id().luminosityBlock();
+  /*
+  if ( runId_ == 1 && lumiId_ == 1 && (eventId_ == 3 || eventId_ == 22 || eventId_ == 28) ) {
+    std::cout << runId_<<":"<<lumiId_ <<":"<<eventId_ <<std::endl;
+  }
+  //else return;
+  */
 
   edm::Handle<EcalRecHitCollection> EBRecHitsH;
   iEvent.getByToken(EBRecHitCollectionT_, EBRecHitsH);
@@ -92,7 +107,9 @@ SCRegressor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   hasPassed = runDiPhotonSel ( iEvent, iSetup );
   //hasPassed = runH2aaSel ( iEvent, iSetup );
   if ( !hasPassed ) return;
-  bool runGen = runH2aaSel ( iEvent, iSetup );
+  runH2aaSel ( iEvent, iSetup );
+
+  nPreselPassed += vPreselPhoIdxs_.size();
 
   // Get coordinates of photon supercluster seed
   nPho = 0;
@@ -162,8 +179,8 @@ SCRegressor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   // Enforce selection
   if ( debug ) std::cout << " >> nPho: " << nPho << std::endl;
-  //if ( nPho == 0 ) return;
-  if ( nPho != 2 ) return;
+  //if ( nPho == 0 ) return; // Pi/Photon gun selection
+  if ( nPho != 2 ) return; // Diphoton physics selection
   if ( debug ) std::cout << " >> Passed cropping. " << std::endl;
 
   //fillPiSel ( iEvent, iSetup );
@@ -171,13 +188,11 @@ SCRegressor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   fillDiPhotonSel ( iEvent, iSetup );
   fillH2aaSel ( iEvent, iSetup );
   fillSC     ( iEvent, iSetup );
-  //fillEB     ( iEvent, iSetup );
+  fillSCaod  ( iEvent, iSetup );
+  fillEB     ( iEvent, iSetup );
   //fillTracksAtEBEE     ( iEvent, iSetup );
   fillPhoVars     ( iEvent, iSetup );
 
-  eventId_ = iEvent.id().event();
-  runId_ = iEvent.id().run();
-  lumiId_ = iEvent.id().luminosityBlock();
   //nPassed++;
   nPassed += nPho;
 
@@ -200,6 +215,7 @@ void
 SCRegressor::beginJob()
 {
   nTotal = 0;
+  nPreselPassed = 0;
   nPassed = 0;
 }
 
@@ -207,7 +223,8 @@ SCRegressor::beginJob()
 void
 SCRegressor::endJob()
 {
-  std::cout << " selected: " << nPassed << "/" << nTotal << std::endl;
+  std::cout << ">> pre-selected: " << nPreselPassed << "/" << nTotal << std::endl;
+  std::cout << ">> selected: " << nPassed << "/" << nTotal << std::endl;
 }
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------

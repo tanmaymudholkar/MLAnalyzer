@@ -1,51 +1,51 @@
 #include "MLAnalyzer/RecHitAnalyzer/interface/SCRegressor.h"
 
 // Initialize branches _____________________________________________________//
-void SCRegressor::branchesSC ( TTree* tree, edm::Service<TFileService> &fs )
+void SCRegressor::branchesSCaod ( TTree* tree, edm::Service<TFileService> &fs )
 {
-  hSC_energy = fs->make<TProfile2D>("SC_energy", "E(i#phi,i#eta);iphi;ieta",
+  hSCaod_energy = fs->make<TProfile2D>("SCaod_energy", "E(i#phi,i#eta);iphi;ieta",
       crop_size, 0, crop_size,
       crop_size, 0, crop_size );
-  hSC_time = fs->make<TProfile2D>("SC_time", "t(i#phi,i#eta);iphi;ieta",
+  hSCaod_time = fs->make<TProfile2D>("SCaod_time", "t(i#phi,i#eta);iphi;ieta",
       crop_size, 0, crop_size,
       crop_size, 0, crop_size );
 
-  RHTree->Branch("SC_energy",  &vSC_energy_);
-  RHTree->Branch("SC_energyT", &vSC_energyT_);
-  RHTree->Branch("SC_energyZ", &vSC_energyZ_);
-  RHTree->Branch("SC_time",    &vSC_time_);
+  RHTree->Branch("SCaod_energy",  &vSCaod_energy_);
+  RHTree->Branch("SCaod_energyT", &vSCaod_energyT_);
+  RHTree->Branch("SCaod_energyZ", &vSCaod_energyZ_);
+  RHTree->Branch("SCaod_time",    &vSCaod_time_);
 
-} // branchesSC()
+} // branchesSCaod()
 
-// Fill SC rechits _________________________________________________________________//
-void SCRegressor::fillSC ( const edm::Event& iEvent, const edm::EventSetup& iSetup )
+// Fill SCaod rechits _________________________________________________________________//
+void SCRegressor::fillSCaod ( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 {
 
   edm::Handle<EcalRecHitCollection> EBRecHitsH;
-  iEvent.getByToken(EBRecHitCollectionT_, EBRecHitsH);
+  iEvent.getByToken(AODEBRecHitCollectionT_, EBRecHitsH);
 
   edm::ESHandle<CaloGeometry> caloGeomH;
   iSetup.get<CaloGeometryRecord>().get(caloGeomH);
   const CaloGeometry* caloGeom = caloGeomH.product();
 
-  vSC_energy_.clear();
-  vSC_energyT_.clear();
-  vSC_energyZ_.clear();
-  vSC_time_.clear();
-  std::vector<float> SC_energy;
-  std::vector<float> SC_energyT;
-  std::vector<float> SC_energyZ;
-  std::vector<float> SC_time;
+  vSCaod_energy_.clear();
+  vSCaod_energyT_.clear();
+  vSCaod_energyZ_.clear();
+  vSCaod_time_.clear();
+  std::vector<float> SCaod_energy;
+  std::vector<float> SCaod_energyT;
+  std::vector<float> SCaod_energyZ;
+  std::vector<float> SCaod_time;
 
   int iphi_, ieta_, idx_; // rows:ieta, cols:iphi
   int iphi_shift, ieta_shift;
   int iphi_crop, ieta_crop;
   for ( unsigned int iP(0); iP < nPho; iP++ ) {
 
-    SC_energy.assign(crop_size*crop_size,0.);
-    SC_energyT.assign(crop_size*crop_size,0.);
-    SC_energyZ.assign(crop_size*crop_size,0.);
-    SC_time.assign(crop_size*crop_size,0.);
+    SCaod_energy.assign(crop_size*crop_size,0.);
+    SCaod_energyT.assign(crop_size*crop_size,0.);
+    SCaod_energyZ.assign(crop_size*crop_size,0.);
+    SCaod_time.assign(crop_size*crop_size,0.);
 
     iphi_shift = vIphi_Emax_[iP] - 15;
     ieta_shift = vIeta_Emax_[iP] - 15;
@@ -79,11 +79,11 @@ void SCRegressor::fillSC ( const edm::Event& iEvent, const edm::EventSetup& iSet
       auto pos = caloGeom->getPosition(ebId);
 
       // Fill branch arrays
-      SC_energy[idx_] = iRHit->energy();
-      //SC_energyT[idx_] = iRHit->energy()/TMath::CosH(vPho_eta_);
-      SC_energyT[idx_] = iRHit->energy()/TMath::CosH(pos.eta());
-      SC_energyZ[idx_] = iRHit->energy()*std::abs(TMath::TanH(pos.eta()));
-      SC_time[idx_] = iRHit->time();
+      SCaod_energy[idx_] = iRHit->energy();
+      //SCaod_energyT[idx_] = iRHit->energy()/TMath::CosH(vPho_eta_);
+      SCaod_energyT[idx_] = iRHit->energy()/TMath::CosH(pos.eta());
+      SCaod_energyZ[idx_] = iRHit->energy()*std::abs(TMath::TanH(pos.eta()));
+      SCaod_time[idx_] = iRHit->time();
       /*
       vEB_SCenergy_[ebId.hashedIndex()] = iRHit->energy();
       */
@@ -91,18 +91,18 @@ void SCRegressor::fillSC ( const edm::Event& iEvent, const edm::EventSetup& iSet
       //std::cout << "idx,ieta,iphi,E:" <<idx_<<","<< ieta_crop << "," << iphi_crop << "," << iRHit->energy() << std::endl; 
 
       // Fill histograms to monitor cumulative distributions
-      hSC_energy->Fill( iphi_crop,ieta_crop,iRHit->energy() );
-      hSC_time->Fill( iphi_crop,ieta_crop,iRHit->time() );
+      hSCaod_energy->Fill( iphi_crop,ieta_crop,iRHit->energy() );
+      hSCaod_time->Fill( iphi_crop,ieta_crop,iRHit->time() );
 
     } // EB rechits
-    vSC_energy_.push_back( SC_energy );
-    vSC_energyT_.push_back( SC_energyT );
-    vSC_energyZ_.push_back( SC_energyZ );
-    vSC_time_.push_back( SC_time );
+    vSCaod_energy_.push_back( SCaod_energy );
+    vSCaod_energyT_.push_back( SCaod_energyT );
+    vSCaod_energyZ_.push_back( SCaod_energyZ );
+    vSCaod_time_.push_back( SCaod_time );
 
   } // photons
   /*
-  for(auto const& e:vSC_energy_) {
+  for(auto const& e:vSCaod_energy_) {
     std::cout << "array" << std::endl;
     for ( int i =0;i < 32*32;i++) {
       //if (e[i] > 0.) std::cout << "idx,ieta,iphi,E:" <<i<<","<< (int)(i/32) << ","<< i % 32  <<","<< e[i] << std::endl;
@@ -110,4 +110,4 @@ void SCRegressor::fillSC ( const edm::Event& iEvent, const edm::EventSetup& iSet
   };
   */
 
-} // fillSC()
+} // fillSCaod()

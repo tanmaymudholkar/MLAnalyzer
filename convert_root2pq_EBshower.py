@@ -2,6 +2,7 @@ import pyarrow.parquet as pq
 import pyarrow as pa # pip install pyarrow==0.7.1
 import ROOT
 import numpy as np
+np.random.seed(0)
 import glob, os
 
 import argparse
@@ -12,7 +13,8 @@ parser.add_argument('-i', '--infile', default=['output.root'], nargs='+', type=s
 parser.add_argument('-o', '--outdir', default='.', type=str, help='Output pq file dir.')
 parser.add_argument('-d', '--decay', default='test', type=str, help='Decay name.')
 parser.add_argument('-n', '--idx', default=0, type=int, help='Input root file index.')
-parser.add_argument('-w', '--wgt_file', default=None, type=str, help='Weight file.')
+#parser.add_argument('-w', '--wgt_file', default=None, type=str, help='Weight file.')
+parser.add_argument('-w', '--wgt_files', default=None, nargs='+', type=str, help='Weight file.')
 args = parser.parse_args()
 
 def crop_EBshower(imgEB, iphi, ieta, window=32):
@@ -44,11 +46,16 @@ def get_weight_2d(m0, pt, m0_edges, pt_edges, wgts):
     #print(idx_m0, idx_pt)
     return wgts[idx_m0, idx_pt]
 
-if args.wgt_file is not None:
-    w = np.load(args.wgt_file)
-    hmvpt, m_edges, pt_edges = w['mvpt'], w['m_edges'], w['pt_edges']
+hmvpts, m_edgess, pt_edgess = {}, {}, {}
+if args.wgt_files is not None:
+    nPasses = len(args.wgt_files)
+    for p,wgt_file in enumerate(args.wgt_files):
+        w = np.load(wgt_file)
+        hmvpts[p], m_edgess[p], pt_edgess[p] = w['mvpt'], w['m_edges'], w['pt_edges']
+    #w = np.load(args.wgt_file)
+    #hmvpt, m_edges, pt_edges = w['mvpt'], w['m_edges'], w['pt_edges']
 
-rhTreeStr = args.infile 
+rhTreeStr = args.infile
 print " >> Input file:",rhTreeStr
 rhTree = ROOT.TChain("fevt/RHTree")
 for f in rhTreeStr:
@@ -56,16 +63,17 @@ for f in rhTreeStr:
 nEvts = rhTree.GetEntries()
 assert nEvts > 0
 print " >> nEvts:",nEvts
-#outStr = '%s/%s.parquet.%d'%(args.outdir, args.decay, args.idx) 
-outStr = '%s/%s.reg_2reco.parquet.%d'%(args.outdir, args.decay, args.idx) 
+#outStr = '%s/%s.parquet.%d'%(args.outdir, args.decay, args.idx)
+outStr = '%s/%s.tzfixed.parquet.%d'%(args.outdir, args.decay, args.idx)
+#outStr = '%s/%s.reg_2reco.parquet.%d'%(args.outdir, args.decay, args.idx)
 print " >> Output file:",outStr
 
 ##### EVENT SELECTION START #####
 
 # Event range to process
 iEvtStart = 0
-#iEvtEnd   = 10
-iEvtEnd   = nEvts 
+iEvtEnd   = 10000
+iEvtEnd   = nEvts
 assert iEvtEnd <= nEvts
 print " >> Processing entries: [",iEvtStart,"->",iEvtEnd,")"
 
@@ -81,77 +89,107 @@ for iEvt in range(iEvtStart,iEvtEnd):
     if iEvt % 10000 == 0:
         print " .. Processing entry",iEvt
 
-    if rhTree.m0 < 100. or rhTree.m0 > 110.:
-      continue
+    #if rhTree.m0 < 100. or rhTree.m0 > 110.:
+    #  continue
 
     idx = [rhTree.runId, rhTree.lumiId, rhTree.eventId]
 
     SC_energyT = rhTree.SC_energyT
     SC_energyZ = rhTree.SC_energyZ
-    SC_energy = rhTree.SC_energy
-    #SC_mass = rhTree.SC_mass
-    #SC_pT = rhTree.SC_pT
-    SC_iphi = rhTree.SC_iphi
-    SC_ieta = rhTree.SC_ieta
+    SC_energy  = rhTree.SC_energy
 
-    pho_pTs =             rhTree.pho_pT
-    pho_r9s =             rhTree.pho_r9
-    pho_sieies =          rhTree.pho_sieie
-    pho_phoIsos =         rhTree.pho_phoIso
-    pho_chgIsos =         rhTree.pho_chgIso
-    pho_chgIsoWrongVtxs = rhTree.pho_chgIsoWrongVtx
-    pho_Eraws =           rhTree.pho_Eraw
-    pho_phiWidths =       rhTree.pho_phiWidth
-    pho_etaWidths =       rhTree.pho_etaWidth
-    pho_scEtas =          rhTree.pho_scEta
-    pho_sieips =          rhTree.pho_sieip
-    pho_s4s =             rhTree.pho_s4
+    SCaod_energyT = rhTree.SCaod_energyT
+    SCaod_energyZ = rhTree.SCaod_energyZ
+    SCaod_energy  = rhTree.SCaod_energy
+
+    pi0_mass = rhTree.SC_mass
+    pi0_iphi = rhTree.SC_iphi
+    pi0_ieta = rhTree.SC_ieta
+    pi0_dR = rhTree.SC_DR
+
+    pi0_E   = rhTree.SC_E
+    pi0_pt  = rhTree.SC_pT
+    pi0_phi = rhTree.SC_phi
+    pi0_eta = rhTree.SC_eta
+
+    pho_r9 =             rhTree.pho_r9
+    pho_sieie =          rhTree.pho_sieie
+    pho_phoIso =         rhTree.pho_phoIso
+    pho_chgIso =         rhTree.pho_chgIso
+    pho_chgIsoWrongVtx = rhTree.pho_chgIsoWrongVtx
+    pho_Eraw =           rhTree.pho_Eraw
+    pho_phiWidth =       rhTree.pho_phiWidth
+    pho_etaWidth =       rhTree.pho_etaWidth
+    pho_scEta =          rhTree.pho_scEta
+    pho_sieip =          rhTree.pho_sieip
+    pho_s4 =             rhTree.pho_s4
+
+    pho_E   = rhTree.pho_E
+    pho_pt  = rhTree.pho_pT
+    pho_phi = rhTree.pho_phi
+    pho_eta = rhTree.pho_eta
 
     #EB_time = np.array(rhTree.EB_time).reshape(170,360)
     #TracksAtEB_pt = np.array(rhTree.TracksPt_EB).reshape(170,360)
-    #X_EB = np.stack([TracksAtEB_pt, EB_time], axis=0) 
+    #X_EB = np.stack([TracksAtEB_pt, EB_time], axis=0)
     #X_EB = np.array(rhTree.EB_energy).reshape(1,170,360)
 
-    nphos = len(SC_iphi)
-    rands = np.random.random(nphos)
-    for i in range(nphos):
+    nPhoEvt = len(pi0_mass)
+    if args.wgt_files is not None:
+        rands = np.random.random((nPhoEvt, nPasses))
+    for i in range(nPhoEvt):
 
         data['idx'] = idx + [i]
-        data['m0'] = rhTree.m0
+        #data['m0'] = rhTree.m0
 
-        #data['m'] = SC_mass[i]
-        #data['pt'] = SC_pT[i]
-        data['iphi'] = SC_iphi[i]
-        data['ieta'] = SC_ieta[i]
+        data['m'] = pi0_mass[i]
+        data['pt'] = pi0_pt[i]
+        data['iphi'] = pi0_iphi[i]
+        data['ieta'] = pi0_ieta[i]
+        data['dR'] = pi0_dR[i]
 
         #if data['ieta'] >= 170-16:
         #    continue
 
-        if args.wgt_file is not None:
-            if rands[i] < get_weight_2d(data['m'], data['pt'], m_edges, pt_edges, hmvpt):
-                continue
+        if data['pt'] < 20.: continue
+        if data['dR']/0.0174 > 10.: continue
 
-        data['pt_reco'] = pho_pTs[i]
-        data['Xvars'] = [
-            pho_r9s[i]
-            ,pho_sieies[i]
-            ,pho_phoIsos[i]
-            ,pho_chgIsos[i]
-            ,pho_chgIsoWrongVtxs[i]
-            ,pho_Eraws[i]
-            ,pho_phiWidths[i]
-            ,pho_etaWidths[i]
-            ,pho_scEtas[i]
-            ,pho_sieips[i]
-            ,pho_s4s[i]
+        if args.wgt_files is not None:
+            keepEG = True
+            for p in range(nPasses):
+                if rands[i,p] < get_weight_2d(data['m'], data['pt'], m_edgess[p], pt_edgess[p], hmvpts[p]):
+                    keepEG = False
+            if keepEG == False: continue
+            #if rands[i] < get_weight_2d(data['m'], data['pt'], m_edges, pt_edges, hmvpt):
+            #    continue
+
+        data['pi0_p4'] = [pi0_E[i], pi0_pt[i], pi0_eta[i], pi0_phi[i]]
+        data['pho_p4'] = [pho_E[i], pho_pt[i], pho_eta[i], pho_phi[i]]
+        data['pho_id'] = [
+            pho_r9[i]
+            ,pho_sieie[i]
+            ,pho_phoIso[i]
+            ,pho_chgIso[i]
+            ,pho_chgIsoWrongVtx[i]
+            ,pho_Eraw[i]
+            ,pho_phiWidth[i]
+            ,pho_etaWidth[i]
+            ,pho_scEta[i]
+            ,pho_sieip[i]
+            ,pho_s4[i]
         ]
 
         data['X'] = np.array(SC_energy[i]).reshape(1,32,32)
         sc_energyT = np.array(SC_energyT[i]).reshape(1,32,32)
-        sc_energyZ = np.array(SC_energyT[i]).reshape(1,32,32)
+        sc_energyZ = np.array(SC_energyZ[i]).reshape(1,32,32)
         data['Xtz'] = np.concatenate((sc_energyT, sc_energyZ), axis=0)
 
-        #sc_cms = crop_EBshower(X_EB, data['iphi'], data['ieta']) 
+        data['X_aod'] = np.array(SCaod_energy[i]).reshape(1,32,32)
+        scaod_energyT = np.array(SCaod_energyT[i]).reshape(1,32,32)
+        scaod_energyZ = np.array(SCaod_energyZ[i]).reshape(1,32,32)
+        data['Xtz_aod'] = np.concatenate((scaod_energyT, scaod_energyZ), axis=0)
+
+        #sc_cms = crop_EBshower(X_EB, data['iphi'], data['ieta'])
         #if sc_cms.shape != data['Xtz'].shape:
         #    print(sc_cms.shape)
         #    print(data['Xtz'].shape)
@@ -179,8 +217,7 @@ pqIn = pq.ParquetFile(outStr)
 print(pqIn.metadata)
 print(pqIn.schema)
 #X = pqIn.read_row_group(0, columns=['m','pt','iphi','ieta','pt_reco']).to_pydict()
-X = pqIn.read_row_group(0, columns=['idx.list.item','iphi','ieta','pt_reco']).to_pydict()
-X = pqIn.read_row_group(1, columns=['idx.list.item','iphi','ieta','pt_reco']).to_pydict()
+X = pqIn.read_row_group(0, columns=['idx.list.item','m','iphi','ieta','pi0_p4.list.item','pho_p4.list.item']).to_pydict()
 print(X)
 #X = pqIn.read_row_group(0, columns=['X.list.item.list.item.list.item']).to_pydict()['X']
 #X = pqIn.read(['X.list.item.list.item.list.item']).to_pydict()['X']

@@ -38,6 +38,7 @@ void SCRegressor::fillEB ( const edm::Event& iEvent, const edm::EventSetup& iSet
   edm::Handle<EcalRecHitCollection> EBRecHitsH_;
   iEvent.getByToken( EBRecHitCollectionT_, EBRecHitsH_);
 
+  //std::cout << "EB" << std::endl;
   // Fill EB rechits 
   for ( EcalRecHitCollection::const_iterator iRHit = EBRecHitsH_->begin();
         iRHit != EBRecHitsH_->end(); ++iRHit ) {
@@ -57,6 +58,8 @@ void SCRegressor::fillEB ( const edm::Event& iEvent, const edm::EventSetup& iSet
     // Fill vectors for images
     vEB_energy_[idx_] = energy_;
     vEB_time_[idx_] = iRHit->time();
+
+    //std::cout << "idx,ieta,iphi,E:" <<idx_<<","<< ieta_ << "," << iphi_ << "," << iRHit->energy() << std::endl;
 
   } // EB rechits
 

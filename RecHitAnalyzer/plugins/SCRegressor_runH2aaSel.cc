@@ -17,9 +17,13 @@ void SCRegressor::branchesH2aaSel ( TTree* tree, edm::Service<TFileService> &fs 
 
   tree->Branch("A_mass",    &vA_mass_);
   tree->Branch("A_DR",      &vA_DR_);
+  tree->Branch("A_E",       &vA_E_);
   tree->Branch("A_pT",      &vA_pT_);
   tree->Branch("A_eta",     &vA_eta_);
   tree->Branch("A_phi",     &vA_phi_);
+
+  hdPhidEta = fs->make<TH2F>("dPhidEta_GG", "#Delta(#phi,#eta,m);#Delta#phi(#gamma,#gamma);#Delta#eta(#gamma,#gamma)",
+              6, 0., 6.*0.0174, 6, 0., 6.*0.0174);
 }
 
 // Run event selection ___________________________________________________________________//
@@ -97,18 +101,25 @@ void SCRegressor::fillH2aaSel ( const edm::Event& iEvent, const edm::EventSetup&
   edm::Handle<reco::GenParticleCollection> genParticles;
   iEvent.getByToken(genParticleCollectionT_, genParticles);
 
+  vA_E_.clear();
   vA_pT_.clear();
   vA_eta_.clear();
   vA_phi_.clear();
   vA_mass_.clear();
   vA_DR_.clear();
+  float dPhi, dEta;
   for ( unsigned int iG = 0; iG < vGenAIdxs.size(); iG++ ) {
     reco::GenParticleRef iGen( genParticles, vGenAIdxs[iG] );
+    vA_E_.push_back( std::abs(iGen->energy()) );
     vA_pT_.push_back( std::abs(iGen->pt()) );
     vA_eta_.push_back( iGen->eta() );
     vA_phi_.push_back( iGen->phi() );
     vA_mass_.push_back( iGen->mass() );
     vA_DR_.push_back( reco::deltaR(iGen->daughter(0)->eta(),iGen->daughter(0)->phi(), iGen->daughter(1)->eta(),iGen->daughter(1)->phi()) );
+
+    dPhi = reco::deltaPhi( iGen->daughter(0)->phi(), iGen->daughter(1)->phi() );
+    dEta = std::abs( iGen->daughter(0)->eta() - iGen->daughter(1)->eta() );
+    hdPhidEta->Fill( dPhi, dEta );
   }
 
 }

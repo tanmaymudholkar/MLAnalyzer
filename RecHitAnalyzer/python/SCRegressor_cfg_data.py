@@ -63,14 +63,11 @@ process.fevt = cms.EDAnalyzer('SCRegressor'
     , reducedAODEBRecHitCollection = cms.InputTag('reducedEcalRecHitsEB')
     , reducedAODEERecHitCollection = cms.InputTag('reducedEcalRecHitsEE')
     , reducedAODESRecHitCollection = cms.InputTag('reducedEcalRecHitsES')
-    #, reducedEBRecHitCollection = cms.InputTag('reducedEcalRecHitsEB')
-    #, reducedEERecHitCollection = cms.InputTag('reducedEcalRecHitsEE')
-    #, reducedESRecHitCollection = cms.InputTag('reducedEcalRecHitsES')
     , reducedEBRecHitCollection = cms.InputTag('reducedEgamma:reducedEBRecHits')
     , reducedEERecHitCollection = cms.InputTag('reducedEgamma:reducedEERecHits')
     , reducedESRecHitCollection = cms.InputTag('reducedEgamma:reducedESRecHits')
-    , genParticleCollection = cms.InputTag('genParticles')
-    #, genParticleCollection = cms.InputTag('prunedGenParticles')
+    #, genParticleCollection = cms.InputTag('genParticles')
+    , genParticleCollection = cms.InputTag('prunedGenParticles')
     , genJetCollection = cms.InputTag('ak4GenJets')
     , trackCollection = cms.InputTag("generalTracks")
     , rhoLabel = cms.InputTag("fixedGridRhoFastjetAll")
@@ -107,14 +104,14 @@ setupEgammaPostRecoSeq(process,
 from PhysicsTools.PatUtils.tools.runMETCorrectionsAndUncertainties import runMetCorAndUncFromMiniAOD
 runMetCorAndUncFromMiniAOD (
         process,
-        isData = False, # false for MC
+        isData = True, # false for MC
         fixEE2017 = True,
         fixEE2017Params = {'userawPt': True, 'ptThreshold':50.0, 'minEtaThreshold':2.65, 'maxEtaThreshold': 3.139} ,
         postfix = "ModifiedMET"
 )
 
 process.p = cms.Path(
-  #process.hltFilter*
+  process.hltFilter*
   process.fullPatMetSequenceModifiedMET*
   process.egammaPostRecoSeq*
   process.fevt

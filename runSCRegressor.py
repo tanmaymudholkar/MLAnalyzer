@@ -1,6 +1,7 @@
 import os
 
 cfg='RecHitAnalyzer/python/SCRegressor_cfg.py'
+#cfg='RecHitAnalyzer/python/SCRegressor_cfg_data.py'
 #inputFiles_='file:../step_full.root'
 #inputFiles_='file:/eos/uscms/store/user/mba2012/FEVTDEBUG/h24gamma_1j_1M_100MeV_noPU_FEVTDEBUG/180109_233954/0000/step_full_1.root'
 #inputFiles_='file:/eos/uscms/store/user/mba2012/AODSIM/SinglePi0Pt60_pythia8_2016_25ns_Moriond17MC_PoissonOOTPU_AODSIM_m000/180413_215734/0000/step_full_1.root'
@@ -26,16 +27,32 @@ cfg='RecHitAnalyzer/python/SCRegressor_cfg.py'
 #inputFiles_='/store/user/lpcml/mandrews/AODSIM/h24gamma_1j_1M_100MeV_2016_25ns_Moriond17MC_PoissonOOTPU_AODSIM/180903_152402/0000/step_full_1.root'
 #inputFiles_='/store/user/lpcml/mandrews/AODSIM/h24gamma_1j_1M_400MeV_2016_25ns_Moriond17MC_PoissonOOTPU_AODSIM/180908_013040/0000/step_full_1.root'
 #inputFiles_='/store/user/lpcml/mandrews/AODSIM/h24gamma_1j_1M_1GeV_2016_25ns_Moriond17MC_PoissonOOTPU_AODSIM/180902_213131/0000/step_full_1.root'
-inputFiles_='/store/user/lpcml/mandrews/MINIAODSIM/h24gamma_1j_1M_100MeV_PU2017_MINIAODSIM/190409_144816/0000/step_miniaodsim_1.root'
+#inputFiles_='/store/user/lpcml/mandrews/MINIAODSIM/h24gamma_1j_1M_100MeV_PU2017_MINIAODSIM/190409_144816/0000/step_miniaodsim_10.root'
 #inputFiles_='/store/user/lpcml/mandrews/MINIAODSIM/h24gamma_1j_1M_200MeV_PU2017_MINIAODSIM/190410_034928/0000/step_miniaodsim_1.root'
 #inputFiles_='/store/user/lpcml/mandrews/MINIAODSIM/h24gamma_1j_1M_400MeV_PU2017_MINIAODSIM/190410_035004/0000/step_miniaodsim_1.root'
-#inputFiles_='/store/user/lpcml/mandrews/MINIAODSIM/h24gamma_1j_1M_1GeV_PU2017_MINIAODSIM/190410_034853/0000/step_miniaodsim_1.root'
+#inputFiles_='/store/user/lpcml/mandrews/MINIAODSIM/h24gamma_1j_1M_1GeV_PU2017_MINIAODSIM/190410_034853/0000/step_miniaodsim_13.root'
+#inputFiles_='/store/mc/RunIIFall17DRPremix/SUSYGluGluToHToAA_AToGG_M-1_TuneCP5_13TeV_pythia8/AODSIM/PU2017_94X_mc2017_realistic_v11-v1/100000/7E53D72A-AD71-E811-B026-0025902EECDC.root'
+#inputFiles_='/store/mc/RunIISummer16MiniAODv2/SUSYGluGluToHToAA_AToGG_M-1_TuneCUETP8M1_13TeV_pythia8/MINIAODSIM/PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/50000/D6C6297F-ECCB-E611-AB1F-D067E5F91DA6.root'
+#inputFiles_='/store/user/lpcml/mandrews/AODSIM/h24gamma_1j_1M_400MeV_PU2017_AODSIM/190404_040951/0000/step_aodsim_1.root'
+inputFiles_='/store/user/lpcml/mandrews/MINIAODSIM/h24gamma_1j_1M_1GeV_PU2017_MINIAODSIM_ext3/190525_045306/0000/step_miniaodsim_ext3_1.root'
+#inputFiles_='/store/user/lpcml/mandrews/MINIAODSIM/DoublePi0Pt15To100_m0To1600_pythia8_PU2017_MINIAODSIM/190510_220104/0000/step_MINIAODSIM_1.root'
+#inputFiles_='/store/user/lpcml/mandrews/MINIAODSIM/DoublePhotonPt15To100_pythia8_PU2017_MINIAODSIM/190430_014319/0000/step_MINIAODSIM_1.root'
+#inputFiles_='/store/user/lpcml/mandrews/MINIAODSIM/DoubleElectronPt15To100_pythia8_PU2017_MINIAODSIM/190506_230453/0000/step_MINIAODSIM_1.root'
+#inputFiles_='/store/user/lpcml/mandrews/MINIAODSIM/DoublePi0Pt15To100_m0To1600_pythia8_PU2017_MINIAODSIM/190510_220104/0000/step_MINIAODSIM_1.root'
+#inputFiles_='/store/user/lpcml/mandrews/AODSIM/DoublePi0Pt15To100_m0To1600_pythia8_PU2017_AODSIM/190426_023521/0000/step_AODSIM_1.root'
+#inputFiles_='/store/user/lpcml/mandrews/AODSIM/DoublePi0Pt10To100_m0To1600_pythia8_PU2017_AODSIM/190516_143234/0000/step_AODSIM_1.root'
+#inputFiles_='/store/user/lpcml/mandrews/MINIAODSIM/DoublePi0Pt10To100_m0To1600_pythia8_PU2017_MINIAODSIM_ext/190517_125544/0000/step_MINIAODSIMext_1.root'
+#inputFiles_='/store/user/lpcml/mandrews/MINIAODSIM/DoublePi0Pt10To100_m0To1600_pythia8_PU2017_MINIAODSIM_ext2/190521_221811/0000/step_MINIAODSIMext2_1.root'
+#inputFiles_='/store/user/lpcml/mandrews/MINIAODSIM/DoublePhotonPt15To100_pythia8_PU2017_MINIAODSIM_ext2/190522_041329/0000/step_MINIAODSIMext2_1.root'
+#inputFiles_='file:/uscms/home/mba2012/nobackup/GUN/CMSSW_9_4_13/src/step_MINIAODSIMext2.root'
 #inputFiles_='file:step_full_filtered.root'
 #inputFiles_='root://cmseos.fnal.gov/%s'%inputFiles_
+#inputFiles_='file:/eos/uscms%s'%inputFiles_
 #root://cmsxrootd-site.fnal.gov
 
 maxEvents_=-1
-maxEvents_=1000
+#maxEvents_=5000
+#maxEvents_=1
 skipEvents_=0
 #outputFile_='output.root'
 #inputTag=inputFiles_.strip('file:').strip('_FEVTDEBUG.root')
