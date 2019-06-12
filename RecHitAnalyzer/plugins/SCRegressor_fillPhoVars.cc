@@ -96,9 +96,6 @@ void SCRegressor::fillPhoVars ( const edm::Event& iEvent, const edm::EventSetup&
 
     vPho_r9_.push_back(             iPho->full5x5_r9() );
     vPho_sieie_.push_back(          iPho->full5x5_sigmaIetaIeta() );
-    //vPho_phoIso_.push_back(         iPho->photonIso() );
-    //vPho_chgIso_.push_back(         iPho->chargedHadronIso() );
-    //vPho_chgIsoWrongVtx_.push_back( iPho->chargedHadronIsoWrongVtx() );
     vPho_Eraw_.push_back(           iSC->rawEnergy() );
     vPho_phiWidth_.push_back(       iSC->phiWidth() );
     vPho_etaWidth_.push_back(       iSC->etaWidth() );
@@ -111,6 +108,11 @@ void SCRegressor::fillPhoVars ( const edm::Event& iEvent, const edm::EventSetup&
     vPho_hasPxlSeed_.push_back(     iPho->hasPixelSeed() );
     vPho_HoE_.push_back(            iPho->hadTowOverEm() );
 
+    /*
+    vPho_phoIso_.push_back(         iPho->photonIso() );
+    vPho_chgIso_.push_back(         iPho->chargedHadronIso() );
+    vPho_chgIsoWrongVtx_.push_back( iPho->chargedHadronIsoWrongVtx() );
+    */
     ///*
     float EAPho = iPho->eta() < 1.0 ? 0.1113 : 0.0953;
     vPho_phoIsoCorr_.push_back(     std::max(iPho->userFloat("phoPhotonIsolation") - rho*EAPho, (float)0.) );
