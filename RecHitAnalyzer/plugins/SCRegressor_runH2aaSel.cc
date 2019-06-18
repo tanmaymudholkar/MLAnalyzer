@@ -21,6 +21,7 @@ void SCRegressor::branchesH2aaSel ( TTree* tree, edm::Service<TFileService> &fs 
   tree->Branch("A_pT",      &vA_pT_);
   tree->Branch("A_eta",     &vA_eta_);
   tree->Branch("A_phi",     &vA_phi_);
+  tree->Branch("A_recoIdx", &vA_recoIdx_);
 
   hdPhidEta = fs->make<TH2F>("dPhidEta_GG", "#Delta(#phi,#eta,m);#Delta#phi(#gamma,#gamma);#Delta#eta(#gamma,#gamma)",
               6, 0., 6.*0.0174, 6, 0., 6.*0.0174);
@@ -101,15 +102,22 @@ void SCRegressor::fillH2aaSel ( const edm::Event& iEvent, const edm::EventSetup&
   edm::Handle<reco::GenParticleCollection> genParticles;
   iEvent.getByToken(genParticleCollectionT_, genParticles);
 
+  edm::Handle<PhotonCollection> photons;
+  iEvent.getByToken(photonCollectionT_, photons);
+
   vA_E_.clear();
   vA_pT_.clear();
   vA_eta_.clear();
   vA_phi_.clear();
   vA_mass_.clear();
   vA_DR_.clear();
-  float dPhi, dEta;
-  for ( unsigned int iG = 0; iG < vGenAIdxs.size(); iG++ ) {
-    reco::GenParticleRef iGen( genParticles, vGenAIdxs[iG] );
+  vA_recoIdx_.clear();
+  float dPhi, dEta, dR, recoDR;
+  int recoDR_idx;
+  for ( unsigned int iG : vGenAIdxs ) {
+
+    reco::GenParticleRef iGen( genParticles, iG );
+
     vA_E_.push_back( std::abs(iGen->energy()) );
     vA_pT_.push_back( std::abs(iGen->pt()) );
     vA_eta_.push_back( iGen->eta() );
@@ -120,6 +128,20 @@ void SCRegressor::fillH2aaSel ( const edm::Event& iEvent, const edm::EventSetup&
     dPhi = reco::deltaPhi( iGen->daughter(0)->phi(), iGen->daughter(1)->phi() );
     dEta = std::abs( iGen->daughter(0)->eta() - iGen->daughter(1)->eta() );
     hdPhidEta->Fill( dPhi, dEta );
-  }
+
+    // Get index to dR-matched preselected photon
+    recoDR = 2*0.04;
+    recoDR_idx = -1;
+    for ( unsigned int iP : vRegressPhoIdxs_ ) {
+      PhotonRef iPho( photons, iP );
+      dR = reco::deltaR(iGen->eta(),iGen->phi(), iPho->eta(),iPho->phi());
+      if ( dR < recoDR ) {
+        recoDR = dR;
+        recoDR_idx = iP;
+      }
+    } // reco pho
+    vA_recoIdx_.push_back( recoDR_idx );
+
+  } // gen A
 
 }
