@@ -67,6 +67,7 @@ void SCRegressor::fillSCreco ( const edm::Event& iEvent, const edm::EventSetup& 
       ieta_crop = ieta_ - ieta_shift;
       iphi_crop = iphi_ - iphi_shift;
       if ( iphi_crop >= EBDetId::MAX_IPHI ) iphi_crop = iphi_crop - EBDetId::MAX_IPHI; // get wrap-around hits
+      if ( iphi_crop < 0 ) iphi_crop = iphi_crop + EBDetId::MAX_IPHI; // get wrap-around hits
 
       if ( ieta_crop < 0 || ieta_crop > crop_size-1 ) continue;
       if ( iphi_crop < 0 || iphi_crop > crop_size-1 ) continue;
