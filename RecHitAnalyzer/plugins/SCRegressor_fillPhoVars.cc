@@ -64,6 +64,7 @@ void SCRegressor::fillPhoVars ( const edm::Event& iEvent, const edm::EventSetup&
     vPho_eta_.push_back( iPho->eta() );
     vPho_phi_.push_back( iPho->phi() );
     vPho_ecalEPostCorr_.push_back( iPho->userFloat("ecalEnergyPostCorr") );
+    //std::cout << ">> Presel photon | pt:" << iPho->pt() << " eta:" << iPho->eta() << " phi:" << iPho->phi() << std::endl;
   } // photons
 
   vPho_r9_.clear();

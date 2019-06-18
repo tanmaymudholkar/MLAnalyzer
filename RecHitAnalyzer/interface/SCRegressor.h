@@ -233,9 +233,16 @@ class SCRegressor : public edm::one::EDAnalyzer<edm::one::SharedResources>  {
     std::vector<float> vA_phi_;
     std::vector<float> vA_mass_;
     std::vector<float> vA_DR_;
+    std::vector<float> vA_recoIdx_;
     float mHgen_;
 
     int nTotal, nPreselPassed, nPassed;
+    TH1F * hNpassed_kin;
+    TH1F * hNpassed_presel;
+    TH1F * hNpassed_mGG;
+    TH1F * hNpassed_nRecoPho;
+    TH1F * hNpassed_hlt;
+    TH1F * hNpassed_img;
 
     //TProfile2D * hnPho;
     TH2F * hnPho;

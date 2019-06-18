@@ -28,14 +28,16 @@ with open(listname, 'w') as list_file:
         list_file.write("%s\n" % inputFile)
 
 maxEvents_=-1
-maxEvents_=100000
+#maxEvents_=200000
 skipEvents_=0
 
 decay=decay.replace('_%s'%evtcont,'')
-#cmd="cmsRun %s inputFiles_load=%s maxEvents=%d skipEvents=%d outputFile=%s/IMG/CUTS_GEN/%s_IMG.root"%(cfg,listname,maxEvents_,skipEvents_,eosDir,decay)
-#cmd="cmsRun %s inputFiles_load=%s maxEvents=%d skipEvents=%d outputFile=%s/IMG/CUTS_KIN/%s_IMG.root"%(cfg,listname,maxEvents_,skipEvents_,eosDir,decay)
-cmd="cmsRun %s inputFiles_load=%s maxEvents=%d skipEvents=%d outputFile=%s/IMG/dPhidEta/%s_IMG.root"%(cfg,listname,maxEvents_,skipEvents_,eosDir,decay)
-#cmd="cmsRun %s inputFiles_load=%s maxEvents=%d skipEvents=%d outputFile=test_IMG.root"%(cfg,listname,maxEvents_,skipEvents_)
+#subdirout = 'CUTS_GEN'
+#subdirout = 'CUTS_KIN'
+#subdirout = 'dPhidEta'
+#subdirout = 'Pi0_flat_mvpt'
+#cmd="cmsRun %s inputFiles_load=%s maxEvents=%d skipEvents=%d outputFile=%s/IMG/%s/%s_IMG.root"%(cfg,listname,maxEvents_,skipEvents_,eosDir,subdirout,decay)
+cmd="cmsRun %s inputFiles_load=%s maxEvents=%d skipEvents=%d outputFile=test_IMG.root"%(cfg,listname,maxEvents_,skipEvents_)
 #print '%s'%cmd
 os.system(cmd)
 
