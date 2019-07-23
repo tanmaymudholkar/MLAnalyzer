@@ -32,6 +32,10 @@ void SCRegressor::branchesPhoVars ( TTree* tree, edm::Service<TFileService> &fs 
   tree->Branch("pho_phoIsoCorr",     &vPho_phoIsoCorr_);
   tree->Branch("pho_ecalIsoCorr",    &vPho_ecalIsoCorr_);
 
+  tree->Branch("pho_neuIsoCorr",     &vPho_neuIsoCorr_);
+  tree->Branch("pho_chgIsoCorr",     &vPho_chgIsoCorr_);
+  tree->Branch("pho_bdt",            &vPho_bdt_);
+
 } // branchesPhoVars()
 
 // Fill PhoVars rechits _________________________________________________________________//
@@ -55,6 +59,7 @@ void SCRegressor::fillPhoVars ( const edm::Event& iEvent, const edm::EventSetup&
   vPho_E_.clear();
   vPho_eta_.clear();
   vPho_phi_.clear();
+  vPho_ecalEPostCorr_.clear();
   for ( int iP : vRegressPhoIdxs_ ) {
 
     PhotonRef iPho( photons, iP );
@@ -64,7 +69,7 @@ void SCRegressor::fillPhoVars ( const edm::Event& iEvent, const edm::EventSetup&
     vPho_eta_.push_back( iPho->eta() );
     vPho_phi_.push_back( iPho->phi() );
     vPho_ecalEPostCorr_.push_back( iPho->userFloat("ecalEnergyPostCorr") );
-    //std::cout << ">> Presel photon | pt:" << iPho->pt() << " eta:" << iPho->eta() << " phi:" << iPho->phi() << std::endl;
+    //std::cout << ">> PRESEL pho["<<iP<<"]: pt:" << iPho->pt() << " eta:" << iPho->eta() << " phi:" << iPho->phi() << std::endl;
   } // photons
 
   vPho_r9_.clear();
@@ -88,6 +93,10 @@ void SCRegressor::fillPhoVars ( const edm::Event& iEvent, const edm::EventSetup&
   vPho_HoE_.clear();
   vPho_phoIsoCorr_.clear();
   vPho_ecalIsoCorr_.clear();
+
+  vPho_neuIsoCorr_.clear();
+  vPho_chgIsoCorr_.clear();
+  vPho_bdt_.clear();
 
   for ( int iP : vRegressPhoIdxs_ ) {
 
@@ -116,6 +125,8 @@ void SCRegressor::fillPhoVars ( const edm::Event& iEvent, const edm::EventSetup&
     */
     ///*
     float EAPho = iPho->eta() < 1.0 ? 0.1113 : 0.0953;
+    float EAChg = iPho->eta() < 1.0 ? 0.0112 : 0.0108;
+    float EANeu = iPho->eta() < 1.0 ? 0.0668 : 0.1054;
     vPho_phoIsoCorr_.push_back(     std::max(iPho->userFloat("phoPhotonIsolation") - rho*EAPho, (float)0.) );
     vPho_ecalIsoCorr_.push_back(    std::max(iPho->ecalPFClusterIso() - rho*EAPho, (float)0.) );
     vPho_phoIso_.push_back(         iPho->userFloat("phoPhotonIsolation") );
@@ -124,6 +135,10 @@ void SCRegressor::fillPhoVars ( const edm::Event& iEvent, const edm::EventSetup&
     vPho_neuIso_.push_back(         iPho->userFloat("phoNeutralHadronIsolation") );
     vPho_ecalIso_.push_back(        iPho->ecalPFClusterIso() );
     vPho_passEleVeto_.push_back(    iPho->passElectronVeto() );
+
+    vPho_neuIsoCorr_.push_back(     std::max(iPho->userFloat("phoNeutralHadronIsolation") - rho*EANeu, (float)0.) );
+    vPho_chgIsoCorr_.push_back(     std::max(iPho->userFloat("phoChargedIsolation") - rho*EAChg, (float)0.) );
+    vPho_bdt_.push_back(            iPho->userFloat("PhotonMVAEstimatorRunIIFall17v2Values"));
     //*/
 
     /*
