@@ -102,6 +102,10 @@ for iEvt in range(iEvtStart,iEvtEnd):
     SCaod_energyZ = rhTree.SCaod_energyZ
     SCaod_energy  = rhTree.SCaod_energy
 
+    SCreco_energyT = rhTree.SCreco_energyT
+    SCreco_energyZ = rhTree.SCreco_energyZ
+    SCreco_energy  = rhTree.SCreco_energy
+
     pi0_mass = rhTree.SC_mass
     pi0_iphi = rhTree.SC_iphi
     pi0_ieta = rhTree.SC_ieta
@@ -152,7 +156,6 @@ for iEvt in range(iEvtStart,iEvtEnd):
         #    continue
 
         if data['pt'] < 20.: continue
-        if data['dR']/0.0174 > 10.: continue
 
         if args.wgt_files is not None:
             keepEG = True
@@ -188,6 +191,11 @@ for iEvt in range(iEvtStart,iEvtEnd):
         scaod_energyT = np.array(SCaod_energyT[i]).reshape(1,32,32)
         scaod_energyZ = np.array(SCaod_energyZ[i]).reshape(1,32,32)
         data['Xtz_aod'] = np.concatenate((scaod_energyT, scaod_energyZ), axis=0)
+
+        data['X_reco'] = np.array(SCreco_energy[i]).reshape(1,32,32)
+        screco_energyT = np.array(SCreco_energyT[i]).reshape(1,32,32)
+        screco_energyZ = np.array(SCreco_energyZ[i]).reshape(1,32,32)
+        data['Xtz_reco'] = np.concatenate((screco_energyT, screco_energyZ), axis=0)
 
         #sc_cms = crop_EBshower(X_EB, data['iphi'], data['ieta'])
         #if sc_cms.shape != data['Xtz'].shape:

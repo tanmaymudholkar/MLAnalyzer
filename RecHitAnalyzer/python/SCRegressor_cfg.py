@@ -23,6 +23,7 @@ process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 #process.load("Geometry.CaloEventSetup.CaloTopology_cfi");
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.MessageLogger.cerr.FwkReport.reportEvery = 100
+#process.MessageLogger.cerr.FwkReport.reportEvery = 10000
 
 process.maxEvents = cms.untracked.PSet( 
     #input = cms.untracked.int32(1) 
@@ -60,6 +61,9 @@ process.fevt = cms.EDAnalyzer('SCRegressor'
     , gsfElectronCollection = cms.InputTag('gedGsfElectrons')
     #, photonCollection = cms.InputTag('gedPhotons')
     , photonCollection = cms.InputTag('slimmedPhotons')
+    , EBRecHitCollection = cms.InputTag('ecalRecHit:EcalRecHitsEB')
+    , EERecHitCollection = cms.InputTag('ecalRecHit:EcalRecHitsEE')
+    , ESRecHitCollection = cms.InputTag('ecalRecHit:EcalRecHitsES')
     , reducedAODEBRecHitCollection = cms.InputTag('reducedEcalRecHitsEB')
     , reducedAODEERecHitCollection = cms.InputTag('reducedEcalRecHitsEE')
     , reducedAODESRecHitCollection = cms.InputTag('reducedEcalRecHitsES')

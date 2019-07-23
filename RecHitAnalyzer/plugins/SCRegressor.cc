@@ -27,6 +27,9 @@ SCRegressor::SCRegressor(const edm::ParameterSet& iConfig)
   AODEBRecHitCollectionT_ = consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("reducedAODEBRecHitCollection"));
   AODEERecHitCollectionT_ = consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("reducedAODEERecHitCollection"));
   AODESRecHitCollectionT_ = consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("reducedAODESRecHitCollection"));
+  RECOEBRecHitCollectionT_ = consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("EBRecHitCollection"));
+  RECOEERecHitCollectionT_ = consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("EERecHitCollection"));
+  RECOESRecHitCollectionT_ = consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("ESRecHitCollection"));
   genParticleCollectionT_ = consumes<reco::GenParticleCollection>(iConfig.getParameter<edm::InputTag>("genParticleCollection"));
   genJetCollectionT_ = consumes<reco::GenJetCollection>(iConfig.getParameter<edm::InputTag>("genJetCollection"));
   trackCollectionT_ = consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("trackCollection"));
@@ -51,11 +54,13 @@ SCRegressor::SCRegressor(const edm::ParameterSet& iConfig)
   branchesDiPhotonSel ( RHTree, fs );
   branchesH2aaSel ( RHTree, fs );
   branchesSC     ( RHTree, fs );
-  branchesSCaod  ( RHTree, fs );
-  branchesEB     ( RHTree, fs );
+  //branchesSCaod  ( RHTree, fs );
+  //branchesSCreco ( RHTree, fs );
+  //branchesEB     ( RHTree, fs );
   //branchesTracksAtEBEE     ( RHTree, fs );
   branchesPhoVars     ( RHTree, fs );
 
+  hNpassed_img = fs->make<TH1F>("hNpassed_img", "isPassed;isPassed;N", 2, 0., 2);
 }
 
 SCRegressor::~SCRegressor()
@@ -85,6 +90,13 @@ SCRegressor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     std::cout << runId_<<":"<<lumiId_ <<":"<<eventId_ <<std::endl;
   }
   //else return;
+  if ( runId_ != 1 ) return;
+  //if ( lumiId_ != 3010 && lumiId_ != 8071 && lumiId_ != 3419 && lumiId_ != 19584 && lumiId_ != 22131 ) return;
+  if ( lumiId_ != 9991 ) return;
+  if ( eventId_ != 35 ) return;
+  std::cout << " !!!!!" << std::endl;
+  std::cout << runId_<<":"<<lumiId_ <<":"<<eventId_ <<std::endl;
+  std::cout << " !!!!!" << std::endl;
   */
 
   edm::Handle<EcalRecHitCollection> EBRecHitsH;
@@ -112,6 +124,7 @@ SCRegressor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   nPreselPassed += vPreselPhoIdxs_.size();
 
   // Get coordinates of photon supercluster seed
+  hNpassed_img->Fill(0.);
   nPho = 0;
   int iphi_Emax, ieta_Emax;
   float Emax;
@@ -121,10 +134,10 @@ SCRegressor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   vIeta_Emax_.clear();
   vRegressPhoIdxs_.clear();
   int iphi_, ieta_; // rows:ieta, cols:iphi
-  for ( unsigned int i = 0; i < vPreselPhoIdxs_.size(); i++ ) {
+  for ( unsigned int iP : vPreselPhoIdxs_ ) {
 
     ///*
-    PhotonRef iPho( photons, vPreselPhoIdxs_[i] );
+    PhotonRef iPho( photons, iP );
 
     // Get underlying super cluster
     reco::SuperClusterRef const& iSC = iPho->superCluster();
@@ -170,7 +183,7 @@ SCRegressor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     vIphi_Emax_.push_back( iphi_Emax );
     vIeta_Emax_.push_back( ieta_Emax );
     vPos_Emax.push_back( pos_Emax );
-    vRegressPhoIdxs_.push_back( vPreselPhoIdxs_[i] );
+    vRegressPhoIdxs_.push_back( iP );
     //std::cout << " >> Found: iphi_Emax,ieta_Emax: " << iphi_Emax << ", " << ieta_Emax << std::endl;
     //*/
     nPho++;
@@ -188,8 +201,9 @@ SCRegressor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   fillDiPhotonSel ( iEvent, iSetup );
   fillH2aaSel ( iEvent, iSetup );
   fillSC     ( iEvent, iSetup );
-  fillSCaod  ( iEvent, iSetup );
-  fillEB     ( iEvent, iSetup );
+  //fillSCaod  ( iEvent, iSetup );
+  //fillSCreco ( iEvent, iSetup );
+  //fillEB     ( iEvent, iSetup );
   //fillTracksAtEBEE     ( iEvent, iSetup );
   fillPhoVars     ( iEvent, iSetup );
 
@@ -197,6 +211,11 @@ SCRegressor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   nPassed += nPho;
 
   RHTree->Fill();
+  hNpassed_img->Fill(1.);
+
+  //std::cout << runId_<<":"<<lumiId_ <<":"<<eventId_ <<std::endl;
+  //runH2aaSel ( iEvent, iSetup );
+  //fillPhoVars     ( iEvent, iSetup );
 
 #ifdef THIS_IS_AN_EVENT_EXAMPLE
   Handle<ExampleData> pIn;

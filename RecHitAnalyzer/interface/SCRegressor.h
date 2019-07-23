@@ -94,6 +94,9 @@ class SCRegressor : public edm::one::EDAnalyzer<edm::one::SharedResources>  {
     edm::EDGetTokenT<EcalRecHitCollection> AODEBRecHitCollectionT_;
     edm::EDGetTokenT<EcalRecHitCollection> AODEERecHitCollectionT_;
     edm::EDGetTokenT<EcalRecHitCollection> AODESRecHitCollectionT_;
+    edm::EDGetTokenT<EcalRecHitCollection> RECOEBRecHitCollectionT_;
+    edm::EDGetTokenT<EcalRecHitCollection> RECOEERecHitCollectionT_;
+    edm::EDGetTokenT<EcalRecHitCollection> RECOESRecHitCollectionT_;
     edm::EDGetTokenT<reco::GenParticleCollection> genParticleCollectionT_;
     edm::EDGetTokenT<reco::GenJetCollection> genJetCollectionT_;
     edm::EDGetTokenT<reco::TrackCollection> trackCollectionT_;
@@ -128,12 +131,14 @@ class SCRegressor : public edm::one::EDAnalyzer<edm::one::SharedResources>  {
 
     void branchesSC ( TTree*, edm::Service<TFileService>& );
     void branchesSCaod ( TTree*, edm::Service<TFileService>& );
+    void branchesSCreco ( TTree*, edm::Service<TFileService>& );
     void branchesEB ( TTree*, edm::Service<TFileService>& );
     void branchesTracksAtEBEE ( TTree*, edm::Service<TFileService>& );
     void branchesPhoVars ( TTree*, edm::Service<TFileService>& );
 
     void fillSC     ( const edm::Event&, const edm::EventSetup& );
-    void fillSCaod     ( const edm::Event&, const edm::EventSetup& );
+    void fillSCaod  ( const edm::Event&, const edm::EventSetup& );
+    void fillSCreco ( const edm::Event&, const edm::EventSetup& );
     void fillEB     ( const edm::Event&, const edm::EventSetup& );
     void fillTracksAtEBEE ( const edm::Event&, const edm::EventSetup& );
     void fillPhoVars ( const edm::Event&, const edm::EventSetup& );
@@ -169,6 +174,12 @@ class SCRegressor : public edm::one::EDAnalyzer<edm::one::SharedResources>  {
     std::vector<std::vector<float>> vSCaod_energyT_;
     std::vector<std::vector<float>> vSCaod_energyZ_;
     std::vector<std::vector<float>> vSCaod_time_;
+    TProfile2D * hSCreco_energy;
+    TProfile2D * hSCreco_time;
+    std::vector<std::vector<float>> vSCreco_energy_;
+    std::vector<std::vector<float>> vSCreco_energyT_;
+    std::vector<std::vector<float>> vSCreco_energyZ_;
+    std::vector<std::vector<float>> vSCreco_time_;
 
     //TH2F *hTracks_EE[nEE];
     TH2F *hTracks_EB;
@@ -208,6 +219,9 @@ class SCRegressor : public edm::one::EDAnalyzer<edm::one::SharedResources>  {
     std::vector<float> vPho_HoE_;
     std::vector<float> vPho_phoIsoCorr_;
     std::vector<float> vPho_ecalIsoCorr_;
+    std::vector<float> vPho_neuIsoCorr_;
+    std::vector<float> vPho_chgIsoCorr_;
+    std::vector<float> vPho_bdt_;
 
     std::vector<float> vSC_mass_;
     std::vector<float> vSC_DR_;
@@ -222,9 +236,20 @@ class SCRegressor : public edm::one::EDAnalyzer<edm::one::SharedResources>  {
     std::vector<float> vA_phi_;
     std::vector<float> vA_mass_;
     std::vector<float> vA_DR_;
+    std::vector<float> vA_recoIdx_;
+    std::vector<float> vA_pdgId_;
+    std::vector<float> vA_mothPdgId_;
+    std::vector<float> vA_jetM_;
+    std::vector<float> vA_status_;
     float mHgen_;
 
     int nTotal, nPreselPassed, nPassed;
+    TH1F * hNpassed_kin;
+    TH1F * hNpassed_presel;
+    TH1F * hNpassed_mGG;
+    TH1F * hNpassed_nRecoPho;
+    TH1F * hNpassed_hlt;
+    TH1F * hNpassed_img;
 
     //TProfile2D * hnPho;
     TH2F * hnPho;
@@ -235,6 +260,7 @@ class SCRegressor : public edm::one::EDAnalyzer<edm::one::SharedResources>  {
     TH1F * hjphoPt_o_iphoPt;
     TH1F * hMinDRgenRecoPho;
     TH1F * hMinDRrecoPtoGenPt;
+    TH1F * hJetNeuM;
 
     float m0_;
     std::vector<float> vFC_inputs_;
