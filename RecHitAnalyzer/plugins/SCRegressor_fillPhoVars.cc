@@ -139,8 +139,8 @@ void SCRegressor::fillPhoVars ( const edm::Event& iEvent, const edm::EventSetup&
 
     vPho_neuIsoCorr_.push_back(     std::max(iPho->userFloat("phoNeutralHadronIsolation") - rho*EANeu, (float)0.) );
     vPho_chgIsoCorr_.push_back(     std::max(iPho->userFloat("phoChargedIsolation") - rho*EAChg, (float)0.) );
-    vPho_bdt_.push_back(            iPho->userFloat("PhotonMVAEstimatorRunIIFall17v2Values")); // need to run EGamma post-reco tools
-    //vPho_bdt_.push_back(            iPho->userFloat("PhotonMVAEstimatorRunIIFall17v1p1Values"));
+    //vPho_bdt_.push_back(            iPho->userFloat("PhotonMVAEstimatorRunIIFall17v2Values")); // need to run EGamma post-reco tools
+    vPho_bdt_.push_back(            iPho->userFloat("PhotonMVAEstimatorRunIIFall17v1p1Values"));
     //*/
 
     /*

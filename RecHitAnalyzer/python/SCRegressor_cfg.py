@@ -59,8 +59,8 @@ process.source = cms.Source("PoolSource",
 #process.options.numberOfThreads=cms.untracked.uint32(4)
 
 #process.GlobalTag.globaltag = cms.string('80X_dataRun2_HLT_v12')
-#process.GlobalTag.globaltag = cms.string('94X_mcRun2_asymptotic_v3') # 2016
-process.GlobalTag.globaltag = cms.string('94X_mc2017_realistic_v17') # 2017
+process.GlobalTag.globaltag = cms.string('94X_mcRun2_asymptotic_v3') # 2016
+#process.GlobalTag.globaltag = cms.string('94X_mc2017_realistic_v17') # 2017
 process.es_prefer_GlobalTag = cms.ESPrefer('PoolDBESSource','GlobalTag')
 
 process.fevt = cms.EDAnalyzer('SCRegressor'
@@ -132,7 +132,7 @@ runMetCorAndUncFromMiniAOD (
 
 process.p = cms.Path(
   #process.hltFilter*
-  process.fullPatMetSequenceModifiedMET*
-  process.egammaPostRecoSeq*
+  #process.fullPatMetSequenceModifiedMET*
+  #process.egammaPostRecoSeq*
   process.fevt
 )
