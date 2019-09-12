@@ -19,8 +19,11 @@ SCRegressor::SCRegressor(const edm::ParameterSet& iConfig)
 {
   //EBRecHitCollectionT_ = consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("EBRecHitCollection"));
   //electronCollectionT_ = consumes<edm::View<reco::GsfElectron>>(iConfig.getParameter<edm::InputTag>("gsfElectronCollection"));
-  electronCollectionT_ = consumes<reco::GsfElectronCollection>(iConfig.getParameter<edm::InputTag>("gsfElectronCollection"));
+  //electronCollectionT_ = consumes<reco::GsfElectronCollection>(iConfig.getParameter<edm::InputTag>("gsfElectronCollection"));
+  muonCollectionT_ = consumes<MuonCollection>(iConfig.getParameter<edm::InputTag>("muonCollection"));
+  electronCollectionT_ = consumes<ElectronCollection>(iConfig.getParameter<edm::InputTag>("electronCollection"));
   photonCollectionT_ = consumes<PhotonCollection>(iConfig.getParameter<edm::InputTag>("photonCollection"));
+  jetCollectionT_ = consumes<JetCollection>(iConfig.getParameter<edm::InputTag>("jetCollection"));
   EBRecHitCollectionT_    = consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("reducedEBRecHitCollection"));
   EERecHitCollectionT_    = consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("reducedEERecHitCollection"));
   ESRecHitCollectionT_    = consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("reducedESRecHitCollection"));
@@ -32,9 +35,12 @@ SCRegressor::SCRegressor(const edm::ParameterSet& iConfig)
   RECOESRecHitCollectionT_ = consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("ESRecHitCollection"));
   genParticleCollectionT_ = consumes<reco::GenParticleCollection>(iConfig.getParameter<edm::InputTag>("genParticleCollection"));
   genJetCollectionT_ = consumes<reco::GenJetCollection>(iConfig.getParameter<edm::InputTag>("genJetCollection"));
-  trackCollectionT_ = consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("trackCollection"));
+  //trackCollectionT_ = consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("trackCollection"));
+  trackCollectionT_ = consumes<pat::IsolatedTrackCollection>(iConfig.getParameter<edm::InputTag>("trackCollection"));
   rhoLabel_ = consumes<double>(iConfig.getParameter<edm::InputTag>("rhoLabel"));
   trgResultsT_ = consumes<edm::TriggerResults>(iConfig.getParameter<edm::InputTag>("trgResults"));
+  genInfoT_ = consumes<GenEventInfoProduct>(iConfig.getParameter<edm::InputTag>("generator"));
+  lheEventT_ = consumes<LHEEventProduct>(iConfig.getParameter<edm::InputTag>("lhe"));
 
   //now do what ever initialization is needed
   usesResource("TFileService");
@@ -52,13 +58,18 @@ SCRegressor::SCRegressor(const edm::ParameterSet& iConfig)
   //branchesPiSel ( RHTree, fs );
   //branchesPhotonSel ( RHTree, fs );
   branchesDiPhotonSel ( RHTree, fs );
-  branchesH2aaSel ( RHTree, fs );
+  //branchesZJetsEleSel ( RHTree, fs );
+  //branchesZJetsMuSel ( RHTree, fs );
+  //branchesNJetsSel ( RHTree, fs );
+  //branchesH2aaSel ( RHTree, fs );
+  //branchesQCDSel ( RHTree, fs );
   branchesSC     ( RHTree, fs );
   //branchesSCaod  ( RHTree, fs );
   //branchesSCreco ( RHTree, fs );
-  //branchesEB     ( RHTree, fs );
+  branchesEB     ( RHTree, fs );
   //branchesTracksAtEBEE     ( RHTree, fs );
   branchesPhoVars     ( RHTree, fs );
+  //branchesEvtWgt     ( RHTree, fs );
 
   hNpassed_img = fs->make<TH1F>("hNpassed_img", "isPassed;isPassed;N", 2, 0., 2);
 }
@@ -90,9 +101,9 @@ SCRegressor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     std::cout << runId_<<":"<<lumiId_ <<":"<<eventId_ <<std::endl;
   }
   //else return;
-  if ( runId_ != 1 ) return;
   //if ( lumiId_ != 3010 && lumiId_ != 8071 && lumiId_ != 3419 && lumiId_ != 19584 && lumiId_ != 22131 ) return;
-  if ( lumiId_ != 9991 ) return;
+  if ( runId_ != 1 ) return;
+  if ( lumiId_ != 14035 ) return;
   if ( eventId_ != 35 ) return;
   std::cout << " !!!!!" << std::endl;
   std::cout << runId_<<":"<<lumiId_ <<":"<<eventId_ <<std::endl;
@@ -117,9 +128,13 @@ SCRegressor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   //hasPassed = runPiSel ( iEvent, iSetup ); //TODO: add config-level switch
   //hasPassed = runPhotonSel ( iEvent, iSetup );
   hasPassed = runDiPhotonSel ( iEvent, iSetup );
+  //hasPassed = runZJetsEleSel ( iEvent, iSetup );
+  //hasPassed = runZJetsMuSel ( iEvent, iSetup );
+  //hasPassed = runNJetsSel ( iEvent, iSetup );
   //hasPassed = runH2aaSel ( iEvent, iSetup );
   if ( !hasPassed ) return;
-  runH2aaSel ( iEvent, iSetup );
+  //runDiPhotonSel ( iEvent, iSetup );
+  //runH2aaSel ( iEvent, iSetup );
 
   nPreselPassed += vPreselPhoIdxs_.size();
 
@@ -136,9 +151,10 @@ SCRegressor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   int iphi_, ieta_; // rows:ieta, cols:iphi
   for ( unsigned int iP : vPreselPhoIdxs_ ) {
 
-    ///*
     PhotonRef iPho( photons, iP );
+    //vRegressPhoIdxs_.push_back( iP );
 
+    ///*
     // Get underlying super cluster
     reco::SuperClusterRef const& iSC = iPho->superCluster();
     //EcalRecHitCollection::const_iterator iRHit_( EBRecHitsH->find(iSC->seed()->seed()) );
@@ -179,7 +195,7 @@ SCRegressor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     // Apply selection on position of shower seed
     //std::cout << " >> Found: iphi_Emax,ieta_Emax: " << iphi_Emax << ", " << ieta_Emax << std::endl;
     if ( Emax <= zs ) continue;
-    if ( ieta_Emax > 169 - 15 || ieta_Emax < 15 ) continue;
+    if ( ieta_Emax > 169 - 16 || ieta_Emax < 15 ) continue; // seed centered on [15,15] so must be padded by 15 below and 16 above
     vIphi_Emax_.push_back( iphi_Emax );
     vIeta_Emax_.push_back( ieta_Emax );
     vPos_Emax.push_back( pos_Emax );
@@ -193,19 +209,25 @@ SCRegressor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   // Enforce selection
   if ( debug ) std::cout << " >> nPho: " << nPho << std::endl;
   //if ( nPho == 0 ) return; // Pi/Photon gun selection
+  //if ( nPho < 1 ) return; // ZJets physics selection
   if ( nPho != 2 ) return; // Diphoton physics selection
   if ( debug ) std::cout << " >> Passed cropping. " << std::endl;
 
   //fillPiSel ( iEvent, iSetup );
   //fillPhotonSel ( iEvent, iSetup );
   fillDiPhotonSel ( iEvent, iSetup );
-  fillH2aaSel ( iEvent, iSetup );
+  //fillZJetsEleSel ( iEvent, iSetup );
+  //fillZJetsMuSel ( iEvent, iSetup );
+  //fillNJetsSel ( iEvent, iSetup );
+  //fillH2aaSel ( iEvent, iSetup );
+  //fillQCDSel ( iEvent, iSetup );
   fillSC     ( iEvent, iSetup );
   //fillSCaod  ( iEvent, iSetup );
   //fillSCreco ( iEvent, iSetup );
-  //fillEB     ( iEvent, iSetup );
+  fillEB     ( iEvent, iSetup );
   //fillTracksAtEBEE     ( iEvent, iSetup );
   fillPhoVars     ( iEvent, iSetup );
+  //fillEvtWgt     ( iEvent, iSetup );
 
   //nPassed++;
   nPassed += nPho;

@@ -31,6 +31,10 @@
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
 #include "DataFormats/EgammaCandidates/interface/PhotonFwd.h" // reco::PhotonCollection defined here
 #include "DataFormats/PatCandidates/interface/Photon.h"
+#include "DataFormats/PatCandidates/interface/Electron.h"
+#include "DataFormats/PatCandidates/interface/Jet.h"
+#include "DataFormats/PatCandidates/interface/Muon.h"
+#include "DataFormats/PatCandidates/interface/IsolatedTrack.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 
 #include "FWCore/Framework/interface/Event.h"
@@ -57,9 +61,17 @@
 #include "Calibration/IsolatedParticles/interface/DetIdFromEtaPhi.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterLazyTools.h"
 
+#include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/LHEEventProduct.h"
 //
 // class declaration
 //
+using pat::MuonCollection;
+using pat::MuonRef;
+using pat::ElectronCollection;
+using pat::ElectronRef;
+using pat::JetCollection;
+using pat::JetRef;
 using pat::PhotonCollection;
 using pat::PhotonRef;
 //using reco::PhotonCollection;
@@ -86,8 +98,11 @@ class SCRegressor : public edm::one::EDAnalyzer<edm::one::SharedResources>  {
 
     // ----------member data ---------------------------
     //edm::EDGetTokenT<edm::View<reco::GsfElectron>> electronCollectionT_;
-    edm::EDGetTokenT<reco::GsfElectronCollection> electronCollectionT_;
+    //edm::EDGetTokenT<reco::GsfElectronCollection> electronCollectionT_;
+    edm::EDGetTokenT<ElectronCollection> electronCollectionT_;
+    edm::EDGetTokenT<MuonCollection> muonCollectionT_;
     edm::EDGetTokenT<PhotonCollection> photonCollectionT_;
+    edm::EDGetTokenT<JetCollection> jetCollectionT_;
     edm::EDGetTokenT<EcalRecHitCollection> EBRecHitCollectionT_;
     edm::EDGetTokenT<EcalRecHitCollection> EERecHitCollectionT_;
     edm::EDGetTokenT<EcalRecHitCollection> ESRecHitCollectionT_;
@@ -99,9 +114,12 @@ class SCRegressor : public edm::one::EDAnalyzer<edm::one::SharedResources>  {
     edm::EDGetTokenT<EcalRecHitCollection> RECOESRecHitCollectionT_;
     edm::EDGetTokenT<reco::GenParticleCollection> genParticleCollectionT_;
     edm::EDGetTokenT<reco::GenJetCollection> genJetCollectionT_;
-    edm::EDGetTokenT<reco::TrackCollection> trackCollectionT_;
+    //edm::EDGetTokenT<reco::TrackCollection> trackCollectionT_;
+    edm::EDGetTokenT<pat::IsolatedTrackCollection> trackCollectionT_;
     edm::EDGetTokenT<double> rhoLabel_;
     edm::EDGetTokenT<edm::TriggerResults> trgResultsT_;
+    edm::EDGetTokenT<GenEventInfoProduct> genInfoT_;
+    edm::EDGetTokenT<LHEEventProduct> lheEventT_;
 
     static const int nPhotons = 2;
     //static const int nPhotons = 1;
@@ -135,6 +153,7 @@ class SCRegressor : public edm::one::EDAnalyzer<edm::one::SharedResources>  {
     void branchesEB ( TTree*, edm::Service<TFileService>& );
     void branchesTracksAtEBEE ( TTree*, edm::Service<TFileService>& );
     void branchesPhoVars ( TTree*, edm::Service<TFileService>& );
+    void branchesEvtWgt ( TTree*, edm::Service<TFileService>& );
 
     void fillSC     ( const edm::Event&, const edm::EventSetup& );
     void fillSCaod  ( const edm::Event&, const edm::EventSetup& );
@@ -142,19 +161,32 @@ class SCRegressor : public edm::one::EDAnalyzer<edm::one::SharedResources>  {
     void fillEB     ( const edm::Event&, const edm::EventSetup& );
     void fillTracksAtEBEE ( const edm::Event&, const edm::EventSetup& );
     void fillPhoVars ( const edm::Event&, const edm::EventSetup& );
+    void fillEvtWgt ( const edm::Event&, const edm::EventSetup& );
 
     void branchesPiSel       ( TTree*, edm::Service<TFileService>& );
     void branchesPhotonSel   ( TTree*, edm::Service<TFileService>& );
     void branchesDiPhotonSel ( TTree*, edm::Service<TFileService>& );
+    void branchesZJetsEleSel ( TTree*, edm::Service<TFileService>& );
+    void branchesZJetsMuSel ( TTree*, edm::Service<TFileService>& );
+    void branchesNJetsSel ( TTree*, edm::Service<TFileService>& );
     void branchesH2aaSel     ( TTree*, edm::Service<TFileService>& );
+    void branchesQCDSel     ( TTree*, edm::Service<TFileService>& );
     bool runPiSel        ( const edm::Event&, const edm::EventSetup& );
     bool runPhotonSel    ( const edm::Event&, const edm::EventSetup& );
     bool runDiPhotonSel  ( const edm::Event&, const edm::EventSetup& );
+    bool runZJetsEleSel  ( const edm::Event&, const edm::EventSetup& );
+    bool runZJetsMuSel  ( const edm::Event&, const edm::EventSetup& );
+    bool runNJetsSel  ( const edm::Event&, const edm::EventSetup& );
     bool runH2aaSel      ( const edm::Event&, const edm::EventSetup& );
+    bool runQCDSel      ( const edm::Event&, const edm::EventSetup& );
     void fillPiSel       ( const edm::Event&, const edm::EventSetup& );
     void fillPhotonSel   ( const edm::Event&, const edm::EventSetup& );
     void fillDiPhotonSel ( const edm::Event&, const edm::EventSetup& );
+    void fillZJetsEleSel ( const edm::Event&, const edm::EventSetup& );
+    void fillZJetsMuSel ( const edm::Event&, const edm::EventSetup& );
+    void fillNJetsSel ( const edm::Event&, const edm::EventSetup& );
     void fillH2aaSel     ( const edm::Event&, const edm::EventSetup& );
+    void fillQCDSel     ( const edm::Event&, const edm::EventSetup& );
 
     std::map<unsigned int, std::vector<unsigned int>> mGenPi0_RecoPho;
     std::vector<int> vPreselPhoIdxs_;
@@ -243,6 +275,14 @@ class SCRegressor : public edm::one::EDAnalyzer<edm::one::SharedResources>  {
     std::vector<float> vA_status_;
     float mHgen_;
 
+    std::vector<float> vOutPart_pdgId_;
+
+    std::vector<float> vJet_energy_;
+    std::vector<float> vJet_pt_;
+    std::vector<float> vJet_eta_;
+    std::vector<float> vJet_phi_;
+    std::vector<float> vJet_tightId_;
+
     int nTotal, nPreselPassed, nPassed;
     TH1F * hNpassed_kin;
     TH1F * hNpassed_presel;
@@ -267,6 +307,7 @@ class SCRegressor : public edm::one::EDAnalyzer<edm::one::SharedResources>  {
     int hltAccept_;
     unsigned int nRecoPho_;
     std::vector<float> vMinDR_;
+    double evtWeight_;
 
 };
 

@@ -121,6 +121,7 @@ bool SCRegressor::runPhotonSel ( const edm::Event& iEvent, const edm::EventSetup
     //if ( iRecoPho->passElectronVeto() == true ) continue;
     //if ( iRecoPho->userFloat("phoChargedIsolation")/std::abs(iRecoPho->pt()) > 0.3 ) continue;
 
+    ///*
     if ( iRecoPho->full5x5_r9() <= 0.85 ) {
       if ( iRecoPho->full5x5_sigmaIetaIeta() >= 0.015 ) continue;
       if ( iRecoPho->userFloat("phoPhotonIsolation") >= 4.0 ) continue;

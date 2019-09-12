@@ -132,7 +132,7 @@ void SCRegressor::fillH2aaSel ( const edm::Event& iEvent, const edm::EventSetup&
     // Get index to dR-matched preselected photon
     recoDR = 2*0.04;
     recoDR_idx = -1;
-    // Want vA_recoIdx_ to store index relative to vRegressPhoIdxs_
+    // Want vA_recoIdx_ to store vector index in vRegressPhoIdxs_
     // i.e., vRegressPhoIdxs_[0]:leading reco pho, vRegressPhoIdxs_[1]:sub-leading reco pho
     // not position in original photon collection
     for ( unsigned int iP = 0; iP < vRegressPhoIdxs_.size(); iP++ ) {

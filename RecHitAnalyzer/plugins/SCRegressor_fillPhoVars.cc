@@ -124,6 +124,7 @@ void SCRegressor::fillPhoVars ( const edm::Event& iEvent, const edm::EventSetup&
     vPho_chgIsoWrongVtx_.push_back( iPho->chargedHadronIsoWrongVtx() );
     */
     ///*
+    // Only valid for ECAL barrel
     float EAPho = iPho->eta() < 1.0 ? 0.1113 : 0.0953;
     float EAChg = iPho->eta() < 1.0 ? 0.0112 : 0.0108;
     float EANeu = iPho->eta() < 1.0 ? 0.0668 : 0.1054;
@@ -138,7 +139,8 @@ void SCRegressor::fillPhoVars ( const edm::Event& iEvent, const edm::EventSetup&
 
     vPho_neuIsoCorr_.push_back(     std::max(iPho->userFloat("phoNeutralHadronIsolation") - rho*EANeu, (float)0.) );
     vPho_chgIsoCorr_.push_back(     std::max(iPho->userFloat("phoChargedIsolation") - rho*EAChg, (float)0.) );
-    vPho_bdt_.push_back(            iPho->userFloat("PhotonMVAEstimatorRunIIFall17v2Values"));
+    vPho_bdt_.push_back(            iPho->userFloat("PhotonMVAEstimatorRunIIFall17v2Values")); // need to run EGamma post-reco tools
+    //vPho_bdt_.push_back(            iPho->userFloat("PhotonMVAEstimatorRunIIFall17v1p1Values"));
     //*/
 
     /*

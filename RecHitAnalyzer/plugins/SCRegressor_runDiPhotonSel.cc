@@ -48,10 +48,13 @@ bool SCRegressor::runDiPhotonSel ( const edm::Event& iEvent, const edm::EventSet
   for ( unsigned int iP : vRecoPhoIdxs ) {
     PhotonRef iPho( photons, iP );
     if ( std::abs(iPho->pt()) <= 18. ) continue;
+    //if ( std::abs(iPho->pt()) < 20. ) continue;
     if ( std::abs(iPho->eta()) >= 1.442 ) continue;
+    //if ( std::abs(iPho->eta()) >= 2.4 ) continue;
     vKinPhoIdxs.push_back( iP );
   }
   if ( vKinPhoIdxs.size() < 2 ) return false;
+  //if ( vKinPhoIdxs.size() != 2 ) return false;
   hNpassed_kin->Fill(1.);
 
   // Ensure two presel photons
@@ -61,16 +64,15 @@ bool SCRegressor::runDiPhotonSel ( const edm::Event& iEvent, const edm::EventSet
 
     PhotonRef iPho( photons, iP );
 
-    //if ( std::abs(iPho->pt()) <= 18. ) continue;
-    //if ( std::abs(iPho->eta()) >= 1.442 ) continue;
-
     ///*
     if ( iPho->full5x5_r9() <= 0.5 ) continue;
     if ( iPho->hadTowOverEm() >= 0.08 ) continue;
     if ( iPho->hasPixelSeed() == true ) continue;
     //if ( iPho->passElectronVeto() == true ) continue;
     //if ( iPho->userFloat("phoChargedIsolation")/std::abs(iPho->pt()) > 0.3 ) continue;
+    //*/
 
+    ///*
     if ( iPho->full5x5_r9() <= 0.85 ) {
       if ( iPho->full5x5_sigmaIetaIeta() >= 0.015 ) continue;
       if ( iPho->userFloat("phoPhotonIsolation") >= 4.0 ) continue;
@@ -111,7 +113,9 @@ bool SCRegressor::runDiPhotonSel ( const edm::Event& iEvent, const edm::EventSet
       ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > vDiPho = jPho->p4() + kPho->p4();
       if ( debug ) std::cout << " >> m0:" << vDiPho.mass() << std::endl;
 
+      //if ( vDiPho.mass() >= 100. && vDiPho.mass() <= 180.) {
       if ( vDiPho.mass() > 90. ) {
+      //if ( vDiPho.mass() > 80. ) {
         vPhoIdxs.push_back( vPhos[j].idx );
         vPhoIdxs.push_back( vPhos[k].idx );
         m0_ = vDiPho.mass();

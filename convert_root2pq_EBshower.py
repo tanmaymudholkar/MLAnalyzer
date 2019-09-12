@@ -2,7 +2,6 @@ import pyarrow.parquet as pq
 import pyarrow as pa # pip install pyarrow==0.7.1
 import ROOT
 import numpy as np
-np.random.seed(0)
 import glob, os
 
 import argparse
@@ -10,7 +9,7 @@ parser = argparse.ArgumentParser(description='Process some integers.')
 #parser.add_argument('-i', '--infile', default='output.root', type=str, help='Input root file.')
 parser.add_argument('-i', '--infile', default=['output.root'], nargs='+', type=str, help='Input root file.')
 #parser.add_argument('-i', '--infile', default=['output.root'], type=list, help='Input root file.')
-parser.add_argument('-o', '--outdir', default='.', type=str, help='Output pq file dir.')
+parser.add_argument('-o', '--outdir', default='parquet', type=str, help='Output pq file dir.')
 parser.add_argument('-d', '--decay', default='test', type=str, help='Decay name.')
 parser.add_argument('-n', '--idx', default=0, type=int, help='Input root file index.')
 #parser.add_argument('-w', '--wgt_file', default=None, type=str, help='Weight file.')
@@ -52,8 +51,6 @@ if args.wgt_files is not None:
     for p,wgt_file in enumerate(args.wgt_files):
         w = np.load(wgt_file)
         hmvpts[p], m_edgess[p], pt_edgess[p] = w['mvpt'], w['m_edges'], w['pt_edges']
-    #w = np.load(args.wgt_file)
-    #hmvpt, m_edges, pt_edges = w['mvpt'], w['m_edges'], w['pt_edges']
 
 rhTreeStr = args.infile
 print " >> Input file:",rhTreeStr
@@ -63,16 +60,14 @@ for f in rhTreeStr:
 nEvts = rhTree.GetEntries()
 assert nEvts > 0
 print " >> nEvts:",nEvts
-#outStr = '%s/%s.parquet.%d'%(args.outdir, args.decay, args.idx)
-outStr = '%s/%s.tzfixed.parquet.%d'%(args.outdir, args.decay, args.idx)
-#outStr = '%s/%s.reg_2reco.parquet.%d'%(args.outdir, args.decay, args.idx)
+outStr = '%s/%s.parquet.%d'%(args.outdir, args.decay, args.idx)
 print " >> Output file:",outStr
 
 ##### EVENT SELECTION START #####
 
 # Event range to process
 iEvtStart = 0
-iEvtEnd   = 10000
+#iEvtEnd   = 10
 iEvtEnd   = nEvts
 assert iEvtEnd <= nEvts
 print " >> Processing entries: [",iEvtStart,"->",iEvtEnd,")"
@@ -94,68 +89,30 @@ for iEvt in range(iEvtStart,iEvtEnd):
 
     idx = [rhTree.runId, rhTree.lumiId, rhTree.eventId]
 
-    SC_energyT = rhTree.SC_energyT
-    SC_energyZ = rhTree.SC_energyZ
-    SC_energy  = rhTree.SC_energy
-
-    SCaod_energyT = rhTree.SCaod_energyT
-    SCaod_energyZ = rhTree.SCaod_energyZ
-    SCaod_energy  = rhTree.SCaod_energy
-
-    SCreco_energyT = rhTree.SCreco_energyT
-    SCreco_energyZ = rhTree.SCreco_energyZ
-    SCreco_energy  = rhTree.SCreco_energy
-
-    pi0_mass = rhTree.SC_mass
-    pi0_iphi = rhTree.SC_iphi
-    pi0_ieta = rhTree.SC_ieta
-    pi0_dR = rhTree.SC_DR
-
-    pi0_E   = rhTree.SC_E
-    pi0_pt  = rhTree.SC_pT
-    pi0_phi = rhTree.SC_phi
-    pi0_eta = rhTree.SC_eta
-
-    pho_r9 =             rhTree.pho_r9
-    pho_sieie =          rhTree.pho_sieie
-    pho_phoIso =         rhTree.pho_phoIso
-    pho_chgIso =         rhTree.pho_chgIso
-    pho_chgIsoWrongVtx = rhTree.pho_chgIsoWrongVtx
-    pho_Eraw =           rhTree.pho_Eraw
-    pho_phiWidth =       rhTree.pho_phiWidth
-    pho_etaWidth =       rhTree.pho_etaWidth
-    pho_scEta =          rhTree.pho_scEta
-    pho_sieip =          rhTree.pho_sieip
-    pho_s4 =             rhTree.pho_s4
-
-    pho_E   = rhTree.pho_E
-    pho_pt  = rhTree.pho_pT
-    pho_phi = rhTree.pho_phi
-    pho_eta = rhTree.pho_eta
-
     #EB_time = np.array(rhTree.EB_time).reshape(170,360)
     #TracksAtEB_pt = np.array(rhTree.TracksPt_EB).reshape(170,360)
     #X_EB = np.stack([TracksAtEB_pt, EB_time], axis=0)
     #X_EB = np.array(rhTree.EB_energy).reshape(1,170,360)
+    X_EB = np.array(rhTree.TracksPt_EB).reshape(1,170,360)
 
-    nPhoEvt = len(pi0_mass)
+    nPhoEvt = len(rhTree.SC_mass)
     if args.wgt_files is not None:
         rands = np.random.random((nPhoEvt, nPasses))
+
     for i in range(nPhoEvt):
 
         data['idx'] = idx + [i]
         #data['m0'] = rhTree.m0
 
-        data['m'] = pi0_mass[i]
-        data['pt'] = pi0_pt[i]
-        data['iphi'] = pi0_iphi[i]
-        data['ieta'] = pi0_ieta[i]
-        data['dR'] = pi0_dR[i]
+        data['m'] = rhTree.SC_mass[i]
+        data['pt'] = rhTree.SC_pT[i]
+        data['iphi'] = rhTree.SC_iphi[i]
+        data['ieta'] = rhTree.SC_ieta[i]
 
-        #if data['ieta'] >= 170-16:
-        #    continue
+        if data['ieta'] >= 170-16:
+            continue
 
-        if data['pt'] < 20.: continue
+        if rhTree.pho_pT[i] > 100.: continue
 
         if args.wgt_files is not None:
             keepEG = True
@@ -166,42 +123,68 @@ for iEvt in range(iEvtStart,iEvtEnd):
             #if rands[i] < get_weight_2d(data['m'], data['pt'], m_edges, pt_edges, hmvpt):
             #    continue
 
-        data['pi0_p4'] = [pi0_E[i], pi0_pt[i], pi0_eta[i], pi0_phi[i]]
-        data['pho_p4'] = [pho_E[i], pho_pt[i], pho_eta[i], pho_phi[i]]
-        data['pho_id'] = [
-            pho_r9[i]
-            ,pho_sieie[i]
-            ,pho_phoIso[i]
-            ,pho_chgIso[i]
-            ,pho_chgIsoWrongVtx[i]
-            ,pho_Eraw[i]
-            ,pho_phiWidth[i]
-            ,pho_etaWidth[i]
-            ,pho_scEta[i]
-            ,pho_sieip[i]
-            ,pho_s4[i]
-        ]
+        data['A_p4'] = [
+            rhTree.SC_E[i]
+            ,rhTree.SC_pT[i]
+            ,rhTree.SC_eta[i]
+            ,rhTree.SC_phi[i]
+            ]
+        #data['A_ancestry'] = [A_pdgId[i], A_mothPdgId[i], OutPart_pdgId[i]]
+        data['A_pteta'] = [rhTree.SC_pT[i], rhTree.SC_eta[i]]
 
-        data['X'] = np.array(SC_energy[i]).reshape(1,32,32)
-        sc_energyT = np.array(SC_energyT[i]).reshape(1,32,32)
-        sc_energyZ = np.array(SC_energyZ[i]).reshape(1,32,32)
+        #j = 0 if i == 1 else 1
+        #if not (OutPart_pdgId[j] == 22 or abs(OutPart_pdgId[i]) <= 5 or abs(OutPart_pdgId[i]) == 21):
+        #    continue
+
+        data['pho_pteta'] = [rhTree.pho_pT[i], rhTree.pho_eta[i]]
+        data['pho_p4'] = [rhTree.pho_E[i], rhTree.pho_pT[i], rhTree.pho_eta[i], rhTree.pho_phi[i]]
+        data['pho_id'] = [
+                rhTree.pho_r9[i]
+                ,rhTree.pho_sieie[i]
+                ,rhTree.pho_phoIso[i]
+                ,rhTree.pho_chgIso[i]
+                ,rhTree.pho_chgIsoWrongVtx[i]
+                ,rhTree.pho_Eraw[i]
+                ,rhTree.pho_phiWidth[i]
+                ,rhTree.pho_etaWidth[i]
+                ,rhTree.pho_scEta[i]
+                ,rhTree.pho_sieip[i]
+                ,rhTree.pho_s4[i]
+            ]
+        data['pho_vars'] = [
+                rhTree.pho_r9[i]
+                ,rhTree.pho_HoE[i]
+                ,rhTree.pho_hasPxlSeed[i]
+                ,rhTree.pho_sieie[i]
+                ,rhTree.pho_phoIso[i]
+                ,rhTree.pho_trkIso[i]
+                ,rhTree.pho_chgIsoCorr[i]
+                ,rhTree.pho_neuIsoCorr[i]
+                ,rhTree.pho_phoIsoCorr[i]
+                ,rhTree.pho_bdt[i]
+            ]
+
+        data['X'] = np.array(rhTree.SC_energy[i]).reshape(1,32,32)
+        sc_energyT = np.array(rhTree.SC_energyT[i]).reshape(1,32,32)
+        sc_energyZ = np.array(rhTree.SC_energyZ[i]).reshape(1,32,32)
         data['Xtz'] = np.concatenate((sc_energyT, sc_energyZ), axis=0)
 
-        data['X_aod'] = np.array(SCaod_energy[i]).reshape(1,32,32)
-        scaod_energyT = np.array(SCaod_energyT[i]).reshape(1,32,32)
-        scaod_energyZ = np.array(SCaod_energyZ[i]).reshape(1,32,32)
-        data['Xtz_aod'] = np.concatenate((scaod_energyT, scaod_energyZ), axis=0)
+        #data['X_aod'] = np.array(rhTree.SCaod_energy[i]).reshape(1,32,32)
+        #scaod_energyT = np.array(rhTree.SCaod_energyT[i]).reshape(1,32,32)
+        #scaod_energyZ = np.array(rhTree.SCaod_energyZ[i]).reshape(1,32,32)
+        #data['Xtz_aod'] = np.concatenate((scaod_energyT, scaod_energyZ), axis=0)
 
-        data['X_reco'] = np.array(SCreco_energy[i]).reshape(1,32,32)
-        screco_energyT = np.array(SCreco_energyT[i]).reshape(1,32,32)
-        screco_energyZ = np.array(SCreco_energyZ[i]).reshape(1,32,32)
-        data['Xtz_reco'] = np.concatenate((screco_energyT, screco_energyZ), axis=0)
+        #data['X_reco'] = np.array(rhTree.SCreco_energy[i]).reshape(1,32,32)
+        #screco_energyT = np.array(rhTree.SCreco_energyT[i]).reshape(1,32,32)
+        #screco_energyZ = np.array(rhTree.SCreco_energyZ[i]).reshape(1,32,32)
+        #data['Xtz_reco'] = np.concatenate((screco_energyT, screco_energyZ), axis=0)
 
-        #sc_cms = crop_EBshower(X_EB, data['iphi'], data['ieta'])
+        sc_cms = crop_EBshower(X_EB, data['iphi'], data['ieta'])
         #if sc_cms.shape != data['Xtz'].shape:
-        #    print(sc_cms.shape)
+        #if sc_cms.shape[1] != data['Xtz'].shape[1]:
+        #    print(sc_cms.shape, data['ieta'], data['iphi'])
         #    print(data['Xtz'].shape)
-        #data['Xcms'] = np.concatenate([sc_cms, data['Xtz']], axis=0)
+        data['Xtzk'] = np.concatenate([sc_cms, data['Xtz']], axis=0)
 
         pqdata = [pa.array([d]) if np.isscalar(d) or type(d) == list else pa.array([d.tolist()]) for d in data.values()]
         table = pa.Table.from_arrays(pqdata, data.keys())
@@ -224,8 +207,8 @@ print " >> ======================================"
 pqIn = pq.ParquetFile(outStr)
 print(pqIn.metadata)
 print(pqIn.schema)
-#X = pqIn.read_row_group(0, columns=['m','pt','iphi','ieta','pt_reco']).to_pydict()
-X = pqIn.read_row_group(0, columns=['idx.list.item','m','iphi','ieta','pi0_p4.list.item','pho_p4.list.item']).to_pydict()
+X = pqIn.read_row_group(0, columns=['idx.list.item','iphi','ieta','pho_p4.list.item']).to_pydict()
+X = pqIn.read_row_group(1, columns=['idx.list.item','iphi','ieta','pho_p4.list.item']).to_pydict()
 print(X)
 #X = pqIn.read_row_group(0, columns=['X.list.item.list.item.list.item']).to_pydict()['X']
 #X = pqIn.read(['X.list.item.list.item.list.item']).to_pydict()['X']

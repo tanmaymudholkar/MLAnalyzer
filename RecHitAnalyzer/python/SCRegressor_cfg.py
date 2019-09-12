@@ -23,14 +23,18 @@ process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 #process.load("Geometry.CaloEventSetup.CaloTopology_cfi");
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.MessageLogger.cerr.FwkReport.reportEvery = 100
-#process.MessageLogger.cerr.FwkReport.reportEvery = 10000
+process.MessageLogger.cerr.FwkReport.reportEvery = 10000
 
-process.maxEvents = cms.untracked.PSet( 
-    #input = cms.untracked.int32(1) 
-    input = cms.untracked.int32(options.maxEvents) 
+process.maxEvents = cms.untracked.PSet(
+    #input = cms.untracked.int32(1)
+    input = cms.untracked.int32(options.maxEvents)
     )
 
 print " >> Loaded",len(options.inputFiles),"input files from list."
+#evtsToProc = open('list_pi0_ptrecoOgen1p2To1p6_eventsToProcess_.txt').read().splitlines()
+#evtsToProc = open('pi0_evtsToProc.txt').read().splitlines()
+#evtsToProc = open('eta_evtsToProc.txt').read().splitlines()
+#print evtsToProc
 process.source = cms.Source("PoolSource",
     # replace 'myfile.root' with the source file you want to use
     fileNames = cms.untracked.vstring(
@@ -44,6 +48,8 @@ process.source = cms.Source("PoolSource",
       options.inputFiles
       )
     , skipEvents = cms.untracked.uint32(options.skipEvents)
+    #, eventsToProcess = cms.untracked.VEventRange('1:6931:1723687928','1:6932:1723895372')
+    #, eventsToProcess = cms.untracked.VEventRange(*evtsToProc)
     #, lumisToProcess = cms.untracked.VLuminosityBlockRange('1:2133-1:2133')
     #, lumisToProcess = cms.untracked.VLuminosityBlockRange('1:3393-1:3393')
     )
@@ -53,7 +59,8 @@ process.source = cms.Source("PoolSource",
 #process.options.numberOfThreads=cms.untracked.uint32(4)
 
 #process.GlobalTag.globaltag = cms.string('80X_dataRun2_HLT_v12')
-process.GlobalTag.globaltag = cms.string('94X_mc2017_realistic_v17')
+#process.GlobalTag.globaltag = cms.string('94X_mcRun2_asymptotic_v3') # 2016
+process.GlobalTag.globaltag = cms.string('94X_mc2017_realistic_v17') # 2017
 process.es_prefer_GlobalTag = cms.ESPrefer('PoolDBESSource','GlobalTag')
 
 process.fevt = cms.EDAnalyzer('SCRegressor'
@@ -61,6 +68,9 @@ process.fevt = cms.EDAnalyzer('SCRegressor'
     , gsfElectronCollection = cms.InputTag('gedGsfElectrons')
     #, photonCollection = cms.InputTag('gedPhotons')
     , photonCollection = cms.InputTag('slimmedPhotons')
+    , jetCollection = cms.InputTag('slimmedJets')
+    , muonCollection = cms.InputTag('slimmedMuons')
+    , electronCollection = cms.InputTag('slimmedElectrons')
     , EBRecHitCollection = cms.InputTag('ecalRecHit:EcalRecHitsEB')
     , EERecHitCollection = cms.InputTag('ecalRecHit:EcalRecHitsEE')
     , ESRecHitCollection = cms.InputTag('ecalRecHit:EcalRecHitsES')
@@ -73,12 +83,15 @@ process.fevt = cms.EDAnalyzer('SCRegressor'
     , reducedEBRecHitCollection = cms.InputTag('reducedEgamma:reducedEBRecHits')
     , reducedEERecHitCollection = cms.InputTag('reducedEgamma:reducedEERecHits')
     , reducedESRecHitCollection = cms.InputTag('reducedEgamma:reducedESRecHits')
-    , genParticleCollection = cms.InputTag('genParticles')
-    #, genParticleCollection = cms.InputTag('prunedGenParticles')
+    #, genParticleCollection = cms.InputTag('genParticles')
+    , genParticleCollection = cms.InputTag('prunedGenParticles')
     , genJetCollection = cms.InputTag('ak4GenJets')
-    , trackCollection = cms.InputTag("generalTracks")
+    #, trackCollection = cms.InputTag("generalTracks")
+    , trackCollection = cms.InputTag("isolatedTracks")
     , rhoLabel = cms.InputTag("fixedGridRhoFastjetAll")
     , trgResults = cms.InputTag("TriggerResults","","HLT")
+    , generator = cms.InputTag("generator")
+    , lhe = cms.InputTag("lhe")
     )
 
 process.TFileService = cms.Service("TFileService",
