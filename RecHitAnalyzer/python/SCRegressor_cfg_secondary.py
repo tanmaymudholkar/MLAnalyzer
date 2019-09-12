@@ -23,6 +23,7 @@ process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 #process.load("Geometry.CaloEventSetup.CaloTopology_cfi");
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.MessageLogger.cerr.FwkReport.reportEvery = 100
+process.MessageLogger.cerr.FwkReport.reportEvery = 10000
 
 process.maxEvents = cms.untracked.PSet(
     #input = cms.untracked.int32(1)
@@ -30,19 +31,24 @@ process.maxEvents = cms.untracked.PSet(
     )
 
 print " >> Loaded",len(options.inputFiles),"input files from list."
+#evtsToProc = open('list_pi0_ptrecoOgen1p2To1p6_eventsToProcess_.txt').read().splitlines()
+#evtsToProc = open('pi0_evtsToProc.txt').read().splitlines()
+#evtsToProc = open('eta_evtsToProc.txt').read().splitlines()
+#print evtsToProc
 process.source = cms.Source("PoolSource",
     # replace 'myfile.root' with the source file you want to use
     fileNames = cms.untracked.vstring(
       #'file:myfile.root'
-      #'file:pickevents.root'
-      #'file:pickeventsRECO.root'
-      #'file:step3.root'
-      #'file:SinglePhotonPt50_FEVTDEBUG.root'
-      #'file:SingleElectronPt50_FEVTDEBUG.root'
-      #'file:/eos/uscms/store/user/mba2012/FEVTDEBUG/H125GGgluonfusion_13TeV_TuneCUETP8M1_FEVTDEBUG/*/*/step_full_*.root'
-      options.inputFiles
+      '/store/user/lpcml/mandrews/MINIAODSIM/h24gamma_1j_1M_1GeV_TEST_PU2017_MINIAODSIM/190712_044728/0000/step_miniaodsim_ext3_1.root'
+      ),
+    secondaryFileNames = cms.untracked.vstring(
+      #'file:myfile.root'
+      #'/store/user/lpcml/mandrews/AODSIM/h24gamma_1j_1M_1GeV_TEST_PU2017_AODSIM_trunc/190712_005252/0000/step_aodsim_trunc_1.root'
+      '/store/user/lpcml/mandrews/AODSIM/h24gamma_1j_1M_1GeV_TEST_PU2017_AODSIM_slim/190713_203315/0000/step_aodsim_slim_1.root'
       )
-    , skipEvents = cms.untracked.uint32(options.skipEvents)
+    #, skipEvents = cms.untracked.uint32(options.skipEvents)
+    #, eventsToProcess = cms.untracked.VEventRange('1:6931:1723687928','1:6932:1723895372')
+    #, eventsToProcess = cms.untracked.VEventRange(*evtsToProc)
     #, lumisToProcess = cms.untracked.VLuminosityBlockRange('1:2133-1:2133')
     #, lumisToProcess = cms.untracked.VLuminosityBlockRange('1:3393-1:3393')
     )
@@ -60,26 +66,24 @@ process.fevt = cms.EDAnalyzer('SCRegressor'
     , gsfElectronCollection = cms.InputTag('gedGsfElectrons')
     #, photonCollection = cms.InputTag('gedPhotons')
     , photonCollection = cms.InputTag('slimmedPhotons')
-    , jetCollection = cms.InputTag('slimmedJets')
-    , muonCollection = cms.InputTag('slimmedMuons')
-    , electronCollection = cms.InputTag('slimmedElectrons')
     , EBRecHitCollection = cms.InputTag('ecalRecHit:EcalRecHitsEB')
     , EERecHitCollection = cms.InputTag('ecalRecHit:EcalRecHitsEE')
     , ESRecHitCollection = cms.InputTag('ecalRecHit:EcalRecHitsES')
     , reducedAODEBRecHitCollection = cms.InputTag('reducedEcalRecHitsEB')
     , reducedAODEERecHitCollection = cms.InputTag('reducedEcalRecHitsEE')
     , reducedAODESRecHitCollection = cms.InputTag('reducedEcalRecHitsES')
+    #, reducedEBRecHitCollection = cms.InputTag('reducedEcalRecHitsEB')
+    #, reducedEERecHitCollection = cms.InputTag('reducedEcalRecHitsEE')
+    #, reducedESRecHitCollection = cms.InputTag('reducedEcalRecHitsES')
     , reducedEBRecHitCollection = cms.InputTag('reducedEgamma:reducedEBRecHits')
     , reducedEERecHitCollection = cms.InputTag('reducedEgamma:reducedEERecHits')
     , reducedESRecHitCollection = cms.InputTag('reducedEgamma:reducedESRecHits')
-    #, genParticleCollection = cms.InputTag('genParticles')
-    , genParticleCollection = cms.InputTag('prunedGenParticles')
+    , genParticleCollection = cms.InputTag('genParticles')
+    #, genParticleCollection = cms.InputTag('prunedGenParticles')
     , genJetCollection = cms.InputTag('ak4GenJets')
     , trackCollection = cms.InputTag("generalTracks")
     , rhoLabel = cms.InputTag("fixedGridRhoFastjetAll")
     , trgResults = cms.InputTag("TriggerResults","","HLT")
-    , generator = cms.InputTag("generator")
-    , lhe = cms.InputTag("lhe")
     )
 
 process.TFileService = cms.Service("TFileService",
@@ -112,15 +116,15 @@ setupEgammaPostRecoSeq(process,
 from PhysicsTools.PatUtils.tools.runMETCorrectionsAndUncertainties import runMetCorAndUncFromMiniAOD
 runMetCorAndUncFromMiniAOD (
         process,
-        isData = True, # false for MC
+        isData = False, # false for MC
         fixEE2017 = True,
         fixEE2017Params = {'userawPt': True, 'ptThreshold':50.0, 'minEtaThreshold':2.65, 'maxEtaThreshold': 3.139} ,
         postfix = "ModifiedMET"
 )
 
 process.p = cms.Path(
-  process.hltFilter*
-  process.fullPatMetSequenceModifiedMET*
-  process.egammaPostRecoSeq*
+  #process.hltFilter*
+  #process.fullPatMetSequenceModifiedMET*
+  #process.egammaPostRecoSeq*
   process.fevt
 )

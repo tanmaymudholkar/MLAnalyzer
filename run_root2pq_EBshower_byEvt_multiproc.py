@@ -22,7 +22,6 @@ parser.add_argument('-d', '--genDR', default=10, type=int, help='gen-level dR.')
 parser.add_argument('-p', '--p_drop', default=1.00, type=float, help='p(drop) scale.')
 #parser.add_argument('-w', '--wgt_file', default=None, type=str, help='Weight file.')
 parser.add_argument('-w', '--wgt_files', default=None, nargs='+', type=str, help='Weight file.')
-parser.add_argument('-b', '--batch_size', default=None, nargs='+', type=str, help='N of input files to batch per process.')
 args = parser.parse_args()
 
 genDR = args.genDR
@@ -35,14 +34,42 @@ xrootd='root://cmseos.fnal.gov' # FNAL
 eosDir='/eos/uscms/store/user/lpcml/mandrews/IMG'
 #eosDir='/eos/uscms/store/user/lpcml/mandrews'
 
-decay = 'GJet_Pt-20to40_DoubleEMEnriched_MGG-80toInf_TuneCP5_13TeV_Pythia8_MINIAODSIM_pt20'
-decay = 'GJet_Pt-40toInf_DoubleEMEnriched_MGG-80toInf_TuneCP5_13TeV_Pythia8_MINIAODSIM_pt20'
-decay = 'DoublePi0Pt10To100_m0To1600_pythia8_ReAOD_PU2017_MINIAODSIM_bdt'
-decay = 'DoublePhotonPt10To100_pythia8_ReAOD_PU2017_MINIAODSIM_bdt'
-date_str = '190807_191747'
-date_str = '190807_191707'
-date_str = '190809_012432'
-date_str = '190814_223546'
+decay = 'h24gamma_1j_1M_100MeV_PU2017_MINIAODSIM_ext3_bdt'
+decay = 'h24gamma_1j_1M_200MeV_PU2017_MINIAODSIM_ext3_bdt'
+decay = 'h24gamma_1j_1M_400MeV_PU2017_MINIAODSIM_ext3_bdt'
+decay = 'h24gamma_1j_1M_1GeV_PU2017_MINIAODSIM_ext3_bdt'
+date_str = '190807_183309'
+date_str = '190807_184410'
+date_str = '190807_184430'
+date_str = '190807_184451'
+#decay = 'GluGluHToGG_M125_13TeV_amcatnloFXFX_pythia8_MINIAODSIM_noExt3_2presel_wrapfix'
+#decay = 'DiPhotonJets_MGG-80toInf_13TeV_amcatnloFXFX_pythia8_MINIAODSIM_wgt'
+#decay = 'DYToEE_M-50_NNPDF31_13TeV-powheg-pythia8_MINIAODSIM_noExt3_2presel_wrapfix'
+#decay = 'GJet_Pt-20to40_DoubleEMEnriched_MGG-80toInf_TuneCP5_13TeV_Pythia8_MINIAODSIM_wgt'
+#decay = 'GJet_Pt-40toInf_DoubleEMEnriched_MGG-80toInf_TuneCP5_13TeV_Pythia8_MINIAODSIM_wgt'
+#decay = 'QCD_Pt-30to40_DoubleEMEnriched_MGG-80toInf_TuneCP5_13TeV_Pythia8_MINIAODSIM_wgt'
+#decay = 'QCD_Pt-40toInf_DoubleEMEnriched_MGG-80toInf_TuneCP5_13TeV_Pythia8_MINIAODSIM_wgt'
+#date_str = ''
+#date_str = '190812_120427'
+#date_str = ''
+#date_str = '190809_200713'
+#date_str = '190809_200635'
+#date_str = '190809_200829'
+#date_str = '190809_200741'
+#decay = 'Run2017B_MINIAOD_noPtOmGG_noPresel'
+#decay = 'Run2017C_MINIAOD_noPtOmGG_noPresel'
+#decay = 'Run2017D_MINIAOD_noPtOmGG_noPresel'
+#decay = 'Run2017E_MINIAOD_noPtOmGG_noPresel'
+#decay = 'Run2017F_MINIAOD_noPtOmGG_noPresel'
+#date_str = '190805_020913'
+#date_str = '190805_020845'
+#date_str = '190805_020747'
+#date_str = '190805_020716'
+#date_str = '190805_020614'
+#decay = 'QCD_Pt-40toInf_DoubleEMEnriched_MGG-80toInf_TuneCP5_13TeV_Pythia8_MINIAODSIM_MCstudy'
+#decay = 'GJet_Pt-20to40_DoubleEMEnriched_MGG-80toInf_TuneCP5_13TeV_Pythia8_MINIAODSIM_MCstudy'
+#date_str = '190627_223251'
+#date_str = '190619_045146'
 
 # Paths to input files
 rhFileList = '%s/%s/%s/*/output_*.root'%(eosDir, decay, date_str)
@@ -52,7 +79,10 @@ rhFileList = '%s/%s/%s/*/output_*.root'%(eosDir, decay, date_str)
 rhFileList = glob.glob(rhFileList)
 assert len(rhFileList) > 0
 print(" >> %d files found"%len(rhFileList))
+#rhFileList = [('%s/%s'%(xrootd, rhFile)).replace('/eos/uscms','') for rhFile in rhFileList][:10]
+#rhFileList = [('%s/%s'%(xrootd, rhFile)).replace('/eos/uscms','') for rhFile in rhFileList][:500]
 rhFileList = [('%s/%s'%(xrootd, rhFile)).replace('/eos/uscms','') for rhFile in rhFileList]
+#rhFileList = [('%s/%s'%(xrootd, rhFile)).replace('/eos/uscms','') for rhFile in rhFileList][:1]
 print(' >> Input File[0]: %s'%rhFileList[0])
 sort_nicely(rhFileList)
 
@@ -70,7 +100,7 @@ if not os.path.isdir(outDir):
     os.makedirs(outDir)
 print(' >> Output directory: %s'%outDir)
 
-proc_file = 'convert_root2pq_EBshower.py'
+proc_file = 'convert_root2pq_EBshower_byEvt.py'
 if wgt_files is not None:
     #processes = ['%s -i %s -o %s -d %s -n %d -w %s'%(proc_file, rhFile, outDir, decay, i+1, wgt_files) for i,rhFile in enumerate(rhFileList)]
     processes = ['%s -i %s -o %s -d %s -n %d -w %s'%(proc_file, rhFile, outDir, decay, i+1, ' '.join(wgt_files)) for i,rhFile in enumerate(rhFileList)]
@@ -78,8 +108,9 @@ else:
   #processes = ['%s -i %s -o %s -d %s -n %d'%(proc_file, rhFile, outDir, decay, i+1) for i,rhFile in enumerate(rhFileList)]
   #processes = ['%s -i %s -o %s -d %s'%(proc_file, ' '.join(rhFileList), outDir, decay)]
   processes = []
-  for it,i in enumerate(range(0, len(rhFileList), args.batch_size)):
-    rhFileList_batch = rhFileList[i:i+args.batch_size]
+  for it,i in enumerate(range(0, len(rhFileList), 500)):
+    rhFileList_batch = rhFileList[i:i+500]
+    #print(it, i, i+500, len(rhFileList_batch))
     processes.append('%s -i %s -o %s -d %s -n %d'%(proc_file, ' '.join(rhFileList_batch), outDir, decay, it))
 #print(' >> Process[0]: %s'%processes[0])
 

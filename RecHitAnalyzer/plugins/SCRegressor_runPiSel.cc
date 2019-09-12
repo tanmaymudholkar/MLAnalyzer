@@ -146,6 +146,7 @@ bool SCRegressor::runPiSel ( const edm::Event& iEvent, const edm::EventSetup& iS
       //if ( iPho->passElectronVeto() == true ) continue;
       //if ( iPho->userFloat("phoChargedIsolation")/std::abs(iPho->pt()) > 0.3 ) continue;
 
+      ///*
       if ( iPho->full5x5_r9() <= 0.85 ) {
         if ( iPho->full5x5_sigmaIetaIeta() >= 0.015 ) continue;
         if ( iPho->userFloat("phoPhotonIsolation") >= 4.0 ) continue;
