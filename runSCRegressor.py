@@ -50,6 +50,7 @@ inputFiles_='/store/mc/RunIIFall17MiniAODv2/DiPhotonJets_MGG-80toInf_13TeV_amcat
 #inputFiles_='/store/user/lpcml/mandrews/MINIAODSIM/DoublePhotonPt10To100_pythia8_ReAOD_PU2017_MINIAODSIM/190611_010300/0000/step_MINIAODSIMext2_1.root'
 #inputFiles_='/store/mc/RunIISummer16MiniAODv3/DiPhotonJets_MGG-80toInf_13TeV_amcatnloFXFX_pythia8/MINIAODSIM/PUMoriond17_94X_mcRun2_asymptotic_v3-v1/40000/7629BBE2-6B25-E911-918C-5065F37DD4B2.root'
 #inputFiles_='/store//mc/RunIISummer16MiniAODv3/GluGluHToGG_M125_13TeV_amcatnloFXFX_pythia8/MINIAODSIM/PUMoriond17_94X_mcRun2_asymptotic_v3_ext2-v2/270000/0A87CC73-BC63-E911-B47C-AC1F6B8AC09E.root'
+#inputFiles_='root://cmseos.fnal.gov//store/user/lpcml/mandrews/MINIAODSIM/h24gamma_2016/h24gamma_1j_1M_200MeV_pythia8_PU2016/190919_123113/0000/step_MINIAOD_1.root'
 #inputFiles_='/store/mc/RunIISummer16MiniAODv3/GJet_Pt-40toInf_DoubleEMEnriched_MGG-80toInf_TuneCUETP8M1_13TeV_Pythia8/MINIAODSIM/PUMoriond17_94X_mcRun2_asymptotic_v3-v2/90000/82035724-E425-E911-9E1D-1866DA879ED8.root'
 #inputFiles_='file:/uscms/home/mba2012/nobackup/GUN/CMSSW_9_4_13/src/step_MINIAODSIMext2.root'
 #inputFiles_='file:step_full_filtered.root'
@@ -66,7 +67,7 @@ inputFiles_='/store/mc/RunIIFall17MiniAODv2/DiPhotonJets_MGG-80toInf_13TeV_amcat
 
 maxEvents_=-1
 #maxEvents_=1000
-maxEvents_=100
+#maxEvents_=100
 skipEvents_=0
 #outputFile_='output.root'
 #inputTag=inputFiles_.strip('file:').strip('_FEVTDEBUG.root')
