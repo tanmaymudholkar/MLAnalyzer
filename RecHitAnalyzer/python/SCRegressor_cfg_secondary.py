@@ -3,11 +3,16 @@ import FWCore.ParameterSet.Config as cms
 import FWCore.ParameterSet.VarParsing as VarParsing
 
 options = VarParsing.VarParsing('analysis')
-options.register('skipEvents', 
-    default=0, 
+options.register('skipEvents',
+    default=0,
     mult=VarParsing.VarParsing.multiplicity.singleton,
     mytype=VarParsing.VarParsing.varType.int,
     info = "skipEvents")
+options.register('eventsToProcess',
+     default='',
+     mult=VarParsing.VarParsing.multiplicity.list,
+     mytype=VarParsing.VarParsing.varType.string,
+     info = "Events to process")
 options.parseArguments()
 
 process = cms.Process("FEVTAnalyzer")
@@ -35,16 +40,19 @@ print " >> Loaded",len(options.inputFiles),"input files from list."
 #evtsToProc = open('pi0_evtsToProc.txt').read().splitlines()
 #evtsToProc = open('eta_evtsToProc.txt').read().splitlines()
 #print evtsToProc
+slim_files = ['root://cmseos.fnal.gov//store/user/lpcml/mandrews/AODSIM/h24gamma_1j_1M_1GeV_PU2017_AODSIM_slim/190719_005502/0000/step_aodsim_slim_%d.root'%i for i in range(13,15)]
 process.source = cms.Source("PoolSource",
     # replace 'myfile.root' with the source file you want to use
     fileNames = cms.untracked.vstring(
       #'file:myfile.root'
-      '/store/user/lpcml/mandrews/MINIAODSIM/h24gamma_1j_1M_1GeV_TEST_PU2017_MINIAODSIM/190712_044728/0000/step_miniaodsim_ext3_1.root'
+      #'/store/user/lpcml/mandrews/MINIAODSIM/h24gamma_1j_1M_1GeV_TEST_PU2017_MINIAODSIM/190712_044728/0000/step_miniaodsim_ext3_1.root'
+      "root://cms-xrd-global.cern.ch//store/group/phys_higgs/cmshgg/mandrews/flashgg/h24g_26Sep2019/RunIIFall18-4_0_0-119-g2d54185d/MINIAODSIM/h24g_26Sep2019-RunIIFall18-4_0_0-119-g2d54185d-v0-mandrews-h24gamma_1j_1M_1GeV_PU2017_MINIAODSIM-919c80a76a70185609d372d13ecbc645/190926_214616/0000/myMicroAODOutputFile_22.root"
       ),
     secondaryFileNames = cms.untracked.vstring(
       #'file:myfile.root'
       #'/store/user/lpcml/mandrews/AODSIM/h24gamma_1j_1M_1GeV_TEST_PU2017_AODSIM_trunc/190712_005252/0000/step_aodsim_trunc_1.root'
-      '/store/user/lpcml/mandrews/AODSIM/h24gamma_1j_1M_1GeV_TEST_PU2017_AODSIM_slim/190713_203315/0000/step_aodsim_slim_1.root'
+      #'/store/user/lpcml/mandrews/AODSIM/h24gamma_1j_1M_1GeV_TEST_PU2017_AODSIM_slim/190713_203315/0000/step_aodsim_slim_1.root'
+      *slim_files
       )
     #, skipEvents = cms.untracked.uint32(options.skipEvents)
     #, eventsToProcess = cms.untracked.VEventRange('1:6931:1723687928','1:6932:1723895372')
@@ -53,6 +61,9 @@ process.source = cms.Source("PoolSource",
     #, lumisToProcess = cms.untracked.VLuminosityBlockRange('1:3393-1:3393')
     )
 
+if options.eventsToProcess:
+    process.source.eventsToProcess = \
+           cms.untracked.VEventRange (options.eventsToProcess)
 #process.options = cms.untracked.PSet(
 #)
 #process.options.numberOfThreads=cms.untracked.uint32(4)
