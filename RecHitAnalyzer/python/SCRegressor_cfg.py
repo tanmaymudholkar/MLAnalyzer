@@ -66,8 +66,8 @@ process.es_prefer_GlobalTag = cms.ESPrefer('PoolDBESSource','GlobalTag')
 process.fevt = cms.EDAnalyzer('SCRegressor'
     #, EBRecHitCollection = cms.InputTag('ecalRecHit:EcalRecHitsEB')
     , gsfElectronCollection = cms.InputTag('gedGsfElectrons')
-    #, photonCollection = cms.InputTag('gedPhotons')
-    , photonCollection = cms.InputTag('slimmedPhotons')
+    , photonCollection = cms.InputTag('gedPhotons')
+    #, photonCollection = cms.InputTag('slimmedPhotons')
     , jetCollection = cms.InputTag('slimmedJets')
     , muonCollection = cms.InputTag('slimmedMuons')
     , electronCollection = cms.InputTag('slimmedElectrons')
@@ -77,17 +77,17 @@ process.fevt = cms.EDAnalyzer('SCRegressor'
     , reducedAODEBRecHitCollection = cms.InputTag('reducedEcalRecHitsEB')
     , reducedAODEERecHitCollection = cms.InputTag('reducedEcalRecHitsEE')
     , reducedAODESRecHitCollection = cms.InputTag('reducedEcalRecHitsES')
-    #, reducedEBRecHitCollection = cms.InputTag('reducedEcalRecHitsEB')
-    #, reducedEERecHitCollection = cms.InputTag('reducedEcalRecHitsEE')
-    #, reducedESRecHitCollection = cms.InputTag('reducedEcalRecHitsES')
-    , reducedEBRecHitCollection = cms.InputTag('reducedEgamma:reducedEBRecHits')
-    , reducedEERecHitCollection = cms.InputTag('reducedEgamma:reducedEERecHits')
-    , reducedESRecHitCollection = cms.InputTag('reducedEgamma:reducedESRecHits')
-    #, genParticleCollection = cms.InputTag('genParticles')
-    , genParticleCollection = cms.InputTag('prunedGenParticles')
+    , reducedEBRecHitCollection = cms.InputTag('reducedEcalRecHitsEB')
+    , reducedEERecHitCollection = cms.InputTag('reducedEcalRecHitsEE')
+    , reducedESRecHitCollection = cms.InputTag('reducedEcalRecHitsES')
+    #, reducedEBRecHitCollection = cms.InputTag('reducedEgamma:reducedEBRecHits')
+    #, reducedEERecHitCollection = cms.InputTag('reducedEgamma:reducedEERecHits')
+    #, reducedESRecHitCollection = cms.InputTag('reducedEgamma:reducedESRecHits')
+    , genParticleCollection = cms.InputTag('genParticles')
+    #, genParticleCollection = cms.InputTag('prunedGenParticles')
     , genJetCollection = cms.InputTag('ak4GenJets')
-    #, trackCollection = cms.InputTag("generalTracks")
-    , trackCollection = cms.InputTag("isolatedTracks")
+    , trackCollection = cms.InputTag("generalTracks")
+    #, trackCollection = cms.InputTag("isolatedTracks")
     , rhoLabel = cms.InputTag("fixedGridRhoFastjetAll")
     , trgResults = cms.InputTag("TriggerResults","","HLT")
     , generator = cms.InputTag("generator")
@@ -132,7 +132,7 @@ runMetCorAndUncFromMiniAOD (
 
 process.p = cms.Path(
   #process.hltFilter*
-  process.fullPatMetSequenceModifiedMET*
-  process.egammaPostRecoSeq*
+  #process.fullPatMetSequenceModifiedMET*
+  #process.egammaPostRecoSeq*
   process.fevt
 )
