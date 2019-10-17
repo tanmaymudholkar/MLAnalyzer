@@ -22,6 +22,7 @@
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "DataFormats/EcalDetId/interface/EcalTrigTowerDetId.h"
+#include "DataFormats/EcalDetId/interface/ESDetId.h"
 #include "Geometry/CaloTopology/interface/EcalBarrelTopology.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
@@ -105,13 +106,13 @@ class SCRegressor : public edm::one::EDAnalyzer<edm::one::SharedResources>  {
     edm::EDGetTokenT<JetCollection> jetCollectionT_;
     edm::EDGetTokenT<EcalRecHitCollection> EBRecHitCollectionT_;
     edm::EDGetTokenT<EcalRecHitCollection> EERecHitCollectionT_;
-    edm::EDGetTokenT<EcalRecHitCollection> ESRecHitCollectionT_;
+    edm::EDGetTokenT<ESRecHitCollection> ESRecHitCollectionT_;
     edm::EDGetTokenT<EcalRecHitCollection> AODEBRecHitCollectionT_;
     edm::EDGetTokenT<EcalRecHitCollection> AODEERecHitCollectionT_;
-    edm::EDGetTokenT<EcalRecHitCollection> AODESRecHitCollectionT_;
+    edm::EDGetTokenT<ESRecHitCollection> AODESRecHitCollectionT_;
     edm::EDGetTokenT<EcalRecHitCollection> RECOEBRecHitCollectionT_;
     edm::EDGetTokenT<EcalRecHitCollection> RECOEERecHitCollectionT_;
-    edm::EDGetTokenT<EcalRecHitCollection> RECOESRecHitCollectionT_;
+    edm::EDGetTokenT<ESRecHitCollection> RECOESRecHitCollectionT_;
     edm::EDGetTokenT<reco::GenParticleCollection> genParticleCollectionT_;
     edm::EDGetTokenT<reco::GenJetCollection> genJetCollectionT_;
     edm::EDGetTokenT<reco::TrackCollection> trackCollectionT_;
@@ -123,11 +124,17 @@ class SCRegressor : public edm::one::EDAnalyzer<edm::one::SharedResources>  {
 
     static const int nPhotons = 2;
     //static const int nPhotons = 1;
+    static const int nEE = 2;
 
     TProfile2D *hEB_energy;
     TProfile2D *hEB_time;
     std::vector<float> vEB_energy_;
     std::vector<float> vEB_time_;
+
+    TProfile2D *hEE_energy[nEE];
+    TProfile2D *hEE_time[nEE];
+    std::vector<float> vEE_energy_[nEE];
+    std::vector<float> vEE_time_[nEE];
 
     //TH1D * histo;
     TProfile2D * hSC_energy;
@@ -151,6 +158,8 @@ class SCRegressor : public edm::one::EDAnalyzer<edm::one::SharedResources>  {
     void branchesSCaod ( TTree*, edm::Service<TFileService>& );
     void branchesSCreco ( TTree*, edm::Service<TFileService>& );
     void branchesEB ( TTree*, edm::Service<TFileService>& );
+    void branchesEE ( TTree*, edm::Service<TFileService>& );
+    void branchesES ( TTree*, edm::Service<TFileService>& );
     void branchesTracksAtEBEE ( TTree*, edm::Service<TFileService>& );
     void branchesPhoVars ( TTree*, edm::Service<TFileService>& );
     void branchesEvtWgt ( TTree*, edm::Service<TFileService>& );
@@ -159,6 +168,8 @@ class SCRegressor : public edm::one::EDAnalyzer<edm::one::SharedResources>  {
     void fillSCaod  ( const edm::Event&, const edm::EventSetup& );
     void fillSCreco ( const edm::Event&, const edm::EventSetup& );
     void fillEB     ( const edm::Event&, const edm::EventSetup& );
+    void fillEE     ( const edm::Event&, const edm::EventSetup& );
+    void fillES     ( const edm::Event&, const edm::EventSetup& );
     void fillTracksAtEBEE ( const edm::Event&, const edm::EventSetup& );
     void fillPhoVars ( const edm::Event&, const edm::EventSetup& );
     void fillEvtWgt ( const edm::Event&, const edm::EventSetup& );

@@ -69,7 +69,7 @@ inputFiles_='/store/user/lpcml/mandrews/AODSIM/DoublePi0Pt10To200_m0To2600_Eta1p
 
 maxEvents_=-1
 #maxEvents_=1000
-#maxEvents_=100
+maxEvents_=2
 skipEvents_=0
 #outputFile_='output.root'
 #inputTag=inputFiles_.strip('file:').strip('_FEVTDEBUG.root')
