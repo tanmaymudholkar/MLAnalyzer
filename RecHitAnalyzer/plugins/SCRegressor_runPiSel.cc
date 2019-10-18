@@ -138,6 +138,8 @@ bool SCRegressor::runPiSel ( const edm::Event& iEvent, const edm::EventSetup& iS
       PhotonRef iPho( photons, minDR_idx );
       if ( std::abs(iPho->pt()) <= ptCut ) continue;
       //if ( std::abs(iPho->eta()) >= etaCut ) continue;
+      if ( std::abs(iPho->eta()) > 2.4 ) continue;
+      if ( std::abs(iPho->eta()) < 1.7 ) continue;
 
       if ( iPho->full5x5_r9() <= 0.5 ) continue;
       if ( iPho->hadTowOverEm() >= 0.08 ) continue;
@@ -235,7 +237,7 @@ void SCRegressor::fillPiSel ( const edm::Event& iEvent, const edm::EventSetup& i
     dEta = std::abs( iGen->daughter(0)->eta() - iGen->daughter(1)->eta() );
     dPhi = reco::deltaPhi( iGen->daughter(0)->phi(), iGen->daughter(1)->phi() );
     //if ( debug ) std::cout << " >> m0:" << mPi0 << " dR:" << dR << " dPhi:" << dPhi << std::endl;
-    std::cout << " >> m0:" << mPi0 << " eta:" << iGen->eta() << " dR:" << dR << " dPhi:" << dPhi << " dEta:" << dEta << std::endl;
+    std::cout << " >> m0:" << mPi0 << " eta:" << iGen->eta() << " dRxtal:" << dR/0.0174 << " dPhixtal:" << dPhi/0.0174 << " dEtaxtal:" << dEta/0.0174 << std::endl;
     //std::cout << " >> m0:" << mPi0 << " eta:" << iGen->eta() << " dX:" << std::abs(iGen->daughter(0)->x()-iGen->daughter(1)->x()) 
     //  << " dY:" << std::abs(iGen->daughter(0)->y()-iGen->daughter(1)->y()) << std::endl;
 
