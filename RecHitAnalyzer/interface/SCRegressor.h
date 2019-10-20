@@ -161,6 +161,7 @@ class SCRegressor : public edm::one::EDAnalyzer<edm::one::SharedResources>  {
     void branchesEE ( TTree*, edm::Service<TFileService>& );
     void branchesES ( TTree*, edm::Service<TFileService>& );
     void branchesTracksAtEBEE ( TTree*, edm::Service<TFileService>& );
+    void branchesEEatES ( TTree*, edm::Service<TFileService>& );
     void branchesPhoVars ( TTree*, edm::Service<TFileService>& );
     void branchesEvtWgt ( TTree*, edm::Service<TFileService>& );
 
@@ -171,6 +172,7 @@ class SCRegressor : public edm::one::EDAnalyzer<edm::one::SharedResources>  {
     void fillEE     ( const edm::Event&, const edm::EventSetup& );
     void fillES     ( const edm::Event&, const edm::EventSetup& );
     void fillTracksAtEBEE ( const edm::Event&, const edm::EventSetup& );
+    void fillEEatES     ( const edm::Event&, const edm::EventSetup& );
     void fillPhoVars ( const edm::Event&, const edm::EventSetup& );
     void fillEvtWgt ( const edm::Event&, const edm::EventSetup& );
 
@@ -204,6 +206,7 @@ class SCRegressor : public edm::one::EDAnalyzer<edm::one::SharedResources>  {
     std::vector<int> vRegressPhoIdxs_;
     std::vector<float> vIphi_Emax_;
     std::vector<float> vIeta_Emax_;
+    std::vector<float> vSubdet_Emax_;
 
     //std::vector<std::vector<float>> vEB_SCenergy_;
     std::vector<std::vector<float>> vSC_energy_;
@@ -340,6 +343,12 @@ static const int EE_MIN_IY = EEDetId::IY_MIN;//1;
 static const int EE_MAX_IX = EEDetId::IX_MAX;//100;
 static const int EE_MAX_IY = EEDetId::IY_MAX;//100;
 static const int EE_NC_PER_ZSIDE = EEDetId::IX_MAX*EEDetId::IY_MAX; // 100*100
+
+static const int nSTRIP = ESDetId::ISTRIP_MAX;// 32
+static const int nPLANE = ESDetId::PLANE_MAX;// 2
+static const int nZ = ESDetId::IZ_NUM;// 2
+static const int nXY = ESDetId::IX_MAX; // 40
+static const int nXY_STRIP = nXY*nSTRIP; // 40*32 = 1280
 //
 // static data member definitions
 //

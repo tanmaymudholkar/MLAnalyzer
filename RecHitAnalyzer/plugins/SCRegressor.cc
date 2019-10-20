@@ -70,6 +70,7 @@ SCRegressor::SCRegressor(const edm::ParameterSet& iConfig)
   branchesEE     ( RHTree, fs );
   branchesES     ( RHTree, fs );
   //branchesTracksAtEBEE     ( RHTree, fs );
+  branchesEEatES     ( RHTree, fs );
   branchesPhoVars     ( RHTree, fs );
   //branchesEvtWgt     ( RHTree, fs );
 
@@ -115,6 +116,9 @@ SCRegressor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   edm::Handle<EcalRecHitCollection> EBRecHitsH;
   iEvent.getByToken(EBRecHitCollectionT_, EBRecHitsH);
 
+  edm::Handle<EcalRecHitCollection> EERecHitsH;
+  iEvent.getByToken(EERecHitCollectionT_, EERecHitsH);
+
   edm::Handle<PhotonCollection> photons;
   iEvent.getByToken(photonCollectionT_, photons);
 
@@ -143,20 +147,21 @@ SCRegressor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   // Get coordinates of photon supercluster seed
   hNpassed_img->Fill(0.);
   nPho = 0;
-  int iphi_Emax, ieta_Emax;
-  float Emax;
-  GlobalPoint pos_Emax;
+  int iphi_Emax, ieta_Emax, subdet_Emax;
+  float Emax, energy_;
+  GlobalPoint pos_, pos_Emax;
   std::vector<GlobalPoint> vPos_Emax;
   vIphi_Emax_.clear();
   vIeta_Emax_.clear();
+  vSubdet_Emax_.clear();
   vRegressPhoIdxs_.clear();
-  int iphi_, ieta_; // rows:ieta, cols:iphi
+  int iphi_, ieta_, subdet_; // rows:ieta, cols:iphi
   for ( unsigned int iP : vPreselPhoIdxs_ ) {
 
     PhotonRef iPho( photons, iP );
-    vRegressPhoIdxs_.push_back( iP );
+    //vRegressPhoIdxs_.push_back( iP );
 
-    /*
+    ///*
     // Get underlying super cluster
     reco::SuperClusterRef const& iSC = iPho->superCluster();
     //EcalRecHitCollection::const_iterator iRHit_( EBRecHitsH->find(iSC->seed()->seed()) );
@@ -168,42 +173,75 @@ SCRegressor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     Emax = 0.;
     iphi_Emax = -1;
     ieta_Emax = -1;
+    subdet_Emax = -1;
 
     // Loop over SC hits of photon
     for(unsigned iH(0); iH != SCHits.size(); ++iH) {
 
-      // Get DetId
-      if ( SCHits[iH].first.subdetId() != EcalBarrel ) continue;
-      EcalRecHitCollection::const_iterator iRHit( EBRecHitsH->find(SCHits[iH].first) );
-      if ( iRHit == EBRecHitsH->end() ) continue;
+      //if ( SCHits[iH].first.subdetId() == EcalBarrel ) std::cout << "EB" << std::endl;
+      //if ( SCHits[iH].first.subdetId() == EcalEndcap ) std::cout << "EE" << std::endl;
+      //if ( SCHits[iH].first.subdetId() == EcalPreshower ) std::cout << "ES" << std::endl;
 
-      // Convert coordinates to ordinals
-      EBDetId ebId( iRHit->id() );
-      //EBDetId ebId( iSC->seed()->seed() );
-      ieta_ = ebId.ieta() > 0 ? ebId.ieta()-1 : ebId.ieta(); // [-85,...,-1,1,...,85]
-      ieta_ += EBDetId::MAX_IETA; // [0,...,169]
-      iphi_ = ebId.iphi()-1; // [0,...,359]
+      // Get DetId
+      // ECAL Barrel
+      if ( SCHits[iH].first.subdetId() == EcalBarrel ) {
+
+        EcalRecHitCollection::const_iterator iRHit( EBRecHitsH->find(SCHits[iH].first) );
+        if ( iRHit == EBRecHitsH->end() ) continue;
+
+        // Convert coordinates to ordinals
+        EBDetId ebId( iRHit->id() );
+        //EBDetId ebId( iSC->seed()->seed() );
+        ieta_ = ebId.ieta() > 0 ? ebId.ieta()-1 : ebId.ieta(); // [-85,...,-1,1,...,85]
+        ieta_ += EBDetId::MAX_IETA; // [0,...,169]
+        iphi_ = ebId.iphi()-1; // [0,...,359]
+        pos_ = caloGeom->getPosition(ebId);
+        energy_ = iRHit->energy();
+        subdet_ = 1;
+
+      }
+      // ECAL Endcap
+      else if ( SCHits[iH].first.subdetId() == EcalEndcap ) {
+
+        EcalRecHitCollection::const_iterator iRHit( EERecHitsH->find(SCHits[iH].first) );
+        if ( iRHit == EERecHitsH->end() ) continue;
+
+        // Convert coordinates to ordinals
+        EEDetId eeId( iRHit->id() );
+        //EEDetId eeId( iSC->seed()->seed() );
+        ieta_ = eeId.iy() - 1; // [0,...,99]
+        iphi_ = eeId.ix() - 1; // [0,...,99]
+        pos_ = caloGeom->getPosition(eeId);
+        energy_ = iRHit->energy();
+        subdet_ = 2;
+
+      }
+      // Neither EB nor EE. NOTE: ES treated separately.
+      else continue;
 
       // Keep coordinates of shower max
-      if ( iRHit->energy() > Emax ) {
-        Emax = iRHit->energy();
+      if ( energy_ > Emax ) {
+        Emax = energy_;
         iphi_Emax = iphi_;
         ieta_Emax = ieta_;
-        pos_Emax = caloGeom->getPosition(ebId);
+        pos_Emax = pos_;
+        subdet_Emax = subdet_;
       }
       //std::cout << " >> " << iH << ": iphi_,ieta_,E: " << iphi_ << ", " << ieta_ << ", " << iRHit->energy() << std::endl;
+
     } // SC hits
 
     // Apply selection on position of shower seed
     //std::cout << " >> Found: iphi_Emax,ieta_Emax: " << iphi_Emax << ", " << ieta_Emax << std::endl;
     if ( Emax <= zs ) continue;
-    if ( ieta_Emax > 169 - 16 || ieta_Emax < 15 ) continue; // seed centered on [15,15] so must be padded by 15 below and 16 above
+    //if ( ieta_Emax > 169 - 16 || ieta_Emax < 15 ) continue; // seed centered on [15,15] so must be padded by 15 below and 16 above
     vIphi_Emax_.push_back( iphi_Emax );
     vIeta_Emax_.push_back( ieta_Emax );
     vPos_Emax.push_back( pos_Emax );
+    vSubdet_Emax_.push_back( subdet_Emax );
     vRegressPhoIdxs_.push_back( iP );
     //std::cout << " >> Found: iphi_Emax,ieta_Emax: " << iphi_Emax << ", " << ieta_Emax << std::endl;
-    */
+    //*/
     nPho++;
 
   } // Photons
@@ -230,6 +268,7 @@ SCRegressor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   fillEE     ( iEvent, iSetup );
   fillES     ( iEvent, iSetup );
   //fillTracksAtEBEE     ( iEvent, iSetup );
+  fillEEatES     ( iEvent, iSetup );
   fillPhoVars     ( iEvent, iSetup );
   //fillEvtWgt     ( iEvent, iSetup );
 

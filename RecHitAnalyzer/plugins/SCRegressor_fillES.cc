@@ -4,18 +4,12 @@
 // For each endcap, store event rechits in a vector of length
 // equal to number of crystals per endcap (ix:100 x iy:100)
 
-static const int nSTRIP = ESDetId::ISTRIP_MAX;// 32
-static const int nPLANE = ESDetId::PLANE_MAX;// 2
-static const int nZ = ESDetId::IZ_NUM;// 2
-static const int nXY = ESDetId::IX_MAX; // 40
-static const int nXY_STRIP = nXY*nSTRIP; // 40*32 = 1280
-static const int search_window = 5;
-
 TProfile2D *hES_energy[nPLANE][nZ];
 TProfile2D *hES_energy_sensor[nPLANE][nZ];
 TH2F *hEvt_ES_energy_sensor[nPLANE][nZ];
 std::vector<float> vES_energy_[nPLANE][nZ];
 std::vector<float> seedIx_, seedIy_;
+static const int search_window = 5;
 
 // Initialize branches _____________________________________________________//
 void SCRegressor::branchesES ( TTree* tree, edm::Service<TFileService> &fs ) {
