@@ -4,29 +4,30 @@
 // For each endcap, store event rechits in a vector of length
 // equal to number of crystals per endcap (ix:100 x iy:100)
 
-TH2F *hEEatES_energy[nZ];
-std::vector<float> vEEatES_energy[nZ];
+TH2F *hEEAtES_energy[nZ];
+std::vector<float> vEEAtES_energy[nZ];
 const int EEAtES_search_window = 3*nSTRIP;
 
 // Initialize branches _____________________________________________________________//
-void SCRegressor::branchesEEatES ( TTree* tree, edm::Service<TFileService> &fs ) {
+void SCRegressor::branchesEEAtES ( TTree* tree, edm::Service<TFileService> &fs ) {
 
   char hname[50], htitle[50];
   for ( int iz(0); iz < nEE; iz++ ) {
     // Branches for images
     const char *zside = (iz > 0) ? "p" : "m";
     sprintf(hname, "EE_energy_ES%s",zside);
-    tree->Branch(hname,        &vEEatES_energy[iz]);
+    tree->Branch(hname,        &vEEAtES_energy[iz]);
 
     // Histograms for monitoring
-    hEEatES_energy[iz] = fs->make<TH2F>(hname, htitle,
+    sprintf(htitle,"E(stripX,stripY);stripX;stripY");
+    hEEAtES_energy[iz] = fs->make<TH2F>(hname, htitle,
         nXY_STRIP, 0, nXY_STRIP,
         nXY_STRIP, 0, nXY_STRIP  );
   } // iz
 
-} // branchesEEatES()
+} // branchesEEAtES()
 
-ESDetId ESId_from_EtaPhi( float& eta, float& phi, const CaloGeometry* caloGeom ) {
+ESDetId SCRegressor::ESId_from_EtaPhi( float& eta, float& phi, const CaloGeometry* caloGeom ) {
 
   //const double zESF = 303.846;
   const double zESR = 308.306;
@@ -61,7 +62,7 @@ float minXYcorner( EEDetId &eeId, SCRegressor_fillEEAtES.cc ) {
 }
 */
 // Fill HCAL rechits at EB/EE ______________________________________________________________//
-void SCRegressor::fillEEatES ( const edm::Event& iEvent, const edm::EventSetup& iSetup ) {
+void SCRegressor::fillEEAtES ( const edm::Event& iEvent, const edm::EventSetup& iSetup ) {
 
   int ix_, iy_, iz_, idx_; // rows:iy, columns:ix
   int nEExtals_filled;
@@ -79,7 +80,7 @@ void SCRegressor::fillEEatES ( const edm::Event& iEvent, const edm::EventSetup& 
   std::vector<int> vESYstrips_in_EExtal;
 
   for ( int iz(0); iz < nEE; iz++ ) {
-    vEEatES_energy[iz].assign( nXY_STRIP*nXY_STRIP, 0. );
+    vEEAtES_energy[iz].assign( nXY_STRIP*nXY_STRIP, 0. );
   }
 
   edm::Handle<EcalRecHitCollection> EERecHitsH_;
@@ -222,8 +223,8 @@ void SCRegressor::fillEEatES ( const edm::Event& iEvent, const edm::EventSetup& 
         //std::cout << "st_x,st_y:" << st_x << "," << st_y << std::endl;
 
         // Fill histogram
-        //hEEatES_energy[iz_]->SetBinContent( stX_, stY_, hEEatES_energy[iz_]->GetBinContent( stX_, stY_) + energy_ );
-        //hEEatES_energy[iz_]->SetBinContent( stX_, stY_, hEEatES_energy[iz_]->GetBinContent( stX_, stY_) + iC );
+        //hEEAtES_energy[iz_]->SetBinContent( stX_, stY_, hEEAtES_energy[iz_]->GetBinContent( stX_, stY_) + energy_ );
+        //hEEAtES_energy[iz_]->SetBinContent( stX_, stY_, hEEAtES_energy[iz_]->GetBinContent( stX_, stY_) + iC );
 
         vESXstrips_in_EExtal.push_back( stX_ );
         vESYstrips_in_EExtal.push_back( stY_ );
@@ -239,8 +240,8 @@ void SCRegressor::fillEEatES ( const edm::Event& iEvent, const edm::EventSetup& 
       stX_ = vESXstrips_in_EExtal[i];
       stY_ = vESYstrips_in_EExtal[i];
       idx_ = stY_*nXY_STRIP + stX_;
-      vEEatES_energy[iz_][idx_] += energy_/float(nESstrips_in_EExtal);
-      hEEatES_energy[iz_]->SetBinContent( stX_, stY_, hEEatES_energy[iz_]->GetBinContent(stX_, stY_) + energy_/float(nESstrips_in_EExtal) );
+      vEEAtES_energy[iz_][idx_] += energy_/float(nESstrips_in_EExtal);
+      hEEAtES_energy[iz_]->SetBinContent( stX_, stY_, hEEAtES_energy[iz_]->GetBinContent(stX_, stY_) + energy_/float(nESstrips_in_EExtal) );
     }
     // fill image[stX,stY_] vector with energy_/stX_.size();
 
@@ -332,7 +333,7 @@ void SCRegressor::fillEEatES ( const edm::Event& iEvent, const edm::EventSetup& 
   } // HBHE rechits
   */
 
-} // fillEEatES()
+} // fillEEAtES()
 
 // HCAL REPcorners index illustration:
 /*

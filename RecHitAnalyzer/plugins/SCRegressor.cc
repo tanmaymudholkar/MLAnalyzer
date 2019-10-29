@@ -54,6 +54,7 @@ SCRegressor::SCRegressor(const edm::ParameterSet& iConfig)
 
   RHTree->Branch("SC_iphi", &vIphi_Emax_);
   RHTree->Branch("SC_ieta", &vIeta_Emax_);
+  RHTree->Branch("SC_iz",   &vIz_Emax_);
 
   branchesPiSel ( RHTree, fs );
   //branchesPhotonSel ( RHTree, fs );
@@ -70,7 +71,8 @@ SCRegressor::SCRegressor(const edm::ParameterSet& iConfig)
   branchesEE     ( RHTree, fs );
   branchesES     ( RHTree, fs );
   //branchesTracksAtEBEE     ( RHTree, fs );
-  branchesEEatES     ( RHTree, fs );
+  branchesEEAtES     ( RHTree, fs );
+  branchesTracksAtES     ( RHTree, fs );
   branchesPhoVars     ( RHTree, fs );
   //branchesEvtWgt     ( RHTree, fs );
 
@@ -147,15 +149,16 @@ SCRegressor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   // Get coordinates of photon supercluster seed
   hNpassed_img->Fill(0.);
   nPho = 0;
-  int iphi_Emax, ieta_Emax, subdet_Emax;
+  int iphi_Emax, ieta_Emax, iz_Emax, subdet_Emax;
   float Emax, energy_;
   GlobalPoint pos_, pos_Emax;
   std::vector<GlobalPoint> vPos_Emax;
   vIphi_Emax_.clear();
   vIeta_Emax_.clear();
+  vIz_Emax_.clear();
   vSubdet_Emax_.clear();
   vRegressPhoIdxs_.clear();
-  int iphi_, ieta_, subdet_; // rows:ieta, cols:iphi
+  int iphi_, ieta_, iz_, subdet_; // rows:ieta, cols:iphi
   for ( unsigned int iP : vPreselPhoIdxs_ ) {
 
     PhotonRef iPho( photons, iP );
@@ -173,6 +176,7 @@ SCRegressor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     Emax = 0.;
     iphi_Emax = -1;
     ieta_Emax = -1;
+    iz_Emax = -99;
     subdet_Emax = -1;
 
     // Loop over SC hits of photon
@@ -195,6 +199,7 @@ SCRegressor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
         ieta_ = ebId.ieta() > 0 ? ebId.ieta()-1 : ebId.ieta(); // [-85,...,-1,1,...,85]
         ieta_ += EBDetId::MAX_IETA; // [0,...,169]
         iphi_ = ebId.iphi()-1; // [0,...,359]
+        iz_ = ebId.zside() > 0 ? 1 : 0;
         pos_ = caloGeom->getPosition(ebId);
         energy_ = iRHit->energy();
         subdet_ = 1;
@@ -211,6 +216,7 @@ SCRegressor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
         //EEDetId eeId( iSC->seed()->seed() );
         ieta_ = eeId.iy() - 1; // [0,...,99]
         iphi_ = eeId.ix() - 1; // [0,...,99]
+        iz_ = eeId.zside() > 0 ? 1 : 0;
         pos_ = caloGeom->getPosition(eeId);
         energy_ = iRHit->energy();
         subdet_ = 2;
@@ -224,6 +230,7 @@ SCRegressor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
         Emax = energy_;
         iphi_Emax = iphi_;
         ieta_Emax = ieta_;
+        iz_Emax = iz_;
         pos_Emax = pos_;
         subdet_Emax = subdet_;
       }
@@ -237,6 +244,7 @@ SCRegressor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     //if ( ieta_Emax > 169 - 16 || ieta_Emax < 15 ) continue; // seed centered on [15,15] so must be padded by 15 below and 16 above
     vIphi_Emax_.push_back( iphi_Emax );
     vIeta_Emax_.push_back( ieta_Emax );
+    vIz_Emax_.push_back( iz_Emax );
     vPos_Emax.push_back( pos_Emax );
     vSubdet_Emax_.push_back( subdet_Emax );
     vRegressPhoIdxs_.push_back( iP );
@@ -268,7 +276,8 @@ SCRegressor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   fillEE     ( iEvent, iSetup );
   fillES     ( iEvent, iSetup );
   //fillTracksAtEBEE     ( iEvent, iSetup );
-  fillEEatES     ( iEvent, iSetup );
+  fillEEAtES     ( iEvent, iSetup );
+  fillTracksAtES     ( iEvent, iSetup );
   fillPhoVars     ( iEvent, iSetup );
   //fillEvtWgt     ( iEvent, iSetup );
 

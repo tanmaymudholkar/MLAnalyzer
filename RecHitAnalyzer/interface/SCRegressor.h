@@ -161,7 +161,8 @@ class SCRegressor : public edm::one::EDAnalyzer<edm::one::SharedResources>  {
     void branchesEE ( TTree*, edm::Service<TFileService>& );
     void branchesES ( TTree*, edm::Service<TFileService>& );
     void branchesTracksAtEBEE ( TTree*, edm::Service<TFileService>& );
-    void branchesEEatES ( TTree*, edm::Service<TFileService>& );
+    void branchesEEAtES ( TTree*, edm::Service<TFileService>& );
+    void branchesTracksAtES ( TTree*, edm::Service<TFileService>& );
     void branchesPhoVars ( TTree*, edm::Service<TFileService>& );
     void branchesEvtWgt ( TTree*, edm::Service<TFileService>& );
 
@@ -172,7 +173,8 @@ class SCRegressor : public edm::one::EDAnalyzer<edm::one::SharedResources>  {
     void fillEE     ( const edm::Event&, const edm::EventSetup& );
     void fillES     ( const edm::Event&, const edm::EventSetup& );
     void fillTracksAtEBEE ( const edm::Event&, const edm::EventSetup& );
-    void fillEEatES     ( const edm::Event&, const edm::EventSetup& );
+    void fillEEAtES     ( const edm::Event&, const edm::EventSetup& );
+    void fillTracksAtES     ( const edm::Event&, const edm::EventSetup& );
     void fillPhoVars ( const edm::Event&, const edm::EventSetup& );
     void fillEvtWgt ( const edm::Event&, const edm::EventSetup& );
 
@@ -206,6 +208,7 @@ class SCRegressor : public edm::one::EDAnalyzer<edm::one::SharedResources>  {
     std::vector<int> vRegressPhoIdxs_;
     std::vector<float> vIphi_Emax_;
     std::vector<float> vIeta_Emax_;
+    std::vector<float> vIz_Emax_;
     std::vector<float> vSubdet_Emax_;
 
     //std::vector<std::vector<float>> vEB_SCenergy_;
@@ -322,6 +325,8 @@ class SCRegressor : public edm::one::EDAnalyzer<edm::one::SharedResources>  {
     unsigned int nRecoPho_;
     std::vector<float> vMinDR_;
     double evtWeight_;
+
+    ESDetId ESId_from_EtaPhi( float& eta, float& phi, const CaloGeometry* caloGeom );
 
 };
 
