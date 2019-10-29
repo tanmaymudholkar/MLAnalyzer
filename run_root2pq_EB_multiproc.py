@@ -22,7 +22,7 @@ parser.add_argument('-d', '--genDR', default=10, type=int, help='gen-level dR.')
 parser.add_argument('-p', '--p_drop', default=1.00, type=float, help='p(drop) scale.')
 #parser.add_argument('-w', '--wgt_file', default=None, type=str, help='Weight file.')
 parser.add_argument('-w', '--wgt_files', default=None, nargs='+', type=str, help='Weight file.')
-parser.add_argument('-b', '--batch_size', default=1, type=int, help='Batch size.')
+parser.add_argument('-b', '--batch_size', default=1, type=int, help='N of input files to batch per process.')
 args = parser.parse_args()
 
 genDR = args.genDR

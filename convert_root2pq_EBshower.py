@@ -39,6 +39,25 @@ def crop_EBshower(imgEB, iphi, ieta, window=32):
 
     return img_crop
 
+def pa_array(d):
+    arr = pa.array([d]) if np.isscalar(d) or type(d) == list else pa.array([d.tolist()])
+    #print(arr.type)
+    ## double to single float
+    if arr.type == pa.float64():
+        arr = arr.cast(pa.float32())
+    elif arr.type == pa.list_(pa.float64()):
+        arr = arr.cast(pa.list_(pa.float32()))
+    elif arr.type == pa.list_(pa.list_(pa.float64())):
+        arr = arr.cast(pa.list_(pa.list_(pa.float32())))
+    elif arr.type == pa.list_(pa.list_(pa.list_(pa.float64()))):
+        arr = arr.cast(pa.list_(pa.list_(pa.list_(pa.float32()))))
+    elif arr.type == pa.list_(pa.list_(pa.list_(pa.list_(pa.float64())))):
+        arr = arr.cast(pa.list_(pa.list_(pa.list_(pa.list_(pa.float32())))))
+    #else:
+    #    print('Unknown type for conversion to (list of) floats',arr.type)
+    #print(arr.type)
+    return arr
+
 def get_weight_2d(m0, pt, m0_edges, pt_edges, wgts):
     idx_m0 = np.argmax(m0 <= m0_edges)-1
     idx_pt = np.argmax(pt <= pt_edges)-1
@@ -60,7 +79,8 @@ for f in rhTreeStr:
 nEvts = rhTree.GetEntries()
 assert nEvts > 0
 print " >> nEvts:",nEvts
-outStr = '%s/%s.parquet.%d'%(args.outdir, args.decay, args.idx)
+#outStr = '%s/%s.parquet.%d'%(args.outdir, args.decay, args.idx)
+outStr = '%s/%s.tks.parquet.%d'%(args.outdir, args.decay, args.idx)
 print " >> Output file:",outStr
 
 ##### EVENT SELECTION START #####
@@ -90,10 +110,9 @@ for iEvt in range(iEvtStart,iEvtEnd):
     idx = [rhTree.runId, rhTree.lumiId, rhTree.eventId]
 
     #EB_time = np.array(rhTree.EB_time).reshape(170,360)
-    #TracksAtEB_pt = np.array(rhTree.TracksPt_EB).reshape(170,360)
+    TracksAtEB_pt = np.array(rhTree.TracksPt_EB).reshape(1,170,360)
     #X_EB = np.stack([TracksAtEB_pt, EB_time], axis=0)
     #X_EB = np.array(rhTree.EB_energy).reshape(1,170,360)
-    X_EB = np.array(rhTree.TracksPt_EB).reshape(1,170,360)
 
     nPhoEvt = len(rhTree.SC_mass)
     if args.wgt_files is not None:
@@ -112,7 +131,7 @@ for iEvt in range(iEvtStart,iEvtEnd):
         if data['ieta'] >= 170-16:
             continue
 
-        if rhTree.pho_pT[i] > 100.: continue
+        #if rhTree.pho_pT[i] > 100.: continue
 
         if args.wgt_files is not None:
             keepEG = True
@@ -161,32 +180,41 @@ for iEvt in range(iEvtStart,iEvtEnd):
                 ,rhTree.pho_chgIsoCorr[i]
                 ,rhTree.pho_neuIsoCorr[i]
                 ,rhTree.pho_phoIsoCorr[i]
-                ,rhTree.pho_bdt[i]
+                #,rhTree.pho_bdt[i]
             ]
 
         data['X'] = np.array(rhTree.SC_energy[i]).reshape(1,32,32)
         sc_energyT = np.array(rhTree.SC_energyT[i]).reshape(1,32,32)
         sc_energyZ = np.array(rhTree.SC_energyZ[i]).reshape(1,32,32)
-        data['Xtz'] = np.concatenate((sc_energyT, sc_energyZ), axis=0)
+        #data['Xtz'] = np.concatenate((sc_energyT, sc_energyZ), axis=0)
+        Xtz = np.concatenate((sc_energyT, sc_energyZ), axis=0)
 
-        #data['X_aod'] = np.array(rhTree.SCaod_energy[i]).reshape(1,32,32)
-        #scaod_energyT = np.array(rhTree.SCaod_energyT[i]).reshape(1,32,32)
-        #scaod_energyZ = np.array(rhTree.SCaod_energyZ[i]).reshape(1,32,32)
+        data['X_aod'] = np.array(rhTree.SCaod_energy[i]).reshape(1,32,32)
+        scaod_energyT = np.array(rhTree.SCaod_energyT[i]).reshape(1,32,32)
+        scaod_energyZ = np.array(rhTree.SCaod_energyZ[i]).reshape(1,32,32)
         #data['Xtz_aod'] = np.concatenate((scaod_energyT, scaod_energyZ), axis=0)
+        Xtz_aod = np.concatenate((scaod_energyT, scaod_energyZ), axis=0)
 
-        #data['X_reco'] = np.array(rhTree.SCreco_energy[i]).reshape(1,32,32)
-        #screco_energyT = np.array(rhTree.SCreco_energyT[i]).reshape(1,32,32)
-        #screco_energyZ = np.array(rhTree.SCreco_energyZ[i]).reshape(1,32,32)
+        data['X_reco'] = np.array(rhTree.SCreco_energy[i]).reshape(1,32,32)
+        screco_energyT = np.array(rhTree.SCreco_energyT[i]).reshape(1,32,32)
+        screco_energyZ = np.array(rhTree.SCreco_energyZ[i]).reshape(1,32,32)
         #data['Xtz_reco'] = np.concatenate((screco_energyT, screco_energyZ), axis=0)
+        Xtz_reco = np.concatenate((screco_energyT, screco_energyZ), axis=0)
 
-        sc_cms = crop_EBshower(X_EB, data['iphi'], data['ieta'])
+        tk = crop_EBshower(TracksAtEB_pt, data['iphi'], data['ieta'])
+        #sc_cms = crop_EBshower(X_EB, data['iphi'], data['ieta'])
         #if sc_cms.shape != data['Xtz'].shape:
         #if sc_cms.shape[1] != data['Xtz'].shape[1]:
         #    print(sc_cms.shape, data['ieta'], data['iphi'])
         #    print(data['Xtz'].shape)
-        data['Xtzk'] = np.concatenate([sc_cms, data['Xtz']], axis=0)
+        #data['Xtzk'] = np.concatenate([sc_cms, data['Xtz']], axis=0)
+        #data['Xtzk_aod'] = np.concatenate([sc_cms, data['Xtz_aod']], axis=0)
+        data['Xtzk'] = np.concatenate([tk, Xtz], axis=0)
+        data['Xtzk_aod'] = np.concatenate([tk, Xtz_aod], axis=0)
+        data['Xtzk_reco'] = np.concatenate([tk, Xtz_reco], axis=0)
 
-        pqdata = [pa.array([d]) if np.isscalar(d) or type(d) == list else pa.array([d.tolist()]) for d in data.values()]
+        #pqdata = [pa.array([d]) if np.isscalar(d) or type(d) == list else pa.array([d.tolist()]) for d in data.values()]
+        pqdata = [pa_array(d) for d in data.values()]
         table = pa.Table.from_arrays(pqdata, data.keys())
 
         if nPhos == 0:

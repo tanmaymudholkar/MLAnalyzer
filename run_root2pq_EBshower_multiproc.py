@@ -22,7 +22,7 @@ parser.add_argument('-d', '--genDR', default=10, type=int, help='gen-level dR.')
 parser.add_argument('-p', '--p_drop', default=1.00, type=float, help='p(drop) scale.')
 #parser.add_argument('-w', '--wgt_file', default=None, type=str, help='Weight file.')
 parser.add_argument('-w', '--wgt_files', default=None, nargs='+', type=str, help='Weight file.')
-parser.add_argument('-b', '--batch_size', default=None, nargs='+', type=str, help='N of input files to batch per process.')
+parser.add_argument('-b', '--batch_size', default=1, type=int, help='N of input files to batch per process.')
 args = parser.parse_args()
 
 genDR = args.genDR
@@ -35,14 +35,19 @@ xrootd='root://cmseos.fnal.gov' # FNAL
 eosDir='/eos/uscms/store/user/lpcml/mandrews/IMG'
 #eosDir='/eos/uscms/store/user/lpcml/mandrews'
 
-decay = 'GJet_Pt-20to40_DoubleEMEnriched_MGG-80toInf_TuneCP5_13TeV_Pythia8_MINIAODSIM_pt20'
-decay = 'GJet_Pt-40toInf_DoubleEMEnriched_MGG-80toInf_TuneCP5_13TeV_Pythia8_MINIAODSIM_pt20'
-decay = 'DoublePi0Pt10To100_m0To1600_pythia8_ReAOD_PU2017_MINIAODSIM_bdt'
-decay = 'DoublePhotonPt10To100_pythia8_ReAOD_PU2017_MINIAODSIM_bdt'
-date_str = '190807_191747'
-date_str = '190807_191707'
-date_str = '190809_012432'
-date_str = '190814_223546'
+# a vs jet tagging
+#decay = 'GJet_Pt-20to40_DoubleEMEnriched_MGG-80toInf_TuneCP5_13TeV_Pythia8_MINIAODSIM_pt20'
+#decay = 'GJet_Pt-40toInf_DoubleEMEnriched_MGG-80toInf_TuneCP5_13TeV_Pythia8_MINIAODSIM_pt20'
+#decay = 'DoublePi0Pt10To100_m0To1600_pythia8_ReAOD_PU2017_MINIAODSIM_bdt'
+#decay = 'DoublePhotonPt10To100_pythia8_ReAOD_PU2017_MINIAODSIM_bdt'
+#date_str = '190807_191747'
+#date_str = '190807_191707'
+#date_str = '190809_012432'
+#date_str = '190814_223546'
+decay = 'DoublePi0Pt10To100_m0To1600_pythia8_ReAOD_PU2017_MINIAODSIM_wrapfix'
+#decay = 'DoublePhotonPt10To100_pythia8_ReAOD_PU2017_MINIAODSIM_wrapfix'
+date_str = '190615_070741'
+#date_str = '190615_235251'
 
 # Paths to input files
 rhFileList = '%s/%s/%s/*/output_*.root'%(eosDir, decay, date_str)
@@ -73,7 +78,11 @@ print(' >> Output directory: %s'%outDir)
 proc_file = 'convert_root2pq_EBshower.py'
 if wgt_files is not None:
     #processes = ['%s -i %s -o %s -d %s -n %d -w %s'%(proc_file, rhFile, outDir, decay, i+1, wgt_files) for i,rhFile in enumerate(rhFileList)]
-    processes = ['%s -i %s -o %s -d %s -n %d -w %s'%(proc_file, rhFile, outDir, decay, i+1, ' '.join(wgt_files)) for i,rhFile in enumerate(rhFileList)]
+    #processes = ['%s -i %s -o %s -d %s -n %d -w %s'%(proc_file, rhFile, outDir, decay, i+1, ' '.join(wgt_files)) for i,rhFile in enumerate(rhFileList)]
+    processes = []
+    for it,i in enumerate(range(0, len(rhFileList), args.batch_size)):
+      rhFileList_batch = rhFileList[i:i+args.batch_size]
+      processes.append('%s -i %s -o %s -d %s -n %d -w %s'%(proc_file, ' '.join(rhFileList_batch), outDir, decay, it, ' '.join(wgt_files)))
 else:
   #processes = ['%s -i %s -o %s -d %s -n %d'%(proc_file, rhFile, outDir, decay, i+1) for i,rhFile in enumerate(rhFileList)]
   #processes = ['%s -i %s -o %s -d %s'%(proc_file, ' '.join(rhFileList), outDir, decay)]
