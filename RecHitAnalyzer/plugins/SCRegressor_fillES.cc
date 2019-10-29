@@ -6,9 +6,9 @@
 
 TProfile2D *hES_energy[nPLANE][nZ];
 TProfile2D *hES_energy_sensor[nPLANE][nZ];
-TH2F *hEvt_ES_energy_sensor[nPLANE][nZ];
+TH2F *hEvt_ES_energy_sensor[nZ];
 std::vector<float> vES_energy_[nPLANE][nZ];
-std::vector<float> seedIx_, seedIy_;
+std::vector<int> seedIx_, seedIy_, seedIz_;
 static const int search_window = 5;
 
 // Initialize branches _____________________________________________________//
@@ -17,6 +17,10 @@ void SCRegressor::branchesES ( TTree* tree, edm::Service<TFileService> &fs ) {
   char hid[10], hname[50], htitle[50];
   for ( int iz(0); iz < nZ; iz++ ) {
     const char *zside_str = (iz > 0) ? "p" : "m";
+    sprintf(hname, "evt_ES%s_energy_sensor",zside_str);
+    hEvt_ES_energy_sensor[iz] = new TH2F(hname, htitle,
+        nXY, 0, nXY,
+        nXY, 0, nXY  );
     for ( int ip(0); ip < nPLANE; ip++ ) {
 
       const char *plane_str = (ip > 0) ? "Y" : "X"; // X:F:0, Y:R:1
@@ -32,10 +36,6 @@ void SCRegressor::branchesES ( TTree* tree, edm::Service<TFileService> &fs ) {
       hES_energy_sensor[ip][iz] = fs->make<TProfile2D>(hname, htitle,
           nXY, 0, nXY,
           nXY, 0, nXY  );
-      sprintf(hname, "evt_%s_energy_sensor",hid);
-      hEvt_ES_energy_sensor[ip][iz] = new TH2F(hname, htitle,
-          nXY, 0, nXY,
-          nXY, 0, nXY  );
       sprintf(hname, "%s_energy",hid);
       sprintf(htitle,"E(stripX,stripY);stripX;stripY");
       hES_energy[ip][iz] = fs->make<TProfile2D>(hname, htitle,
@@ -45,6 +45,7 @@ void SCRegressor::branchesES ( TTree* tree, edm::Service<TFileService> &fs ) {
   } // iz
   tree->Branch("seed_ix", &seedIx_);
   tree->Branch("seed_iy", &seedIy_);
+  tree->Branch("seed_iz", &seedIz_);
 
 } // branchesES()
 
@@ -59,9 +60,9 @@ void SCRegressor::fillES ( const edm::Event& iEvent, const edm::EventSetup& iSet
 
   ///*
   for ( int iz(0); iz < nZ; iz++ ) {
+    hEvt_ES_energy_sensor[iz]->Reset();
     for ( int ip(0); ip < nPLANE; ip++ ) {
       vES_energy_[ip][iz].assign( nXY_STRIP*nXY, 0. );
-      hEvt_ES_energy_sensor[ip][iz]->Reset();
     }
   }
   //*/
@@ -75,9 +76,9 @@ void SCRegressor::fillES ( const edm::Event& iEvent, const edm::EventSetup& iSet
   caloGeom = caloGeomH_.product();
   //const CaloCellGeometry::RepCorners& repCorners;
 
+  //std::cout << "kSize:" << ESDetId::kSizeForDenseIndexing << std::endl;
   /*
   // Geometry test
-  std::cout << "kSize:" << ESDetId::kSizeForDenseIndexing << std::endl;
   for ( int is(0); is < ESDetId::kSizeForDenseIndexing; is++ ) {
     ESDetId esId = ESDetId::detIdFromDenseIndex(is);
     ix_ = esId.six() - 1;
@@ -138,7 +139,7 @@ void SCRegressor::fillES ( const edm::Event& iEvent, const edm::EventSetup& iSet
 
     // Fill histograms for monitoring
     hES_energy_sensor[ip_][iz_]->Fill( ix_, iy_, energy_ );
-    hEvt_ES_energy_sensor[ip_][iz_]->Fill( ix_, iy_, energy_ );
+    hEvt_ES_energy_sensor[iz_]->Fill( ix_, iy_, energy_ );
     ///*
     // ES_F: segmented along x
     if ( ip_ == 0 ) {
@@ -174,7 +175,7 @@ void SCRegressor::fillES ( const edm::Event& iEvent, const edm::EventSetup& iSet
 
   ///*
   const double zESF = 303.846;
-  const double zESR = 308.306;
+  //const double zESR = 308.306;
   double phi, theta, radius, z, rcyl;
   GlobalPoint point;
   int siX_, siY_, seedIx, seedIy;
@@ -182,7 +183,10 @@ void SCRegressor::fillES ( const edm::Event& iEvent, const edm::EventSetup& iSet
   const CaloSubdetectorGeometry* esGeom = caloGeom->getSubdetectorGeometry(DetId::Ecal, EcalPreshower);
   edm::Handle<PhotonCollection> photons;
   iEvent.getByToken(photonCollectionT_, photons);
-  std::cout << "nPho:" << vRegressPhoIdxs_.size() << std::endl;
+  seedIx_.clear();
+  seedIy_.clear();
+  seedIz_.clear();
+  //std::cout << "nPho:" << vRegressPhoIdxs_.size() << std::endl;
   for ( int iP : vRegressPhoIdxs_ ) {
 
     PhotonRef iPho( photons, iP );
@@ -223,21 +227,23 @@ void SCRegressor::fillES ( const edm::Event& iEvent, const edm::EventSetup& iSet
         if ( siY_ > nXY-1 ) continue;
         if ( siY_ < 0 ) continue;
 
-        for ( int siP = 0; siP < nPLANE; siP++ ) {
+        //for ( int siP = 0; siP < nPLANE; siP++ ) {
 
-          binE = hES_energy_sensor[siP][iz_]->GetBinContent( siX_+1, siY_+1 );
-          //std::cout << "ix,iy,iz,iplane:" << siX_ << "," << siY_ << "," << iz_ << "," << siP << " | energy:" << binE << std::endl;
+        binE = hEvt_ES_energy_sensor[iz_]->GetBinContent( siX_+1, siY_+1 );
+        //std::cout << "ix,iy,iz,iplane:" << siX_ << "," << siY_ << "," << iz_ << "," << siP << " | energy:" << binE << std::endl;
 
-          if ( binE <= seedE ) continue;
-          seedE = binE;
-          seedIx = siX_;
-          seedIy = siY_;
+        if ( binE <= seedE ) continue;
+        seedE = binE;
+        seedIx = siX_;
+        seedIy = siY_;
 
-        } // siP
+        //} // siP
       } // siY
     } // siX
     seedIx_.push_back( seedIx );
     seedIy_.push_back( seedIy );
+    seedIz_.push_back( iz_ );
+    //std::cout << "seedIx,seedIy:" << seedIx << "," << seedIy << std::endl;
 
   } // photons
   //*/
