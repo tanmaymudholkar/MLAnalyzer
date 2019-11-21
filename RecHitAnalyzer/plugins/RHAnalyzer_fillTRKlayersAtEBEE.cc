@@ -292,6 +292,7 @@ void RecHitAnalyzer::fillTRKlayersAtEBEE ( const edm::Event& iEvent, const edm::
     }
   }
 
+  /*
   edm::Handle<TrackingRecHitCollection> TRKRecHitsH_;
   iEvent.getByToken( TRKRecHitCollectionT_, TRKRecHitsH_ );
   // Provides access to global cell position
@@ -377,5 +378,6 @@ void RecHitAnalyzer::fillTRKlayersAtEBEE ( const edm::Event& iEvent, const edm::
 
   } // rechits
   //std::cout << maxEta << std::endl;
+  */
 
 } // fillEB()

@@ -17,7 +17,7 @@ cfg='RecHitAnalyzer/python/SCRegressor_cfg.py'
 #inputFiles_='/store/user/lpcml/mandrews/AODSIM/DoublePhotonPt15To100_pythia8_noPU_AODSIM/190219_231402/0000/step_full_1.root'
 #inputFiles_='/store/user/lpcml/mandrews/AODSIM/DoublePi0Pt15To100_m000_pythia8_noPU_AODSIM/190220_040632/0000/step_full_1.root'
 #inputFiles_='/store/user/lpcml/mandrews/AODSIM/DoublePi0Pt15To100_m0To1600_pythia8_noPU_AODSIM_mlog_ptexp/190217_185619/0000/step_full_1.root'
-inputFiles_='/store/mc/RunIIFall17MiniAODv2/DiPhotonJets_MGG-80toInf_13TeV_amcatnloFXFX_pythia8/MINIAODSIM/PU2017_12Apr2018_94X_mc2017_realistic_v14-v1/100000/72CD8425-3B87-E811-AEA5-24BE05CEADA1.root'
+#inputFiles_='/store/mc/RunIIFall17MiniAODv2/DiPhotonJets_MGG-80toInf_13TeV_amcatnloFXFX_pythia8/MINIAODSIM/PU2017_12Apr2018_94X_mc2017_realistic_v14-v1/100000/72CD8425-3B87-E811-AEA5-24BE05CEADA1.root'
 #inputFiles_='/store/mc/RunIIFall17MiniAODv2/GluGluHToGG_M125_13TeV_amcatnloFXFX_pythia8/MINIAODSIM/PU2017_12Apr2018_94X_mc2017_realistic_v14-v1/90000/BC2864DE-5B42-E811-9C51-0025905A6138.root'
 #inputFiles_='/store/mc/RunIIFall17MiniAODv2/DYToEE_M-50_NNPDF31_13TeV-powheg-pythia8/MINIAODSIM/PU2017_12Apr2018_94X_mc2017_realistic_v14-v1/10000/544FA228-5845-E811-A88A-782BCB539B14.root'
 #inputFiles_='/store/mc/RunIIFall17MiniAODv2/GJet_Pt-20to40_DoubleEMEnriched_MGG-80toInf_TuneCP5_13TeV_Pythia8/MINIAODSIM/PU2017_12Apr2018_94X_mc2017_realistic_v14-v1/00000/288ED03F-6C42-E811-96EC-0CC47A4C8E98.root'
@@ -64,10 +64,11 @@ inputFiles_='/store/mc/RunIIFall17MiniAODv2/DiPhotonJets_MGG-80toInf_13TeV_amcat
 #inputFiles_='file:/eos/uscms%s'%inputFiles_
 #inputFiles_='/store/mc/RunIIFall17MiniAODv2/QCD_Pt-40toInf_DoubleEMEnriched_MGG-80toInf_TuneCP5_13TeV_Pythia8/MINIAODSIM/PU2017_12Apr2018_94X_mc2017_realistic_v14-v1/10000/0C57DB95-FA41-E811-B58D-008CFAFBEBF2.root'
 #root://cmsxrootd-site.fnal.gov
+inputFiles_='/store/group/lpcml/mandrews/2017/DoubleEG/Run2017B_17Nov2017-v1_AOD_slim-ext_v2/191108_030956/0002/step_aodsim_slim-ext_2420.root'
 
 maxEvents_=-1
 #maxEvents_=1000
-#maxEvents_=100
+maxEvents_=100
 skipEvents_=0
 #outputFile_='output.root'
 #inputTag=inputFiles_.strip('file:').strip('_FEVTDEBUG.root')

@@ -13,8 +13,10 @@
 void SCRegressor::branchesEB ( TTree* tree, edm::Service<TFileService> &fs ) {
 
   // Branches for images
-  tree->Branch("EB_energy", &vEB_energy_);
-  tree->Branch("EB_time",   &vEB_time_);
+  //tree->Branch("EB_energy", &vEB_energy_);
+  tree->Branch("EB_energyT", &vEB_energyT_);
+  tree->Branch("EB_energyZ", &vEB_energyZ_);
+  //tree->Branch("EB_time",   &vEB_time_);
 
   // Histograms for monitoring
   hEB_energy = fs->make<TProfile2D>("EB_energy", "E(i#phi,i#eta);i#phi;i#eta",
@@ -32,14 +34,20 @@ void SCRegressor::fillEB ( const edm::Event& iEvent, const edm::EventSetup& iSet
   int iphi_, ieta_, idx_; // rows:ieta, cols:iphi
   float energy_;
 
-  vEB_energy_.assign( EBDetId::kSizeForDenseIndexing, 0. );
-  vEB_time_.assign( EBDetId::kSizeForDenseIndexing, 0. );
+  //vEB_energy_.assign( EBDetId::kSizeForDenseIndexing, 0. );
+  vEB_energyT_.assign( EBDetId::kSizeForDenseIndexing, 0. );
+  vEB_energyZ_.assign( EBDetId::kSizeForDenseIndexing, 0. );
+  //vEB_time_.assign( EBDetId::kSizeForDenseIndexing, 0. );
 
   edm::Handle<EcalRecHitCollection> EBRecHitsH_;
   iEvent.getByToken( EBRecHitCollectionT_, EBRecHitsH_);
 
+  edm::ESHandle<CaloGeometry> caloGeomH;
+  iSetup.get<CaloGeometryRecord>().get(caloGeomH);
+  const CaloGeometry* caloGeom = caloGeomH.product();
+
   //std::cout << "EB" << std::endl;
-  // Fill EB rechits 
+  // Fill EB rechits
   for ( EcalRecHitCollection::const_iterator iRHit = EBRecHitsH_->begin();
         iRHit != EBRecHitsH_->end(); ++iRHit ) {
 
@@ -49,15 +57,22 @@ void SCRegressor::fillEB ( const edm::Event& iEvent, const edm::EventSetup& iSet
     EBDetId ebId( iRHit->id() );
     iphi_ = ebId.iphi() - 1;
     ieta_ = ebId.ieta() > 0 ? ebId.ieta()-1 : ebId.ieta();
-    // Fill histograms for monitoring 
+    // Fill histograms for monitoring
     hEB_energy->Fill( iphi_,ieta_,energy_ );
     hEB_time->Fill( iphi_,ieta_,iRHit->time() );
-    // Get Hashed Index: provides convenient 
+    // Get Hashed Index: provides convenient
     // index mapping from [ieta][iphi] -> [idx]
     idx_ = ebId.hashedIndex(); // (ieta_+EB_IETA_MAX)*EB_IPHI_MAX + iphi_
+
+    // Cell geometry provides access to (rho,eta,phi) coordinates of cell center
+    //auto cell = caloGeom->getGeometry(ebId);
+    auto pos = caloGeom->getPosition(ebId);
+
     // Fill vectors for images
-    vEB_energy_[idx_] = energy_;
-    vEB_time_[idx_] = iRHit->time();
+    //vEB_energy_[idx_] = energy_;
+    vEB_energyT_[idx_] = energy_/TMath::CosH(pos.eta());
+    vEB_energyZ_[idx_] = energy_*std::abs(TMath::TanH(pos.eta()));
+    //vEB_time_[idx_] = iRHit->time();
 
     //std::cout << "idx,ieta,iphi,E:" <<idx_<<","<< ieta_ << "," << iphi_ << "," << iRHit->energy() << std::endl;
 

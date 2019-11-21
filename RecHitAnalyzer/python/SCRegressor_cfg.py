@@ -8,6 +8,11 @@ options.register('skipEvents',
     mult=VarParsing.VarParsing.multiplicity.singleton,
     mytype=VarParsing.VarParsing.varType.int,
     info = "skipEvents")
+options.register('eventsToProcess',
+     default='',
+     mult=VarParsing.VarParsing.multiplicity.list,
+     mytype=VarParsing.VarParsing.varType.string,
+     info = "Events to process")
 options.parseArguments()
 
 process = cms.Process("FEVTAnalyzer")
@@ -54,6 +59,9 @@ process.source = cms.Source("PoolSource",
     #, lumisToProcess = cms.untracked.VLuminosityBlockRange('1:3393-1:3393')
     )
 
+if options.eventsToProcess:
+    process.source.eventsToProcess = \
+           cms.untracked.VEventRange (options.eventsToProcess)
 #process.options = cms.untracked.PSet(
 #)
 #process.options.numberOfThreads=cms.untracked.uint32(4)
@@ -77,17 +85,17 @@ process.fevt = cms.EDAnalyzer('SCRegressor'
     , reducedAODEBRecHitCollection = cms.InputTag('reducedEcalRecHitsEB')
     , reducedAODEERecHitCollection = cms.InputTag('reducedEcalRecHitsEE')
     , reducedAODESRecHitCollection = cms.InputTag('reducedEcalRecHitsES')
-    #, reducedEBRecHitCollection = cms.InputTag('reducedEcalRecHitsEB')
-    #, reducedEERecHitCollection = cms.InputTag('reducedEcalRecHitsEE')
-    #, reducedESRecHitCollection = cms.InputTag('reducedEcalRecHitsES')
-    , reducedEBRecHitCollection = cms.InputTag('reducedEgamma:reducedEBRecHits')
-    , reducedEERecHitCollection = cms.InputTag('reducedEgamma:reducedEERecHits')
-    , reducedESRecHitCollection = cms.InputTag('reducedEgamma:reducedESRecHits')
+    , reducedEBRecHitCollection = cms.InputTag('reducedEcalRecHitsEB')
+    , reducedEERecHitCollection = cms.InputTag('reducedEcalRecHitsEE')
+    , reducedESRecHitCollection = cms.InputTag('reducedEcalRecHitsES')
+    #, reducedEBRecHitCollection = cms.InputTag('reducedEgamma:reducedEBRecHits')
+    #, reducedEERecHitCollection = cms.InputTag('reducedEgamma:reducedEERecHits')
+    #, reducedESRecHitCollection = cms.InputTag('reducedEgamma:reducedESRecHits')
     #, genParticleCollection = cms.InputTag('genParticles')
     , genParticleCollection = cms.InputTag('prunedGenParticles')
     , genJetCollection = cms.InputTag('ak4GenJets')
-    #, trackCollection = cms.InputTag("generalTracks")
-    , trackCollection = cms.InputTag("isolatedTracks")
+    , trackCollection = cms.InputTag("generalTracks")
+    #, trackCollection = cms.InputTag("isolatedTracks")
     , rhoLabel = cms.InputTag("fixedGridRhoFastjetAll")
     , trgResults = cms.InputTag("TriggerResults","","HLT")
     , generator = cms.InputTag("generator")
@@ -107,18 +115,18 @@ process.hltFilter = cms.EDFilter("HLTHighLevel",
                                           throw = cms.bool(False)
                                           )
 
-### fix a bug in the ECAL-Tracker momentum combination when applying the scale and smearing
-from RecoEgamma.EgammaTools.EgammaPostRecoTools import setupEgammaPostRecoSeq
-setupEgammaPostRecoSeq(process,
-                       runVID=True,
-                       era='2017-Nov17ReReco',
-                       eleIDModules=['RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_Fall17_94X_V2_cff',
-                                     'RecoEgamma.ElectronIdentification.Identification.heepElectronID_HEEPV70_cff',
-                                     'RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Fall17_iso_V2_cff',
-                                     'RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Fall17_noIso_V2_cff'],
-                       phoIDModules=['RecoEgamma.PhotonIdentification.Identification.mvaPhotonID_Fall17_94X_V2_cff',
-                                     'RecoEgamma.PhotonIdentification.Identification.cutBasedPhotonID_Fall17_94X_V2_cff']
-                       )
+#### fix a bug in the ECAL-Tracker momentum combination when applying the scale and smearing
+#from RecoEgamma.EgammaTools.EgammaPostRecoTools import setupEgammaPostRecoSeq
+#setupEgammaPostRecoSeq(process,
+#                       runVID=True,
+#                       era='2017-Nov17ReReco',
+#                       eleIDModules=['RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_Fall17_94X_V2_cff',
+#                                     'RecoEgamma.ElectronIdentification.Identification.heepElectronID_HEEPV70_cff',
+#                                     'RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Fall17_iso_V2_cff',
+#                                     'RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Fall17_noIso_V2_cff'],
+#                       phoIDModules=['RecoEgamma.PhotonIdentification.Identification.mvaPhotonID_Fall17_94X_V2_cff',
+#                                     'RecoEgamma.PhotonIdentification.Identification.cutBasedPhotonID_Fall17_94X_V2_cff']
+#                       )
 
 ### reduce effect of high eta EE noise on the PF MET measurement
 from PhysicsTools.PatUtils.tools.runMETCorrectionsAndUncertainties import runMetCorAndUncFromMiniAOD
@@ -132,7 +140,7 @@ runMetCorAndUncFromMiniAOD (
 
 process.p = cms.Path(
   #process.hltFilter*
-  process.fullPatMetSequenceModifiedMET*
-  process.egammaPostRecoSeq*
+  #process.fullPatMetSequenceModifiedMET*
+  #process.egammaPostRecoSeq*
   process.fevt
 )

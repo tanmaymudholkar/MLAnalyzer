@@ -35,8 +35,8 @@ SCRegressor::SCRegressor(const edm::ParameterSet& iConfig)
   RECOESRecHitCollectionT_ = consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("ESRecHitCollection"));
   genParticleCollectionT_ = consumes<reco::GenParticleCollection>(iConfig.getParameter<edm::InputTag>("genParticleCollection"));
   genJetCollectionT_ = consumes<reco::GenJetCollection>(iConfig.getParameter<edm::InputTag>("genJetCollection"));
-  //trackCollectionT_ = consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("trackCollection"));
-  trackCollectionT_ = consumes<pat::IsolatedTrackCollection>(iConfig.getParameter<edm::InputTag>("trackCollection"));
+  trackCollectionT_ = consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("trackCollection"));
+  //trackCollectionT_ = consumes<pat::IsolatedTrackCollection>(iConfig.getParameter<edm::InputTag>("trackCollection"));
   rhoLabel_ = consumes<double>(iConfig.getParameter<edm::InputTag>("rhoLabel"));
   trgResultsT_ = consumes<edm::TriggerResults>(iConfig.getParameter<edm::InputTag>("trgResults"));
   genInfoT_ = consumes<GenEventInfoProduct>(iConfig.getParameter<edm::InputTag>("generator"));
@@ -57,18 +57,18 @@ SCRegressor::SCRegressor(const edm::ParameterSet& iConfig)
 
   //branchesPiSel ( RHTree, fs );
   //branchesPhotonSel ( RHTree, fs );
-  branchesDiPhotonSel ( RHTree, fs );
+  //branchesDiPhotonSel ( RHTree, fs );
   //branchesZJetsEleSel ( RHTree, fs );
   //branchesZJetsMuSel ( RHTree, fs );
   //branchesNJetsSel ( RHTree, fs );
   //branchesH2aaSel ( RHTree, fs );
   //branchesQCDSel ( RHTree, fs );
-  branchesSC     ( RHTree, fs );
+  //branchesSC     ( RHTree, fs );
   //branchesSCaod  ( RHTree, fs );
   //branchesSCreco ( RHTree, fs );
   branchesEB     ( RHTree, fs );
-  //branchesTracksAtEBEE     ( RHTree, fs );
-  branchesPhoVars     ( RHTree, fs );
+  branchesTracksAtEBEE     ( RHTree, fs );
+  //branchesPhoVars     ( RHTree, fs );
   //branchesEvtWgt     ( RHTree, fs );
 
   hNpassed_img = fs->make<TH1F>("hNpassed_img", "isPassed;isPassed;N", 2, 0., 2);
@@ -110,6 +110,7 @@ SCRegressor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   std::cout << " !!!!!" << std::endl;
   */
 
+  /*
   edm::Handle<EcalRecHitCollection> EBRecHitsH;
   iEvent.getByToken(EBRecHitCollectionT_, EBRecHitsH);
 
@@ -154,7 +155,7 @@ SCRegressor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     PhotonRef iPho( photons, iP );
     //vRegressPhoIdxs_.push_back( iP );
 
-    ///*
+    //
     // Get underlying super cluster
     reco::SuperClusterRef const& iSC = iPho->superCluster();
     //EcalRecHitCollection::const_iterator iRHit_( EBRecHitsH->find(iSC->seed()->seed()) );
@@ -201,7 +202,7 @@ SCRegressor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     vPos_Emax.push_back( pos_Emax );
     vRegressPhoIdxs_.push_back( iP );
     //std::cout << " >> Found: iphi_Emax,ieta_Emax: " << iphi_Emax << ", " << ieta_Emax << std::endl;
-    //*/
+    //
     nPho++;
 
   } // Photons
@@ -212,25 +213,26 @@ SCRegressor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   //if ( nPho < 1 ) return; // ZJets physics selection
   if ( nPho != 2 ) return; // Diphoton physics selection
   if ( debug ) std::cout << " >> Passed cropping. " << std::endl;
+  */
 
   //fillPiSel ( iEvent, iSetup );
   //fillPhotonSel ( iEvent, iSetup );
-  fillDiPhotonSel ( iEvent, iSetup );
+  //fillDiPhotonSel ( iEvent, iSetup );
   //fillZJetsEleSel ( iEvent, iSetup );
   //fillZJetsMuSel ( iEvent, iSetup );
   //fillNJetsSel ( iEvent, iSetup );
   //fillH2aaSel ( iEvent, iSetup );
   //fillQCDSel ( iEvent, iSetup );
-  fillSC     ( iEvent, iSetup );
+  //fillSC     ( iEvent, iSetup );
   //fillSCaod  ( iEvent, iSetup );
   //fillSCreco ( iEvent, iSetup );
   fillEB     ( iEvent, iSetup );
-  //fillTracksAtEBEE     ( iEvent, iSetup );
-  fillPhoVars     ( iEvent, iSetup );
+  fillTracksAtEBEE     ( iEvent, iSetup );
+  //fillPhoVars     ( iEvent, iSetup );
   //fillEvtWgt     ( iEvent, iSetup );
 
   //nPassed++;
-  nPassed += nPho;
+  //nPassed += nPho;
 
   RHTree->Fill();
   hNpassed_img->Fill(1.);

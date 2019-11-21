@@ -114,8 +114,8 @@ class SCRegressor : public edm::one::EDAnalyzer<edm::one::SharedResources>  {
     edm::EDGetTokenT<EcalRecHitCollection> RECOESRecHitCollectionT_;
     edm::EDGetTokenT<reco::GenParticleCollection> genParticleCollectionT_;
     edm::EDGetTokenT<reco::GenJetCollection> genJetCollectionT_;
-    //edm::EDGetTokenT<reco::TrackCollection> trackCollectionT_;
-    edm::EDGetTokenT<pat::IsolatedTrackCollection> trackCollectionT_;
+    edm::EDGetTokenT<reco::TrackCollection> trackCollectionT_;
+    //edm::EDGetTokenT<pat::IsolatedTrackCollection> trackCollectionT_;
     edm::EDGetTokenT<double> rhoLabel_;
     edm::EDGetTokenT<edm::TriggerResults> trgResultsT_;
     edm::EDGetTokenT<GenEventInfoProduct> genInfoT_;
@@ -127,6 +127,8 @@ class SCRegressor : public edm::one::EDAnalyzer<edm::one::SharedResources>  {
     TProfile2D *hEB_energy;
     TProfile2D *hEB_time;
     std::vector<float> vEB_energy_;
+    std::vector<float> vEB_energyT_;
+    std::vector<float> vEB_energyZ_;
     std::vector<float> vEB_time_;
 
     //TH1D * histo;
