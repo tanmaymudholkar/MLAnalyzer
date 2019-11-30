@@ -65,11 +65,12 @@ cfg='RecHitAnalyzer/python/SCRegressor_cfg.py'
 #inputFiles_='/store/mc/RunIIFall17MiniAODv2/QCD_Pt-40toInf_DoubleEMEnriched_MGG-80toInf_TuneCP5_13TeV_Pythia8/MINIAODSIM/PU2017_12Apr2018_94X_mc2017_realistic_v14-v1/10000/0C57DB95-FA41-E811-B58D-008CFAFBEBF2.root'
 #root://cmsxrootd-site.fnal.gov
 #inputFiles_='/store/user/lpcml/mandrews/AODSIM/DoublePi0Pt1e2To1e3_m0To1600_Eta0To1p4_noPU_AODSIM/190809_200413/0000/step_AODSIM_noPU_ext4_1.root'
-inputFiles_='/store/user/lpcml/mandrews/AODSIM/DoublePi0Pt10To200_m0To2600_Eta1p5To2p4_noPU_AODSIM/190708_223353/0000/step_AODSIM_noPU_ext4_1.root'
+#inputFiles_='/store/user/lpcml/mandrews/AODSIM/DoublePi0Pt10To200_m0To2600_Eta1p5To2p4_noPU_AODSIM/190708_223353/0000/step_AODSIM_noPU_ext4_1.root'
+inputFiles_='/store/user/lpcml/mandrews/AODSIM/OctoPi0Pt10To100_m0To1600_Eta1p6To2p4_noPU_AODSIM/191128_002514/0000/step_AODSIM_noPU_ext4_1.root'
 
 maxEvents_=-1
 #maxEvents_=1000
-maxEvents_=2
+maxEvents_=20
 skipEvents_=0
 #outputFile_='output.root'
 #inputTag=inputFiles_.strip('file:').strip('_FEVTDEBUG.root')

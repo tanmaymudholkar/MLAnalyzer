@@ -73,6 +73,24 @@ bool SCRegressor::runPiSel ( const edm::Event& iEvent, const edm::EventSetup& iS
   if ( debug ) std::cout << " >> vGenPi0Idxs.size: " << vGenPi0Idxs.size() << std::endl;
   if ( vGenPi0Idxs.empty() ) return false;
 
+  // Check that pi0s are well separated in event
+  // Reject whole event otherwise
+  bool isIsolated = true;
+  for ( unsigned int i = 0; i < vGenPi0Idxs.size(); i++ ) {
+    reco::GenParticleRef iGen( genParticles, vGenPi0Idxs[i] );
+    for ( unsigned int j = i+1; j < vGenPi0Idxs.size(); j++ ) {
+      if ( j <= i ) continue;
+      reco::GenParticleRef jGen( genParticles, vGenPi0Idxs[j] );
+      dR = reco::deltaR( iGen->eta(),iGen->phi(), jGen->eta(),jGen->phi() );
+      if ( dR < 0.4 ) {
+        isIsolated = false;
+        //std::cout << "dR:" << dR << std::endl;
+        break;
+      }
+    } // jGen
+  } // iGen
+  if ( !isIsolated ) return false;
+
   ////////// Build gen pi0-reco photon mapping //////////
 
   float ptCut = 15., etaCut = 1.44;
@@ -141,14 +159,15 @@ bool SCRegressor::runPiSel ( const edm::Event& iEvent, const edm::EventSetup& iS
       if ( std::abs(iPho->eta()) > 2.4 ) continue;
       if ( std::abs(iPho->eta()) < 1.7 ) continue;
 
+      /*
       if ( iPho->full5x5_r9() <= 0.5 ) continue;
       if ( iPho->hadTowOverEm() >= 0.08 ) continue;
       if ( iPho->hasPixelSeed() == true ) continue;
-      ///*
+      */
       //if ( iPho->passElectronVeto() == true ) continue;
       //if ( iPho->userFloat("phoChargedIsolation")/std::abs(iPho->pt()) > 0.3 ) continue;
 
-      ///*
+      /*
       if ( iPho->full5x5_r9() <= 0.85 ) {
         if ( iPho->full5x5_sigmaIetaIeta() >= 0.015 ) continue;
         //if ( iPho->userFloat("phoPhotonIsolation") >= 4.0 ) continue;
@@ -156,7 +175,7 @@ bool SCRegressor::runPiSel ( const edm::Event& iEvent, const edm::EventSetup& iS
         if ( iPho->trkSumPtHollowConeDR03() >= 6. ) continue;
         //if ( iPho->trackIso() >= 6. ) continue;
       }
-      //*/
+      */
       vMatchedPreselPhoIdxs.push_back( minDR_idx );
       if ( debug ) std::cout << " >> presel photon: pT: " << iPho->pt() << " eta: " << iPho->eta() << std::endl;
 
