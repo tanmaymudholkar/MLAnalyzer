@@ -199,6 +199,9 @@ class RecHitAnalyzer : public edm::EDAnalyzer  {
     //void fillTRKvolumeAtEBEE( const edm::Event&, const edm::EventSetup& );
     //void fillTRKvolumeAtECAL( const edm::Event&, const edm::EventSetup& );
 
+    void branchesGenParticles( TTree*, edm::Service<TFileService>& );
+    void fillGenParticles( const edm::Event&, const edm::EventSetup& );
+
     bool has_w2jet_z2invisible( const edm::Event&, const edm::EventSetup& );
     bool has_dijet( const edm::Event&, const edm::EventSetup& );
 

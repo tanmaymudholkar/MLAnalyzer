@@ -10,11 +10,11 @@ inputFiles_='root://cmsxrootd-site.fnal.gov//store/group/lpcml/CRAB_UserFiles/st
 
 isTTbar_ = 1
 
-#maxEvents_=100
+maxEvents_=30
 #skipEvents_=0#
 #outputFile_ = 'test.root'
 outputFile_ = 'test/ttbar_new-production_test.root'
 
-cmd="cmsRun %s inputFiles=%s outputFile=%s isTTbar=%d" %(cfg,inputFiles_,outputFile_,isTTbar_)
+cmd="cmsRun %s inputFiles=%s outputFile=%s isTTbar=%d maxEv=%d" %(cfg,inputFiles_,outputFile_,isTTbar_,maxEvents_)
 print '%s'%cmd
 os.system(cmd)

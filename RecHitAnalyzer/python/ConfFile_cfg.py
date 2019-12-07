@@ -13,11 +13,11 @@ options.register('processMode',
     mult=VarParsing.VarParsing.multiplicity.singleton,
     mytype=VarParsing.VarParsing.varType.string,
     info = "process mode: JetLevel or EventLevel")
-#options.register('maxEvents',
-#    default=-1,
-#    mult=VarParsing.VarParsing.multiplicity.singleton,
-#    mytype=VarParsing.VarParsing.varType.int,
-#    info = 'Number of events processed')
+options.register('maxEv',
+   default=-1,
+   mult=VarParsing.VarParsing.multiplicity.singleton,
+   mytype=VarParsing.VarParsing.varType.int,
+   info = 'Number of events processed')
 options.register('UseAK8',
     #default=False,
     default=1,
@@ -54,8 +54,8 @@ from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'START53_V27::All', '')
 
 process.maxEvents = cms.untracked.PSet( 
-    #input = cms.untracked.int32(options.maxEvents) 
-    input = cms.untracked.int32(-1) 
+    input = cms.untracked.int32(options.maxEv) 
+    # input = cms.untracked.int32(-1) 
     #input = cms.untracked.int32(1000000) 
     )
 
