@@ -62,9 +62,9 @@ cfg='RecHitAnalyzer/python/SCRegressor_cfg.py'
 #inputFiles_='file:jetHT.root'
 #inputFiles_='root://cmseos.fnal.gov/%s'%inputFiles_
 #inputFiles_='file:/eos/uscms%s'%inputFiles_
-#inputFiles_='/store/mc/RunIIFall17MiniAODv2/QCD_Pt-40toInf_DoubleEMEnriched_MGG-80toInf_TuneCP5_13TeV_Pythia8/MINIAODSIM/PU2017_12Apr2018_94X_mc2017_realistic_v14-v1/10000/0C57DB95-FA41-E811-B58D-008CFAFBEBF2.root'
+inputFiles_='/store/mc/RunIIFall17MiniAODv2/QCD_Pt-40toInf_DoubleEMEnriched_MGG-80toInf_TuneCP5_13TeV_Pythia8/MINIAODSIM/PU2017_12Apr2018_94X_mc2017_realistic_v14-v1/10000/0C57DB95-FA41-E811-B58D-008CFAFBEBF2.root'
 #root://cmsxrootd-site.fnal.gov
-inputFiles_='/store/group/lpcml/mandrews/2017/DoubleEG/Run2017B_17Nov2017-v1_AOD_slim-ext_v2/191108_030956/0002/step_aodsim_slim-ext_2420.root'
+#inputFiles_='/store/group/lpcml/mandrews/2017/DoubleEG/Run2017B_17Nov2017-v1_AOD_slim-ext_v2/191108_030956/0002/step_aodsim_slim-ext_2420.root'
 
 maxEvents_=-1
 #maxEvents_=1000
