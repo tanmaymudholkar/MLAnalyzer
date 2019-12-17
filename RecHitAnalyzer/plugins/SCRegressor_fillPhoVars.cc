@@ -35,6 +35,7 @@ void SCRegressor::branchesPhoVars ( TTree* tree, edm::Service<TFileService> &fs 
   tree->Branch("pho_neuIsoCorr",     &vPho_neuIsoCorr_);
   tree->Branch("pho_chgIsoCorr",     &vPho_chgIsoCorr_);
   tree->Branch("pho_bdt",            &vPho_bdt_);
+  tree->Branch("pho_idx",            &vPho_idx_);
 
 } // branchesPhoVars()
 
@@ -97,6 +98,7 @@ void SCRegressor::fillPhoVars ( const edm::Event& iEvent, const edm::EventSetup&
   vPho_neuIsoCorr_.clear();
   vPho_chgIsoCorr_.clear();
   vPho_bdt_.clear();
+  vPho_idx_.clear();
 
   for ( int iP : vRegressPhoIdxs_ ) {
 
@@ -139,8 +141,9 @@ void SCRegressor::fillPhoVars ( const edm::Event& iEvent, const edm::EventSetup&
 
     vPho_neuIsoCorr_.push_back(     std::max(iPho->userFloat("phoNeutralHadronIsolation") - rho*EANeu, (float)0.) );
     vPho_chgIsoCorr_.push_back(     std::max(iPho->userFloat("phoChargedIsolation") - rho*EAChg, (float)0.) );
-    vPho_bdt_.push_back(            iPho->userFloat("PhotonMVAEstimatorRunIIFall17v2Values")); // need to run EGamma post-reco tools
-    //vPho_bdt_.push_back(            iPho->userFloat("PhotonMVAEstimatorRunIIFall17v1p1Values"));
+    //vPho_bdt_.push_back(            iPho->userFloat("PhotonMVAEstimatorRunIIFall17v2Values")); // need to run EGamma post-reco tools
+    vPho_bdt_.push_back(            iPho->userFloat("PhotonMVAEstimatorRunIIFall17v1p1Values"));
+    vPho_idx_.push_back( iP );
     //*/
 
     /*

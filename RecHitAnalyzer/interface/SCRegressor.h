@@ -256,6 +256,7 @@ class SCRegressor : public edm::one::EDAnalyzer<edm::one::SharedResources>  {
     std::vector<float> vPho_neuIsoCorr_;
     std::vector<float> vPho_chgIsoCorr_;
     std::vector<float> vPho_bdt_;
+    std::vector<float> vPho_idx_;
 
     std::vector<float> vSC_mass_;
     std::vector<float> vSC_DR_;
@@ -319,8 +320,8 @@ class SCRegressor : public edm::one::EDAnalyzer<edm::one::SharedResources>  {
 static const float zs = 0.;
 
 static const int crop_size = 32;
-//static const bool debug = true;
-static const bool debug = false;
+static const bool debug = true;
+//static const bool debug = false;
 
 static const int EB_IPHI_MIN = EBDetId::MIN_IPHI;//1;
 static const int EB_IPHI_MAX = EBDetId::MAX_IPHI;//360;

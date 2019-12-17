@@ -57,7 +57,7 @@ SCRegressor::SCRegressor(const edm::ParameterSet& iConfig)
 
   //branchesPiSel ( RHTree, fs );
   //branchesPhotonSel ( RHTree, fs );
-  //branchesDiPhotonSel ( RHTree, fs );
+  branchesDiPhotonSel ( RHTree, fs );
   //branchesZJetsEleSel ( RHTree, fs );
   //branchesZJetsMuSel ( RHTree, fs );
   //branchesNJetsSel ( RHTree, fs );
@@ -68,7 +68,7 @@ SCRegressor::SCRegressor(const edm::ParameterSet& iConfig)
   //branchesSCreco ( RHTree, fs );
   branchesEB     ( RHTree, fs );
   branchesTracksAtEBEE     ( RHTree, fs );
-  //branchesPhoVars     ( RHTree, fs );
+  branchesPhoVars     ( RHTree, fs );
   //branchesEvtWgt     ( RHTree, fs );
 
   hNpassed_img = fs->make<TH1F>("hNpassed_img", "isPassed;isPassed;N", 2, 0., 2);
@@ -96,6 +96,10 @@ SCRegressor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   eventId_ = iEvent.id().event();
   runId_ = iEvent.id().run();
   lumiId_ = iEvent.id().luminosityBlock();
+  if ( !(runId_ == 297114 && lumiId_ == 14) ) {
+    return;
+  }
+  std::cout << runId_<<":"<<lumiId_ <<":"<<eventId_ <<std::endl;
   /*
   if ( runId_ == 1 && lumiId_ == 1 && (eventId_ == 3 || eventId_ == 22 || eventId_ == 28) ) {
     std::cout << runId_<<":"<<lumiId_ <<":"<<eventId_ <<std::endl;
@@ -110,7 +114,7 @@ SCRegressor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   std::cout << " !!!!!" << std::endl;
   */
 
-  /*
+  ///*
   edm::Handle<EcalRecHitCollection> EBRecHitsH;
   iEvent.getByToken(EBRecHitCollectionT_, EBRecHitsH);
 
@@ -128,13 +132,13 @@ SCRegressor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   nTotal += nPhotons;
   //hasPassed = runPiSel ( iEvent, iSetup ); //TODO: add config-level switch
   //hasPassed = runPhotonSel ( iEvent, iSetup );
-  hasPassed = runDiPhotonSel ( iEvent, iSetup );
+  //hasPassed = runDiPhotonSel ( iEvent, iSetup );
   //hasPassed = runZJetsEleSel ( iEvent, iSetup );
   //hasPassed = runZJetsMuSel ( iEvent, iSetup );
   //hasPassed = runNJetsSel ( iEvent, iSetup );
   //hasPassed = runH2aaSel ( iEvent, iSetup );
-  if ( !hasPassed ) return;
-  //runDiPhotonSel ( iEvent, iSetup );
+  //if ( !hasPassed ) return;
+  runDiPhotonSel ( iEvent, iSetup );
   //runH2aaSel ( iEvent, iSetup );
 
   nPreselPassed += vPreselPhoIdxs_.size();
@@ -195,13 +199,13 @@ SCRegressor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
     // Apply selection on position of shower seed
     //std::cout << " >> Found: iphi_Emax,ieta_Emax: " << iphi_Emax << ", " << ieta_Emax << std::endl;
-    if ( Emax <= zs ) continue;
-    if ( ieta_Emax > 169 - 16 || ieta_Emax < 15 ) continue; // seed centered on [15,15] so must be padded by 15 below and 16 above
+    //if ( Emax <= zs ) continue;
+    //if ( ieta_Emax > 169 - 16 || ieta_Emax < 15 ) continue; // seed centered on [15,15] so must be padded by 15 below and 16 above
     vIphi_Emax_.push_back( iphi_Emax );
     vIeta_Emax_.push_back( ieta_Emax );
-    vPos_Emax.push_back( pos_Emax );
+    //vPos_Emax.push_back( pos_Emax );
     vRegressPhoIdxs_.push_back( iP );
-    //std::cout << " >> Found: iphi_Emax,ieta_Emax: " << iphi_Emax << ", " << ieta_Emax << std::endl;
+    std::cout << " >> Found: pho_idx,iphi_Emax,ieta_Emax: " << iP <<", "<< iphi_Emax << ", " << ieta_Emax << std::endl;
     //
     nPho++;
 
@@ -211,13 +215,12 @@ SCRegressor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   if ( debug ) std::cout << " >> nPho: " << nPho << std::endl;
   //if ( nPho == 0 ) return; // Pi/Photon gun selection
   //if ( nPho < 1 ) return; // ZJets physics selection
-  if ( nPho != 2 ) return; // Diphoton physics selection
+  //if ( nPho != 2 ) return; // Diphoton physics selection
   if ( debug ) std::cout << " >> Passed cropping. " << std::endl;
-  */
 
   //fillPiSel ( iEvent, iSetup );
   //fillPhotonSel ( iEvent, iSetup );
-  //fillDiPhotonSel ( iEvent, iSetup );
+  fillDiPhotonSel ( iEvent, iSetup );
   //fillZJetsEleSel ( iEvent, iSetup );
   //fillZJetsMuSel ( iEvent, iSetup );
   //fillNJetsSel ( iEvent, iSetup );
@@ -228,7 +231,7 @@ SCRegressor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   //fillSCreco ( iEvent, iSetup );
   fillEB     ( iEvent, iSetup );
   fillTracksAtEBEE     ( iEvent, iSetup );
-  //fillPhoVars     ( iEvent, iSetup );
+  fillPhoVars     ( iEvent, iSetup );
   //fillEvtWgt     ( iEvent, iSetup );
 
   //nPassed++;

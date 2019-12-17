@@ -19,7 +19,8 @@ skipEvents_=0
 #outputFile_='output.root'
 #inputTag=inputFiles_.strip('file:').strip('_FEVTDEBUG.root')
 #inputTag='TEST'
-evtList_ = '../flashgg/eventsToProc_h24g_ma1GeV_2photons_EBonly.txt'
+#evtList_ = '../flashgg/eventsToProc_h24g_ma1GeV_2photons_EBonly.txt'
+evtList_ = 'DoubleEG_2017B_2photons_ggskim_event_list.txt'
 
 #cmd="cmsRun %s inputFiles=%s maxEvents=%d skipEvents=%d outputFile=%s"%(cfg,inputFiles_,maxEvents_,skipEvents_,outputFile_)
 #for ievt in range(1):
