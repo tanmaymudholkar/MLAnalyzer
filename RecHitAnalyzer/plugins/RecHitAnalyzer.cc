@@ -118,6 +118,7 @@ RecHitAnalyzer::RecHitAnalyzer(const edm::ParameterSet& iConfig)
   branchesTracksAtECALadjustable( RHTree, fs);
   branchesTRKlayersAtECALadjustable(RHTree, fs);
   branchesGenParticles( RHTree, fs );
+  branchesJetPFCands( RHTree, fs );
 
   // For FC inputs
   //RHTree->Branch("FC_inputs",      &vFC_inputs_);
@@ -198,6 +199,7 @@ RecHitAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   fillPFCandsAtECALstitched( iEvent, iSetup );
   fillTRKlayersAtEBEE( iEvent, iSetup );
   fillGenParticles( iEvent, iSetup );
+  fillJetPFCands( iEvent, iSetup );
   //fillTRKlayersAtECALstitched( iEvent, iSetup );
   //fillTRKvolumeAtEBEE( iEvent, iSetup );
   //fillTRKvolumeAtECAL( iEvent, iSetup );

@@ -178,6 +178,7 @@ class RecHitAnalyzer : public edm::EDAnalyzer  {
     void branchesTRKlayersAtECALstitched( TTree*, edm::Service<TFileService>& );
     void branchesTracksAtECALadjustable   ( TTree*, edm::Service<TFileService>& );
     void branchesTRKlayersAtECALadjustable( TTree*, edm::Service<TFileService>& );
+    void branchesJetPFCands( TTree*, edm::Service<TFileService>& );
     //void branchesTRKvolumeAtEBEE( TTree*, edm::Service<TFileService>& );
     //void branchesTRKvolumeAtECAL( TTree*, edm::Service<TFileService>& );
 
@@ -201,6 +202,7 @@ class RecHitAnalyzer : public edm::EDAnalyzer  {
 
     void branchesGenParticles( TTree*, edm::Service<TFileService>& );
     void fillGenParticles( const edm::Event&, const edm::EventSetup& );
+    void fillJetPFCands( const edm::Event&, const edm::EventSetup& );
 
     bool has_w2jet_z2invisible( const edm::Event&, const edm::EventSetup& );
     bool has_dijet( const edm::Event&, const edm::EventSetup& );
