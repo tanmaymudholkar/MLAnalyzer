@@ -66,7 +66,7 @@ def crop_jet(imgECAL, iphi, ieta, gran, jet_shape=125):
     return img_crop
 
 
-outDir='/home/bjornb/fullSample_highGran/hdf5'
+outDir='hdf5'
 xrootd='root://cmsxrootd.fnal.gov' # FNAL
 
 decays = ['QCD', 'TTbar']
@@ -123,15 +123,15 @@ for d, decay in enumerate(decays):
     ############################################################################################################################
     ############################################################################################################################
     # tfile_str = str(filelist[args.fileNum])
-    print " >> For input file:", tfile_str
+    # print " >> For input file:", tfile_str
     #tfile = ROOT.TXNetFile(tfile_str)
     tfile = ROOT.TFile('test/ttbar_new-production_test.root')
     # tfile = ROOT.TFile(tfile_str)
     tree = tfile.Get('fevt/RHTree')
     nevts = tree.GetEntries()
 
-    if TEST:
-        nevts = 100
+    # if TEST:
+    #     nevts = 100
 
     print " >> Total events:", nevts
 
@@ -143,6 +143,8 @@ for d, decay in enumerate(decays):
     if TEST:
         fout_str = test
 
+    max_components = 300
+
     # create output file and define it's datasets
     fout = h5py.File(fout_str, 'w')
     fout.create_dataset('X_jets', (nevts, jet_shape, jet_shape, 8), compression='lzf') # note, number of image channels was hardcoded here
@@ -150,11 +152,35 @@ for d, decay in enumerate(decays):
     fout.create_dataset('jetM', (nevts, ), compression='lzf')
     fout.create_dataset('y', (nevts, ), compression='lzf')
 
+    fout.create_dataset('jet_genpart_collid', (nevts, max_components, ), compression='lzf',dtype='i4')
+    fout.create_dataset('jet_genpart_pdgid', (nevts, max_components, ), compression='lzf',dtype='i4')
+    fout.create_dataset('jet_genpart_charge', (nevts, max_components, ), compression='lzf',dtype='i4')
+    fout.create_dataset('jet_genpart_px', (nevts, max_components, ), compression='lzf')
+    fout.create_dataset('jet_genpart_py', (nevts, max_components, ), compression='lzf')
+    fout.create_dataset('jet_genpart_pz', (nevts, max_components, ), compression='lzf')
+    fout.create_dataset('jet_genpart_energy', (nevts, max_components, ), compression='lzf')
+    fout.create_dataset('jet_genpart_status', (nevts, max_components, ), compression='lzf',dtype='i4')
+    fout.create_dataset('jet_genpart_motherpdgid', (nevts, max_components, ), compression='lzf',dtype='i4')
+    fout.create_dataset('jet_genpart_dau1pdgid', (nevts, max_components, ), compression='lzf',dtype='i4')
+    fout.create_dataset('jet_genpart_dau2pdgid', (nevts, max_components, ), compression='lzf',dtype='i4')
+    fout.create_dataset('jet_px', (nevts, ), compression='lzf')
+    fout.create_dataset('jet_py', (nevts, ), compression='lzf')
+    fout.create_dataset('jet_pz', (nevts, ), compression='lzf')
+    fout.create_dataset('jet_energy', (nevts, ), compression='lzf')
+    fout.create_dataset('jet_pfcand_px', (nevts, max_components, ), compression='lzf')
+    fout.create_dataset('jet_pfcand_py', (nevts, max_components, ), compression='lzf')
+    fout.create_dataset('jet_pfcand_pz', (nevts, max_components, ), compression='lzf')
+    fout.create_dataset('jet_pfcand_energy', (nevts, max_components, ), compression='lzf')
+    fout.create_dataset('jet_pfcand_type', (nevts, max_components, ), compression='lzf',dtype='i4')
+    fout.create_dataset('jet_ngen', (nevts, ), compression='lzf',dtype='i4')
+    fout.create_dataset('jet_npf', (nevts, ), compression='lzf',dtype='i4')
+
+
     # define branch names based on whether or not you are using high granularity images
     if args.granularity == 1:
         br_pt = 'ECAL_tracksPt_atECALfixIP'
-        br_d0 = 'ECAL_tracksD0Sig_atECALfixIP'
-        br_dz = 'ECAL_tracksDzSig_atECALfixIP'
+        br_d0 = 'ECAL_tracksD0_atECALfixIP'
+        br_dz = 'ECAL_tracksDz_atECALfixIP'
         br_ecal = 'ECAL_energy'
         br_hcal = 'HBHE_energy'
         br_pix1 = 'BPIX_layer1_ECAL_atPV'
@@ -162,8 +188,8 @@ for d, decay in enumerate(decays):
         br_pix3 = 'BPIX_layer3_ECAL_atPV'
     else:
         br_pt = 'ECALadj_tracksPt_%dx%d'%(args.granularity, args.granularity)
-        br_d0 = 'ECALadj_tracksD0Sig_%dx%d'%(args.granularity,args.granularity)
-        br_dz = 'ECALadj_tracksDzSig_%dx%d'%(args.granularity,args.granularity)
+        br_d0 = 'ECALadj_tracksD0_%dx%d'%(args.granularity,args.granularity)
+        br_dz = 'ECALadj_tracksDz_%dx%d'%(args.granularity,args.granularity)
         br_ecal = 'ECAL_energy'
         br_hcal = 'HBHE_energy'
         br_pix1 = 'BPIX_layer1_ECALadj_%dx%d'%(args.granularity,args.granularity)
@@ -175,8 +201,8 @@ for d, decay in enumerate(decays):
         
         if not iEvt % 100:
             print 'Processing event', iEvt
-        if TEST:
-            print iEvt
+        # if TEST:
+        #     print iEvt
             
         # initialize tree
         tree.GetEntry(iEvt)
@@ -221,6 +247,28 @@ for d, decay in enumerate(decays):
         m0s = tree.jetM
         iphis = tree.jetSeed_iphi
         ietas = tree.jetSeed_ieta
+
+
+        jets_genpart_collid = tree.seljet_genpart_collid
+        jets_genpart_pdgid = tree.seljet_genpart_pdgid
+        jets_genpart_charge = tree.seljet_genpart_charge
+        jets_genpart_px = tree.seljet_genpart_px
+        jets_genpart_py = tree.seljet_genpart_py
+        jets_genpart_pz = tree.seljet_genpart_pz
+        jets_genpart_energy = tree.seljet_genpart_energy
+        jets_genpart_status = tree.seljet_genpart_status
+        jets_genpart_motherpdgid = tree.seljet_genpart_motherpdgid
+        jets_genpart_dau1pdgid = tree.seljet_genpart_dau1pdgid
+        jets_genpart_dau2pdgid = tree.seljet_genpart_dau2pdgid
+        jets_px = tree.seljet_px
+        jets_py = tree.seljet_py
+        jets_pz = tree.seljet_pz
+        jets_energy = tree.seljet_energy
+        jets_pfcand_px = tree.seljet_pfcand_px
+        jets_pfcand_py = tree.seljet_pfcand_py
+        jets_pfcand_pz = tree.seljet_pfcand_pz
+        jets_pfcand_energy = tree.seljet_pfcand_energy
+        jets_pfcand_type = tree.seljet_pfcand_type
         
         nJets = len(pts)
 
@@ -236,6 +284,50 @@ for d, decay in enumerate(decays):
             m0 = m0s[ijet]
             iphi = iphis[ijet]
             ieta = ietas[ijet]
+
+
+            jet_genpart_collid = np.array(jets_genpart_collid[ijet])
+            jet_genpart_pdgid = np.array(jets_genpart_pdgid[ijet])
+            jet_genpart_charge = np.array(jets_genpart_charge[ijet])
+            jet_genpart_px = np.array(jets_genpart_px[ijet])
+            jet_genpart_py = np.array(jets_genpart_py[ijet])
+            jet_genpart_pz = np.array(jets_genpart_pz[ijet])
+            jet_genpart_energy = np.array(jets_genpart_energy[ijet])
+            jet_genpart_status = np.array(jets_genpart_status[ijet])
+            jet_genpart_motherpdgid = np.array(jets_genpart_motherpdgid[ijet])
+            jet_genpart_dau1pdgid = np.array(jets_genpart_dau1pdgid[ijet])
+            jet_genpart_dau2pdgid = np.array(jets_genpart_dau2pdgid[ijet])
+            jet_px = jets_px[ijet]
+            jet_py = jets_py[ijet]
+            jet_pz = jets_pz[ijet]
+            jet_energy = jets_energy[ijet]
+            jet_pfcand_px = np.array(jets_pfcand_px[ijet])
+            jet_pfcand_py = np.array(jets_pfcand_py[ijet])
+            jet_pfcand_pz = np.array(jets_pfcand_pz[ijet])
+            jet_pfcand_energy = np.array(jets_pfcand_energy[ijet])
+            jet_pfcand_type = np.array(jets_pfcand_type[ijet])
+            jet_ngen = len(jets_genpart_pdgid[ijet])
+            jet_npf = len(jets_pfcand_type[ijet])
+
+            if jet_ngen<max_components:
+                jet_genpart_collid = np.pad(jet_genpart_collid, (0,max_components-jet_ngen),'constant')
+                jet_genpart_pdgid = np.pad(jet_genpart_pdgid, (0,max_components-jet_ngen),'constant')
+                jet_genpart_charge = np.pad(jet_genpart_charge, (0,max_components-jet_ngen),'constant')
+                jet_genpart_px = np.pad(jet_genpart_px, (0,max_components-jet_ngen),'constant')
+                jet_genpart_py = np.pad(jet_genpart_py, (0,max_components-jet_ngen),'constant')
+                jet_genpart_pz = np.pad(jet_genpart_pz, (0,max_components-jet_ngen),'constant')
+                jet_genpart_energy = np.pad(jet_genpart_energy, (0,max_components-jet_ngen),'constant')
+                jet_genpart_status = np.pad(jet_genpart_status, (0,max_components-jet_ngen),'constant')
+                jet_genpart_motherpdgid = np.pad(jet_genpart_motherpdgid, (0,max_components-jet_ngen),'constant')
+                jet_genpart_dau1pdgid = np.pad(jet_genpart_dau1pdgid, (0,max_components-jet_ngen),'constant')
+                jet_genpart_dau2pdgid = np.pad(jet_genpart_dau2pdgid, (0,max_components-jet_ngen),'constant')
+            if jet_npf<max_components:
+                jet_pfcand_px = np.pad(jet_pfcand_px, (0,max_components-jet_npf),'constant')
+                jet_pfcand_py = np.pad(jet_pfcand_py, (0,max_components-jet_npf),'constant')
+                jet_pfcand_pz = np.pad(jet_pfcand_pz, (0,max_components-jet_npf),'constant')
+                jet_pfcand_energy = np.pad(jet_pfcand_energy, (0,max_components-jet_npf),'constant')
+                jet_pfcand_type = np.pad(jet_pfcand_type, (0,max_components-jet_npf),'constant')
+
             
             # crop images individually so it is less cpu intensive
             TracksPt = crop_jet( TracksPt, iphi, ieta, args.granularity, jet_shape )
@@ -269,6 +361,29 @@ for d, decay in enumerate(decays):
             fout['jetPt'][iEvt] = pt
             fout['jetM'][iEvt] = m0
             fout['y'][iEvt] = y
+
+            fout['jet_genpart_collid'][iEvt] = jet_genpart_collid[:max_components]
+            fout['jet_genpart_pdgid'][iEvt] = jet_genpart_pdgid[:max_components]
+            fout['jet_genpart_charge'][iEvt] = jet_genpart_charge[:max_components]
+            fout['jet_genpart_px'][iEvt] = jet_genpart_px[:max_components]
+            fout['jet_genpart_py'][iEvt] = jet_genpart_py[:max_components]
+            fout['jet_genpart_pz'][iEvt] = jet_genpart_pz[:max_components]
+            fout['jet_genpart_energy'][iEvt] = jet_genpart_energy[:max_components]
+            fout['jet_genpart_status'][iEvt] = jet_genpart_status[:max_components]
+            fout['jet_genpart_motherpdgid'][iEvt] = jet_genpart_motherpdgid[:max_components]
+            fout['jet_genpart_dau1pdgid'][iEvt] = jet_genpart_dau1pdgid[:max_components]
+            fout['jet_genpart_dau2pdgid'][iEvt] = jet_genpart_dau2pdgid[:max_components]
+            fout['jet_px'][iEvt] = jet_px
+            fout['jet_py'][iEvt] = jet_py
+            fout['jet_pz'][iEvt] = jet_pz
+            fout['jet_energy'][iEvt] = jet_energy
+            fout['jet_pfcand_px'][iEvt] = jet_pfcand_px[:max_components]
+            fout['jet_pfcand_py'][iEvt] = jet_pfcand_py[:max_components]
+            fout['jet_pfcand_pz'][iEvt] = jet_pfcand_pz[:max_components]
+            fout['jet_pfcand_energy'][iEvt] = jet_pfcand_energy[:max_components]
+            fout['jet_pfcand_type'][iEvt] = jet_pfcand_type[:max_components]
+            fout['jet_ngen'][iEvt] = jet_ngen
+            fout['jet_npf'][iEvt] = jet_npf
 
             X_jets = None
 
