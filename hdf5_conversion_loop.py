@@ -147,7 +147,8 @@ for d, decay in enumerate(decays):
 
     # create output file and define it's datasets
     fout = h5py.File(fout_str, 'w')
-    fout.create_dataset('X_jets', (nevts, jet_shape, jet_shape, 8), compression='lzf') # note, number of image channels was hardcoded here
+    # fout.create_dataset('X_jets', (nevts, jet_shape, jet_shape, 8), compression='lzf') # note, number of image channels was hardcoded here
+    fout.create_dataset('X_jets', (nevts, jet_shape, jet_shape, 2), compression='lzf') # note, number of image channels was hardcoded here
     fout.create_dataset('jetPt', (nevts, ), compression='lzf')
     fout.create_dataset('jetM', (nevts, ), compression='lzf')
     fout.create_dataset('y', (nevts, ), compression='lzf')
@@ -210,18 +211,18 @@ for d, decay in enumerate(decays):
         # pyroot makes you normally do TreeName.BranchName
         # however, BranchName is a variable in our case, so we use
         # the getattr method
-        TracksPt = np.array(getattr(tree, br_pt)).reshape(width, height)
-        TracksD0 = np.array(getattr(tree, br_d0)).reshape(width, height)
-        TracksDz = np.array(getattr(tree, br_dz)).reshape(width, height)
+        # TracksPt = np.array(getattr(tree, br_pt)).reshape(width, height)
+        # TracksD0 = np.array(getattr(tree, br_d0)).reshape(width, height)
+        # TracksDz = np.array(getattr(tree, br_dz)).reshape(width, height)
         Ecal = np.array(getattr(tree, br_ecal)).reshape(280,360)
         Ecal = resample_EE(Ecal)
         if args.granularity != 1:
             Ecal = upsample_array(Ecal, args.granularity, args.granularity)
         Hcal = np.array(getattr(tree, br_hcal)).reshape(56,72)
         Hcal = upsample_array(Hcal, 5*args.granularity, 5*args.granularity)
-        pix1 = np.array(getattr(tree, br_pix1)).reshape(width, height)
-        pix2 = np.array(getattr(tree, br_pix2)).reshape(width, height)
-        pix3 = np.array(getattr(tree, br_pix3)).reshape(width, height)
+        # pix1 = np.array(getattr(tree, br_pix1)).reshape(width, height)
+        # pix2 = np.array(getattr(tree, br_pix2)).reshape(width, height)
+        # pix3 = np.array(getattr(tree, br_pix3)).reshape(width, height)
 
         #jet_stack = np.stack((TracksPt, TracksD0, TracksDz, Ecal, Hcal, pix1, pix2, pix3), axis=-1)
 
@@ -330,16 +331,17 @@ for d, decay in enumerate(decays):
 
             
             # crop images individually so it is less cpu intensive
-            TracksPt = crop_jet( TracksPt, iphi, ieta, args.granularity, jet_shape )
-            TracksD0 = crop_jet( TracksD0, iphi, ieta, args.granularity, jet_shape )
-            TracksDz = crop_jet( TracksDz, iphi, ieta, args.granularity, jet_shape )
+            # TracksPt = crop_jet( TracksPt, iphi, ieta, args.granularity, jet_shape )
+            # TracksD0 = crop_jet( TracksD0, iphi, ieta, args.granularity, jet_shape )
+            # TracksDz = crop_jet( TracksDz, iphi, ieta, args.granularity, jet_shape )
             Ecal = crop_jet( Ecal, iphi, ieta, args.granularity, jet_shape )
             Hcal = crop_jet( Hcal, iphi, ieta, args.granularity, jet_shape )
-            pix1 = crop_jet( pix1, iphi, ieta, args.granularity, jet_shape )
-            pix2 = crop_jet( pix2, iphi, ieta, args.granularity, jet_shape )
-            pix3 = crop_jet( pix3, iphi, ieta, args.granularity, jet_shape )
+            # pix1 = crop_jet( pix1, iphi, ieta, args.granularity, jet_shape )
+            # pix2 = crop_jet( pix2, iphi, ieta, args.granularity, jet_shape )
+            # pix3 = crop_jet( pix3, iphi, ieta, args.granularity, jet_shape )
             
-            X_jet = np.stack((TracksPt, TracksD0, TracksDz, Ecal, Hcal, pix1, pix2, pix3), axis=-1)
+            # X_jet = np.stack((TracksPt, TracksD0, TracksDz, Ecal, Hcal, pix1, pix2, pix3), axis=-1)
+            X_jet = np.stack((Ecal, Hcal), axis=-1)
 
             TracksPt = None
             TracksD0 = None
