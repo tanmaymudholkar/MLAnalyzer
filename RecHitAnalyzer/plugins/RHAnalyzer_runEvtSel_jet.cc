@@ -75,6 +75,7 @@ bool RecHitAnalyzer::runEvtSel_jet ( const edm::Event& iEvent, const edm::EventS
   vJetSeed_iphi_.clear();
   vJetSeed_ieta_.clear();
   // Loop over jets
+  std::vector<int> vJetIdxs_clean;
   for ( int thisJetIdx : vJetIdxs ) {
 
     reco::PFJetRef iJet( jets, thisJetIdx );
@@ -141,14 +142,19 @@ bool RecHitAnalyzer::runEvtSel_jet ( const edm::Event& iEvent, const edm::EventS
     // Save position of most energetic HBHE tower
     // in EB-aligned coordinates
     if ( debug ) std::cout << " !! ieta_:" << ieta_ << " iphi_:" << iphi_ << " ietaAbs_:" << ietaAbs_ << " E:" << seedE << std::endl;
+    vJetIdxs_clean.push_back(thisJetIdx);
     vJetSeed_iphi_.push_back( iphi_ );
     vJetSeed_ieta_.push_back( ieta_ );
     nJet++;
 
   } // good jets 
   
+  vJetIdxs=vJetIdxs_clean;
+
   //if ( nJet != nJets_ ) return false;
-  if ( nJet < nJets_ ) return false;
+  //std::cout << nJet <<" "<< nJets_ << std::endl;
+  if ( (nJets_>0) && (nJet < nJets_) ) return false;
+  if ( nJet==0 ) return false;
   if ( debug ) std::cout << " >> analyze: passed" << std::endl;
 
   jet_eventId_ = iEvent.id().event();

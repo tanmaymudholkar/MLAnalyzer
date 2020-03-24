@@ -154,7 +154,7 @@ bool RecHitAnalyzer::runEvtSel_jet_dijet( const edm::Event& iEvent, const edm::E
       vJetIdxs.push_back(iJ);
 
       nJet++;
-      //break; This should allow two hardonic tops
+      break;// This should allow two hardonic tops
     } // jets
     if ( (nJets_ > 0) && (nJet >= nJets_) ) break;
   } // hadronic tops
@@ -229,8 +229,6 @@ void RecHitAnalyzer::fillEvtSel_jet_dijet( const edm::Event& iEvent, const edm::
 
   edm::Handle<std::vector<reco::GenParticle> > genparticles;
   iEvent.getByLabel( edm::InputTag("genParticles") , genparticles);
-  std::vector<reco::GenParticle>::const_iterator genpartIterator      = (genparticles.product())->begin();
-  std::vector<reco::GenParticle>::const_iterator genpartIteratorEnd   = (genparticles.product())->end();
 
   h_dijet_jet_nJet->Fill( vJetIdxs.size() );
   // Fill branches and histograms 
@@ -294,6 +292,8 @@ void RecHitAnalyzer::fillEvtSel_jet_dijet( const edm::Event& iEvent, const edm::
     std::vector<int> genpart_dau1pdgid;
     std::vector<int> genpart_dau2pdgid;
 
+    std::vector<reco::GenParticle>::const_iterator genpartIterator      = (genparticles.product())->begin();
+    std::vector<reco::GenParticle>::const_iterator genpartIteratorEnd   = (genparticles.product())->end();
     for ( ; genpartIterator != genpartIteratorEnd; genpartIterator++)
     {
 
