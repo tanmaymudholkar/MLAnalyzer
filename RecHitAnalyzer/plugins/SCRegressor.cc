@@ -96,10 +96,10 @@ SCRegressor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   eventId_ = iEvent.id().event();
   runId_ = iEvent.id().run();
   lumiId_ = iEvent.id().luminosityBlock();
-  if ( !(runId_ == 297114 && lumiId_ == 14) ) {
-    return;
-  }
-  std::cout << runId_<<":"<<lumiId_ <<":"<<eventId_ <<std::endl;
+  //if ( !(runId_ == 297114 && lumiId_ == 14) ) {
+  //  return;
+  //}
+  //std::cout << runId_<<":"<<lumiId_ <<":"<<eventId_ <<std::endl;
   /*
   if ( runId_ == 1 && lumiId_ == 1 && (eventId_ == 3 || eventId_ == 22 || eventId_ == 28) ) {
     std::cout << runId_<<":"<<lumiId_ <<":"<<eventId_ <<std::endl;
@@ -195,6 +195,7 @@ SCRegressor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
         pos_Emax = caloGeom->getPosition(ebId);
       }
       //std::cout << " >> " << iH << ": iphi_,ieta_,E: " << iphi_ << ", " << ieta_ << ", " << iRHit->energy() << std::endl;
+      hSC_energyErr->Fill( iRHit->energy(), iRHit->energyError() );
     } // SC hits
 
     // Apply selection on position of shower seed
@@ -205,7 +206,7 @@ SCRegressor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     vIeta_Emax_.push_back( ieta_Emax );
     //vPos_Emax.push_back( pos_Emax );
     vRegressPhoIdxs_.push_back( iP );
-    std::cout << " >> Found: pho_idx,iphi_Emax,ieta_Emax: " << iP <<", "<< iphi_Emax << ", " << ieta_Emax << std::endl;
+    //std::cout << " >> Found: pho_idx,iphi_Emax,ieta_Emax: " << iP <<", "<< iphi_Emax << ", " << ieta_Emax << std::endl;
     //
     nPho++;
 

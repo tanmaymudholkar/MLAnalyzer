@@ -16,15 +16,22 @@ void SCRegressor::branchesEB ( TTree* tree, edm::Service<TFileService> &fs ) {
   //tree->Branch("EB_energy", &vEB_energy_);
   tree->Branch("EB_energyT", &vEB_energyT_);
   tree->Branch("EB_energyZ", &vEB_energyZ_);
+  tree->Branch("EB_energyErr", &vEB_energyErr_);
   //tree->Branch("EB_time",   &vEB_time_);
 
   // Histograms for monitoring
   hEB_energy = fs->make<TProfile2D>("EB_energy", "E(i#phi,i#eta);i#phi;i#eta",
       EB_IPHI_MAX  , EB_IPHI_MIN-1, EB_IPHI_MAX,
       2*EB_IETA_MAX,-EB_IETA_MAX,   EB_IETA_MAX );
+  hEB_energyErr = fs->make<TProfile2D>("EB_energyErr", "Err(i#phi,i#eta);i#phi;i#eta",
+      EB_IPHI_MAX  , EB_IPHI_MIN-1, EB_IPHI_MAX,
+      2*EB_IETA_MAX,-EB_IETA_MAX,   EB_IETA_MAX );
   hEB_time = fs->make<TProfile2D>("EB_time", "t(i#phi,i#eta);i#phi;i#eta",
       EB_IPHI_MAX  , EB_IPHI_MIN-1, EB_IPHI_MAX,
       2*EB_IETA_MAX,-EB_IETA_MAX,   EB_IETA_MAX );
+
+  hSC_energyErr = fs->make<TProfile>("SC_energyErr", "Err vs E;energy;Err",
+      100, 0., 100.);
 
 } // branchesEB()
 
@@ -37,6 +44,7 @@ void SCRegressor::fillEB ( const edm::Event& iEvent, const edm::EventSetup& iSet
   //vEB_energy_.assign( EBDetId::kSizeForDenseIndexing, 0. );
   vEB_energyT_.assign( EBDetId::kSizeForDenseIndexing, 0. );
   vEB_energyZ_.assign( EBDetId::kSizeForDenseIndexing, 0. );
+  vEB_energyErr_.assign( EBDetId::kSizeForDenseIndexing, 0. );
   //vEB_time_.assign( EBDetId::kSizeForDenseIndexing, 0. );
 
   edm::Handle<EcalRecHitCollection> EBRecHitsH_;
@@ -59,6 +67,7 @@ void SCRegressor::fillEB ( const edm::Event& iEvent, const edm::EventSetup& iSet
     ieta_ = ebId.ieta() > 0 ? ebId.ieta()-1 : ebId.ieta();
     // Fill histograms for monitoring
     hEB_energy->Fill( iphi_,ieta_,energy_ );
+    hEB_energyErr->Fill( iphi_,ieta_,iRHit->energyError() );
     hEB_time->Fill( iphi_,ieta_,iRHit->time() );
     // Get Hashed Index: provides convenient
     // index mapping from [ieta][iphi] -> [idx]
@@ -72,6 +81,7 @@ void SCRegressor::fillEB ( const edm::Event& iEvent, const edm::EventSetup& iSet
     //vEB_energy_[idx_] = energy_;
     vEB_energyT_[idx_] = energy_/TMath::CosH(pos.eta());
     vEB_energyZ_[idx_] = energy_*std::abs(TMath::TanH(pos.eta()));
+    vEB_energyErr_[idx_] = iRHit->energyError();
     //vEB_time_[idx_] = iRHit->time();
 
     //std::cout << "idx,ieta,iphi,E:" <<idx_<<","<< ieta_ << "," << iphi_ << "," << iRHit->energy() << std::endl;

@@ -125,15 +125,18 @@ class SCRegressor : public edm::one::EDAnalyzer<edm::one::SharedResources>  {
     //static const int nPhotons = 1;
 
     TProfile2D *hEB_energy;
+    TProfile2D *hEB_energyErr;
     TProfile2D *hEB_time;
     std::vector<float> vEB_energy_;
     std::vector<float> vEB_energyT_;
     std::vector<float> vEB_energyZ_;
+    std::vector<float> vEB_energyErr_;
     std::vector<float> vEB_time_;
 
     //TH1D * histo;
     TProfile2D * hSC_energy;
     TProfile2D * hSC_time;
+    TProfile * hSC_energyErr;
     TH1F * hSC_mass;
     TH1F * hDR;
     TH1F * hdEta;
@@ -320,8 +323,8 @@ class SCRegressor : public edm::one::EDAnalyzer<edm::one::SharedResources>  {
 static const float zs = 0.;
 
 static const int crop_size = 32;
-static const bool debug = true;
-//static const bool debug = false;
+//static const bool debug = true;
+static const bool debug = false;
 
 static const int EB_IPHI_MIN = EBDetId::MIN_IPHI;//1;
 static const int EB_IPHI_MAX = EBDetId::MAX_IPHI;//360;
