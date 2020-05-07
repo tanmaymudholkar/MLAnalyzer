@@ -58,13 +58,13 @@ bool RecHitAnalyzer::runEvtSel ( const edm::Event& iEvent, const edm::EventSetup
   iEvent.getByLabel(photonCollectionT_, photons);
   //std::cout << "PhoCol.size: " << photons->size() << std::endl;
   edm::Handle<reco::PFJetCollection> jets;
-  iEvent.getByLabel(jetCollectionT_, jets);
+  iEvent.getByToken(jetCollectionT_, jets);
   //std::cout << " >> PFJetCol.size: " << jets->size() << std::endl;
   edm::Handle<reco::GenJetCollection> genJets;
   iEvent.getByLabel(genJetCollectionT_, genJets);
   //std::cout << " >> GenJetCol.size: " << genJets->size() << std::endl;
   edm::Handle<reco::GenParticleCollection> genParticles;
-  iEvent.getByLabel(genParticleCollectionT_, genParticles);
+  iEvent.getByToken(genParticleCollectionT_, genParticles);
 
   int nPhoTrg = 0;
   //std::cout << "GPCol.size: " << genParticles->size() << std::endl;

@@ -47,7 +47,7 @@ void RecHitAnalyzer::fillJetPFCands ( const edm::Event& iEvent, const edm::Event
   pfjet_pfcand_type.clear();
 
   edm::Handle<reco::PFJetCollection> jets;
-  iEvent.getByLabel(jetCollectionT_, jets);
+  iEvent.getByToken(jetCollectionT_, jets);
 
   std::vector<reco::PFJet>::const_iterator pfjetIterator      = (jets.product())->begin();
   std::vector<reco::PFJet>::const_iterator pfjetIteratorEnd   = (jets.product())->end();

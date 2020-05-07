@@ -56,10 +56,10 @@ bool RecHitAnalyzer::runEvtSel_jet_dijet_gg_qq( const edm::Event& iEvent, const 
 {
 
   edm::Handle<reco::GenParticleCollection> genParticles;
-  iEvent.getByLabel( genParticleCollectionT_, genParticles );
+  iEvent.getByToken( genParticleCollectionT_, genParticles );
 
   edm::Handle<reco::PFJetCollection> jets;
-  iEvent.getByLabel(jetCollectionT_, jets);
+  iEvent.getByToken(jetCollectionT_, jets);
   float dR;
 
   vJetIdxs.clear();
@@ -127,7 +127,7 @@ bool RecHitAnalyzer::runEvtSel_jet_dijet_gg_qq( const edm::Event& iEvent, const 
 void RecHitAnalyzer::fillEvtSel_jet_dijet_gg_qq ( const edm::Event& iEvent, const edm::EventSetup& iSetup ) {
 
   edm::Handle<reco::PFJetCollection> jets;
-  iEvent.getByLabel(jetCollectionT_, jets);
+  iEvent.getByToken(jetCollectionT_, jets);
 
   h_ggqq_jet_nJet->Fill( vJetIdxs.size() );
 

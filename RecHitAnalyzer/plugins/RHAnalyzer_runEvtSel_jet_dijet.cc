@@ -8,6 +8,14 @@ TH1D *h_dijet_jet_E;
 TH1D *h_dijet_jet_eta;
 TH1D *h_dijet_jet_m0;
 TH1D *h_dijet_jet_nJet;
+TH1D *w_daughters;
+
+TH1D *reco_Jet_pT;
+TH1D *reco_Jet_eta;
+TH1D *reco_Jet_phi;
+TH1D *reco_Jet_R;
+TH1D *reco_Jet_m;
+
 vector<float> vDijet_jet_pT_;
 vector<float> vDijet_jet_m0_;
 vector<float> vDijet_jet_eta_;
@@ -43,11 +51,21 @@ std::vector<std::vector<int> > seljet_pfcand_type;
 // Initialize branches _____________________________________________________//
 void RecHitAnalyzer::branchesEvtSel_jet_dijet( TTree* tree, edm::Service<TFileService> &fs ) {
 
-  h_dijet_jet_pT    = fs->make<TH1D>("h_jet_pT"  , "p_{T};p_{T};Particles", 300,  0., 1500.);
-  h_dijet_jet_E     = fs->make<TH1D>("h_jet_E"   , "E;E;Particles"        , 100,  0., 800.);
-  h_dijet_jet_eta   = fs->make<TH1D>("h_jet_eta" , "#eta;#eta;Particles"  , 100, -5., 5.);
-  h_dijet_jet_nJet  = fs->make<TH1D>("h_jet_nJet", "nJet;nJet;Events"     ,  10,  0., 10.);
-  h_dijet_jet_m0    = fs->make<TH1D>("h_jet_m0"  , "m0;m0;Events"         , 100,  0., 100.);
+  h_dijet_jet_pT    = fs->make<TH1D>("top_pT"  , "p_{T};p_{T};Particles", 300,  0., 1500.);
+  h_dijet_jet_E     = fs->make<TH1D>("top_E"   , "E;E;Particles"        , 100,  0., 800.);
+  h_dijet_jet_eta   = fs->make<TH1D>("top_eta" , "#eta;#eta;Particles"  , 100, -5., 5.);
+  h_dijet_jet_nJet  = fs->make<TH1D>("top_nJet", "nJet;nJet;Events"     ,  10,  0., 10.);
+  h_dijet_jet_m0    = fs->make<TH1D>("top_m0"  , "m0;m0;Events"         , 100,  70., 270.);
+  w_daughters = fs->make<TH1D>("w_daughters"  , "w_daughters;w_daughters;Events"         , 100,  0., 30.);
+  
+
+  reco_Jet_pT    = fs->make<TH1D>("reco_Jet_pT"  , "p_{T};p_{T};Particles", 300,  0., 1500.);
+  reco_Jet_eta    = fs->make<TH1D>("reco_Jet_eta"  , "E;E;Particles", 100,  -5, 5.);
+  reco_Jet_phi    = fs->make<TH1D>("reco_Jet_phi"  , "#eta;#eta;Particles", 100,  -5., 100.);
+  reco_Jet_R    = fs->make<TH1D>("reco_Jet_R"  , "R;R;R", 300,  0., 10.);
+  reco_Jet_m    = fs->make<TH1D>("reco_Jet_m"  , "m;m;Events", 100, 70., 270.);
+
+
 
   tree->Branch("jetPt",  &vDijet_jet_pT_);
   tree->Branch("jetM",   &vDijet_jet_m0_);
@@ -90,8 +108,8 @@ bool RecHitAnalyzer::runEvtSel_jet_dijet( const edm::Event& iEvent, const edm::E
 
   edm::Handle<reco::PFJetCollection> jets;
   edm::Handle<reco::GenParticleCollection> genParticles;
-  iEvent.getByLabel(jetCollectionT_, jets);
-  iEvent.getByLabel(genParticleCollectionT_, genParticles);
+  iEvent.getByToken(jetCollectionT_, jets);
+  iEvent.getByToken(genParticleCollectionT_, genParticles);
 
   vJetIdxs.clear();
   vDijet_jet_pT_.clear();
@@ -101,26 +119,146 @@ bool RecHitAnalyzer::runEvtSel_jet_dijet( const edm::Event& iEvent, const edm::E
   int nJet = 0;
 
   std::vector<TLorentzVector> had_tops,bdau,wdau;
-  if (isTTbar_) { //is a ttbar sample
-  for (const auto & p : *genParticles.product())
+  int i=0;  
+for (const auto & p : *genParticles.product())
   {
     int id = p.pdgId();
-    if(abs(id) != 6 || p.numberOfDaughters()!=2) continue;
-    int iw=-1;
-    int ib=-1;
-    if (abs(p.daughter(0)->pdgId())==24 && abs(p.daughter(1)->pdgId())==5)
-    {
-      iw=0;ib=1;
-    }
-    else
-    {
-      if(abs(p.daughter(1)->pdgId())==24 && abs(p.daughter(0)->pdgId())==5)
-      {
-        iw=1;ib=0;
-      }
-      else continue;
-    }
-    const reco::Candidate *d = p.daughter(iw);
+if (isTTbar_)
+ { //is a ttbar sample
+if ( abs(id) != 6 ) continue;
+if ( p.numberOfDaughters() != 2 ) continue;
+// if ( abs(p.daughter(0) -> pdgId()) != 5 ||abs(p.daughter(0) -> pdgId()) != 24 ) continue;
+//std::cout << " >> top[" << i << "] Pt: " << p.pt() << " topEta: " << p.eta() << " topE: " << p.energy() << std::endl; 
+h_dijet_jet_pT->Fill( std::abs(p.pt()) );
+h_dijet_jet_E->Fill( p.energy() );
+h_dijet_jet_m0->Fill( p.mass() );
+h_dijet_jet_eta->Fill( p.eta() );
+vDijet_jet_pT_.push_back( std::abs(p.pt()) );
+vDijet_jet_m0_.push_back(p.mass() );
+vDijet_jet_eta_.push_back(p.eta() );
+i++;
+}
+}
+//int id0 = p.daughter(0) -> pdgId()
+//int id1=p.daughter(1) -> pdgId();
+/*
+if (p.numberOfDaughters() == 0) continue;
+if ((p.daughter(0) -> numberOfDaughters()) == 0) continue;  
+if (p.daughter(0) -> pdgId() != 24){  
+if (p.daughter(1) -> pdgId() != 24){
+ continue;
+}
+} 
+
+std::cout << "p_daughter_0" << p.daughter(0) -> pdgId();
+ 
+std::cout << "p_daughter_1" << p.daughter(1) -> pdgId();
+
+if ((p.daughter(0) -> pdgId()) == 24)
+{const reco::Candidate *w = p.daughter(0);   
+std::cout << "w_daughter_0" << w -> daughter(0) -> pdgId();
+//if ((p.daughter(1) -> pdgId()) == 24)
+//{const reco::Candidate *w = p.daughter(1);   
+//std::cout << "w_daughter_1" << w -> daughter(1) -> pdgId();
+//}
+
+//std::cout << "w_daughter_0" << w -> daughter(0) -> pdgId();
+//std::cout << "w_daughter_1" << w -> daughter(1) -> pdgId();
+
+//std::cout << "w_daughter_0" << w -> daughter(0) -> pdgId();
+
+
+if (abs(w -> numberOfDaughters()) == 1)
+{
+if (abs(w -> daughter(0) -> pdgId()) == 24)
+{
+
+while ((w->daughter(0) -> pdgId()) == 24)
+{const reco::Candidate * w = w -> daughter(0);}
+w_daughters -> Fill(std::abs(w_daughter -> pdgId()));
+}
+else 
+{
+
+
+const reco::Candidate * w_daughter = w -> daughter(0); 
+w_daughters -> Fill(std::abs(w_daughter -> pdgId()));
+
+}
+}
+if (w -> numberOfDaughters() == 2)
+{
+if (((w->daughter(0) -> pdgId()) == 24))
+{
+while ((w->daughter(0) -> pdgId()) == 24)
+{
+const reco::Candidate * w_daughter = w -> daughter(0);   
+}
+}
+else
+{
+const reco::Candidate * w_daughter = w -> daughter(0);   
+}
+if ((( w -> daughter(1) -> pdgId()) == 24))
+{
+while ((w->daughter(1) -> pdgId()) == 24)
+{
+const reco::Candidate * w_daughter = w -> daughter(1);   
+}
+}
+else
+{
+const reco::Candidate * w_daughter = w -> daughter(1);   
+}
+w_daughters -> Fill(std::abs(w_daughter -> pdgId()));
+w_daughters -> Fill(std::abs(w_daughter -> pdgId()));
+}
+}
+
+ 
+}
+return i; 
+}
+*/
+float dR; 
+for (reco::GenParticleCollection::const_iterator iGen = genParticles->begin();
+      iGen != genParticles->end();
+      ++iGen) {
+if ( iGen->numberOfMothers() != 2 ) continue;
+//if ( iGen->status() != 3 ) continue; // pythia6: 3 = hard scatter particle
+// 
+// if ( iGen->status() != 23 ) continue; // pythia8: 23 = outgoing particle from hard scatter
+std::cout << " >> id:" << iGen->pdgId() << " status:" << iGen->status() << " nDaught:" << iGen->numberOfDaughters() << " pt:"<< iGen->pt() << " eta:" <<iGen->eta() << " phi:" <<iGen->phi() << " nMoms:" <<iGen->numberOfMothers()<< std::endl;
+
+    // Loop over jets
+for ( unsigned iJ(0); iJ != jets->size(); ++iJ ) {
+//if ( debug ) // std::cout << " >>>>>> jet[" << iJ << "]" << std::endl;
+reco::PFJetRef iJet( jets, iJ );
+if ( std::abs(iJet->pt())  < minJetPt_ ) continue;
+if ( std::abs(iJet->eta()) > maxJetEta_ ) continue;
+dR = reco::deltaR( iJet->eta(),iJet->phi(), iGen->eta(),iGen->phi() );
+
+std::cout << " >>>>>> jet[" << iJ << "] Pt:" << iJet->pt() << " jetEta:" << iJet->eta() << " jetPhi:" << iJet->phi() << " dR:" << dR << std::endl;
+//vDijet_jet_pT_.push_back( std::abs(p.pt()) );
+//vDijet_jet_m0_.push_back(p.mass() );
+//vDijet_jet_eta_.push_back(p.eta() );
+if ( dR > 0.4 ) continue;
+//vJetIdxs.push_back( iJ );
+//v_jetPdgIds_.push_back( std::abs(iGen->pdgId()) );
+
+std::cout << " >>>>>> DR matched: jet[" << iJ << "] pdgId:" << std::abs(iGen->pdgId()) << std::endl;
+reco_Jet_pT->Fill( std::abs(iJet -> pt())); 
+reco_Jet_eta->Fill( iJet -> eta() );
+reco_Jet_phi->Fill(iJet -> phi());
+reco_Jet_R->Fill(dR);
+reco_Jet_m->Fill(iJet -> mass());
+break;
+} // reco jets
+
+}
+return i; 
+}
+/*
     const reco::Candidate *b = p.daughter(ib);
     while(d->numberOfDaughters() == 1) d = d->daughter(0);
     if(!(abs(d->daughter(0)->pdgId()) < 10 && abs(d->daughter(1)->pdgId()) < 10)) continue;
@@ -133,15 +271,7 @@ bool RecHitAnalyzer::runEvtSel_jet_dijet( const edm::Event& iEvent, const edm::E
     bdau.push_back(the_b);
   }
 
-
-  // Loop over jets
-  for ( unsigned ihad=0;ihad<had_tops.size();ihad++)
-  {
-    for ( unsigned iJ(0); iJ != jets->size(); ++iJ )
-    {
-      reco::PFJetRef iJet( jets, iJ );
-      TLorentzVector vjet;
-      vjet.SetPtEtaPhiE(iJet->pt(),iJet->eta(),iJet->phi(),iJet->energy());
+,iJet->eta(),iJet->phi(),iJet->energy());
 
       if ( std::abs(iJet->pt()) < minJetPt_ ) continue;
       if ( std::abs(iJet->eta()) > maxJetEta_) continue;
@@ -151,50 +281,10 @@ bool RecHitAnalyzer::runEvtSel_jet_dijet( const edm::Event& iEvent, const edm::E
 
       if ( debug ) std::cout << " >> jet[" << iJ << "]Pt:" << iJet->pt() << " jetE:" << iJet->energy() << " jetM:" << iJet->mass() << std::endl;
 
-      vJetIdxs.push_back(iJ);
-
-      nJet++;
-      break;// This should allow two hardonic tops
-    } // jets
-    if ( (nJets_ > 0) && (nJet >= nJets_) ) break;
-  } // hadronic tops
-  } // isTTbar
-  else { //is QCD
-    for ( unsigned iJ(0); iJ != jets->size(); ++iJ )
-    {
-      reco::PFJetRef iJet( jets, iJ );
-      if ( std::abs(iJet->pt()) < minJetPt_ ) continue;
-      if ( std::abs(iJet->eta()) > maxJetEta_ ) continue;
-      
-      if ( debug ) std::cout << " >> jet[" << iJ << "]Pt:" << iJet->pt() << " jetE:" << iJet->energy() << " jetM:" << iJet->mass() << std::endl;
-
-      vJetIdxs.push_back(iJ);
-      nJet++;
-      if ( (nJets_ > 0) && (nJet >= nJets_) ) break;
-    }
-  } // is QCD
-
-  if ( debug ) {
-    for(int thisJetIdx : vJetIdxs)
-      std::cout << " >> vJetIdxs:" << thisJetIdx << std::endl;
-  }
-
-  if ( (nJets_ > 0) && (nJet != nJets_) ){
-    if ( debug ) std::cout << " Fail jet multiplicity:  " << nJet << " < " << nJets_ << std::endl;
-    return false;
-  }
-
-  if ( vJetIdxs.size() == 0){
-    if ( debug ) std::cout << " No passing jets...  " << std::endl;
-    return false;
-  }
-
-  if ( debug ) std::cout << " >> has_jet_dijet: passed" << std::endl;
-  return true;
-
-} // runEvtSel_jet_dijet() 
-
+      vJetIdxs.pus
+*/
 // Fill branches and histograms _____________________________________________________//
+
 void RecHitAnalyzer::fillEvtSel_jet_dijet( const edm::Event& iEvent, const edm::EventSetup& iSetup ) {
 
   seljet_genpart_collid.clear();
@@ -206,14 +296,6 @@ void RecHitAnalyzer::fillEvtSel_jet_dijet( const edm::Event& iEvent, const edm::
   seljet_genpart_pz.clear();
   seljet_genpart_energy.clear();
 
-  seljet_genpart_status.clear();
-
-  seljet_genpart_motherpdgid.clear();
-  seljet_genpart_dau1pdgid.clear();
-  seljet_genpart_dau2pdgid.clear();
-
-  seljet_px.clear();
-  seljet_py.clear();
   seljet_pz.clear();
   seljet_energy.clear();
 
@@ -225,7 +307,7 @@ void RecHitAnalyzer::fillEvtSel_jet_dijet( const edm::Event& iEvent, const edm::
 
 
   edm::Handle<reco::PFJetCollection> jets;
-  iEvent.getByLabel(jetCollectionT_, jets);
+  iEvent.getByToken(jetCollectionT_, jets);
 
   edm::Handle<std::vector<reco::GenParticle> > genparticles;
   iEvent.getByLabel( edm::InputTag("genParticles") , genparticles);
@@ -243,6 +325,14 @@ void RecHitAnalyzer::fillEvtSel_jet_dijet( const edm::Event& iEvent, const edm::
     vDijet_jet_m0_.push_back( thisJet->mass() );
     vDijet_jet_eta_.push_back( thisJet->eta() );
 
+
+    h_dijet_jet_E->Fill( thisJet->energy() );
+    h_dijet_jet_m0->Fill( thisJet->mass() );
+    h_dijet_jet_eta->Fill( thisJet->eta() );
+    vDijet_jet_pT_.push_back( std::abs(thisJet->pt()) );
+    vDijet_jet_m0_.push_back( thisJet->mass() );
+    vDijet_jet_eta_.push_back( thisJet->eta() );
+/*
 
     seljet_px.push_back(thisJet->px());
     seljet_py.push_back(thisJet->py());
@@ -320,6 +410,14 @@ void RecHitAnalyzer::fillEvtSel_jet_dijet( const edm::Event& iEvent, const edm::
         {
           genpart_motherpdgid.push_back(genpartIterator->mother(0)->pdgId());
         }
+        genpart_energy.push_back(genpartIterator->energy());
+
+        genpart_status.push_back(genpartIterator->status());
+
+        if (genpartIterator->numberOfMothers()>0)
+        {
+          genpart_motherpdgid.push_back(genpartIterator->mother(0)->pdgId());
+        }
         else
         {
           genpart_motherpdgid.push_back(-9999);
@@ -335,14 +433,6 @@ void RecHitAnalyzer::fillEvtSel_jet_dijet( const edm::Event& iEvent, const edm::
           case 1:
             genpart_dau1pdgid.push_back(genpartIterator->daughter(0)->pdgId());
             genpart_dau2pdgid.push_back(-9999);
-          break;
-
-          default:
-            genpart_dau1pdgid.push_back(genpartIterator->daughter(0)->pdgId());
-            genpart_dau2pdgid.push_back(genpartIterator->daughter(1)->pdgId());
-          break;
-        }//switch
-      }//DeltaR condition
     }//genpart loop
     seljet_genpart_collid.push_back(genpart_collid);
     seljet_genpart_pdgid.push_back(genpart_pdgid);
@@ -360,5 +450,7 @@ void RecHitAnalyzer::fillEvtSel_jet_dijet( const edm::Event& iEvent, const edm::
     seljet_genpart_dau2pdgid.push_back(genpart_dau2pdgid);
 
   }//jet loop
-
-} // fillEvtSel_jet_dijet()
+*/ 
+}
+}
+ // fillEvtSel_jet_dijet()

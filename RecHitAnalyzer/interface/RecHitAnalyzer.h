@@ -136,10 +136,12 @@ class RecHitAnalyzer : public edm::EDAnalyzer  {
     edm::InputTag EERecHitCollectionT_;
     edm::InputTag HBHERecHitCollectionT_;
     edm::InputTag TRKRecHitCollectionT_;
-    edm::InputTag genParticleCollectionT_;
+    edm::EDGetTokenT<reco::GenParticleCollection> genParticleCollectionT_; 
+    ///edm::InputTag genParticleCollectionT_;
     edm::InputTag photonCollectionT_;
-    edm::InputTag jetCollectionT_;
+    /// edm::InputTag jetCollectionT_;
     edm::InputTag genJetCollectionT_;
+    edm::EDGetTokenT<reco::PFJetCollection> jetCollectionT_;
     edm::InputTag trackCollectionT_;
     edm::InputTag pfCandCollectionT_;
     edm::InputTag pvCollectionT_;
@@ -147,13 +149,12 @@ class RecHitAnalyzer : public edm::EDAnalyzer  {
     edm::InputTag siPixelRecHitCollectionT_;
     std::vector<edm::InputTag> siStripRecHitCollectionT_;
 
-    // Diagnostic histograms
+     // Diagnostic histograms
     //TH2D * hEB_adc[EcalDataFrame::MAXSAMPLES]; 
     //TH1D * hHBHE_depth; 
     TH1F *h_sel; 
     int runCount[4];
     int nTotal;
-
     // Main TTree
     TTree* RHTree;
 

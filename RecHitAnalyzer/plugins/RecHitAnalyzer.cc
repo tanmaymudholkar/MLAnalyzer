@@ -25,11 +25,14 @@ RecHitAnalyzer::RecHitAnalyzer(const edm::ParameterSet& iConfig)
   HBHERecHitCollectionT_ = iConfig.getParameter<edm::InputTag>("reducedHBHERecHitCollection");
   //TRKRecHitCollectionT_  = iConfig.getParameter<edm::InputTag>("trackRecHitCollection");
 
-  genParticleCollectionT_ = iConfig.getParameter<edm::InputTag>("genParticleCollection");
+  //genParticleCollectionT_ = iConfig.getParameter<edm::InputTag>("genParticleCollection");
+  genParticleCollectionT_ = consumes<reco::GenParticleCollection>(iConfig.getParameter<edm::InputTag>("genParticleCollection"));
+ 
   photonCollectionT_ = iConfig.getParameter<edm::InputTag>("gedPhotonCollection");
   //photonCollectionT_ = iConfig.getParameter<edm::InputTag>("photonCollection");
   //jetCollectionT_ = iConfig.getParameter<edm::InputTag>("ak4PFJetCollection");
-  jetCollectionT_ = iConfig.getParameter<edm::InputTag>("PFJetCollection");
+  //jetCollectionT_ = iConfig.getParameter<edm::InputTag>("PFJetCollection");
+  jetCollectionT_         = consumes<reco::PFJetCollection>(iConfig.getParameter<edm::InputTag>("ak4PFJetCollection"));
   genJetCollectionT_ = iConfig.getParameter<edm::InputTag>("genJetCollection");
   trackCollectionT_ = iConfig.getParameter<edm::InputTag>("trackCollection");
   pfCandCollectionT_ = iConfig.getParameter<edm::InputTag>("pfCollection");
