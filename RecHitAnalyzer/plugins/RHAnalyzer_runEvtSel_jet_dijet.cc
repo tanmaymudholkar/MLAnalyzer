@@ -127,6 +127,17 @@ for (const auto & p : *genParticles.product())
     { //is a ttbar sample
       if ( abs(id) != 6 ) continue;
       if ( p.numberOfDaughters() != 2 ) continue;
+      h_dijet_jet_pT->Fill( std::abs(p.pt()) );
+      h_dijet_jet_E->Fill( p.energy() );
+      h_dijet_jet_m0->Fill( p.mass() );
+      h_dijet_jet_eta->Fill( p.eta() );
+      vDijet_jet_pT_.push_back( std::abs(p.pt()) );
+      vDijet_jet_m0_.push_back(p.mass() );
+      vDijet_jet_eta_.push_back(p.eta() );
+      i++;
+      for ( unsigned int iD = 0; iD < p.numberOfDaughters(); iD++ ) {
+      const reco::Candidate* topd = p.daughter(iD);
+      }
       // if ( abs(p.daughter(0) -> pdgId()) != 5 ||abs(p.daughter(0) -> pdgId()) != 24 ) continue;
       //std::cout << " >> top[" << i << "] Pt: " << p.pt() << " topEta: " << p.eta() << " topE: " << p.energy() << std::endl; 
       for ( unsigned iJ(0); iJ != jets->size(); ++iJ ) {
@@ -139,34 +150,17 @@ for (const auto & p : *genParticles.product())
         //vDijet_jet_pT_.push_back( std::abs(p.pt()) );
         //vDijet_jet_m0_.push_back(p.mass() );
         //vDijet_jet_eta_.push_back(p.eta() );
-
-  
         if ( dR > 0.8 ) continue;
         //vJetIdxs.push_back( iJ );
         //v_jetPdgIds_.push_back( std::abs(iGen->pdgId()) );
         std::cout << " >>>>>> DR matched: jet[" << iJ << "] pdgId:" << std::abs(iGen->pdgId()) << std::endl;
-
-
-reco_Jet_pT->Fill( std::abs(iJet -> pt())); 
-reco_Jet_eta->Fill( iJet -> eta() );
-reco_Jet_phi->Fill(iJet -> phi());
-reco_Jet_R->Fill(dR);
-reco_Jet_m->Fill(iJet -> mass());
-break;
-} // reco jets
-  
-  
-  
-  
-  
-h_dijet_jet_pT->Fill( std::abs(p.pt()) );
-h_dijet_jet_E->Fill( p.energy() );
-h_dijet_jet_m0->Fill( p.mass() );
-h_dijet_jet_eta->Fill( p.eta() );
-vDijet_jet_pT_.push_back( std::abs(p.pt()) );
-vDijet_jet_m0_.push_back(p.mass() );
-vDijet_jet_eta_.push_back(p.eta() );
-i++;
+        reco_Jet_pT->Fill( std::abs(iJet -> pt())); 
+        reco_Jet_eta->Fill( iJet -> eta() );
+        reco_Jet_phi->Fill(iJet -> phi());
+        reco_Jet_R->Fill(dR);
+        reco_Jet_m->Fill(iJet -> mass());
+        break;
+        } // reco jets
 }
 }
 //int id0 = p.daughter(0) -> pdgId()
