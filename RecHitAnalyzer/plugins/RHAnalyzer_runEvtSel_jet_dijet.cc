@@ -129,6 +129,34 @@ if ( abs(id) != 6 ) continue;
 if ( p.numberOfDaughters() != 2 ) continue;
 // if ( abs(p.daughter(0) -> pdgId()) != 5 ||abs(p.daughter(0) -> pdgId()) != 24 ) continue;
 //std::cout << " >> top[" << i << "] Pt: " << p.pt() << " topEta: " << p.eta() << " topE: " << p.energy() << std::endl; 
+for ( unsigned iJ(0); iJ != jets->size(); ++iJ ) {
+//if ( debug ) // std::cout << " >>>>>> jet[" << iJ << "]" << std::endl;
+reco::PFJetRef iJet( jets, iJ );
+if ( std::abs(iJet->pt())  < minJetPt_ ) continue;
+if ( std::abs(iJet->eta()) > maxJetEta_ ) continue;
+dR = reco::deltaR( iJet->eta(),iJet->phi(), iGen->eta(),iGen->phi() );
+
+std::cout << " >>>>>> jet[" << iJ << "] Pt:" << iJet->pt() << " jetEta:" << iJet->eta() << " jetPhi:" << iJet->phi() << " dR:" << dR << std::endl;
+//vDijet_jet_pT_.push_back( std::abs(p.pt()) );
+//vDijet_jet_m0_.push_back(p.mass() );
+//vDijet_jet_eta_.push_back(p.eta() );
+if ( dR > 0.4 ) continue;
+//vJetIdxs.push_back( iJ );
+//v_jetPdgIds_.push_back( std::abs(iGen->pdgId()) );
+
+std::cout << " >>>>>> DR matched: jet[" << iJ << "] pdgId:" << std::abs(iGen->pdgId()) << std::endl;
+reco_Jet_pT->Fill( std::abs(iJet -> pt())); 
+reco_Jet_eta->Fill( iJet -> eta() );
+reco_Jet_phi->Fill(iJet -> phi());
+reco_Jet_R->Fill(dR);
+reco_Jet_m->Fill(iJet -> mass());
+break;
+} // reco jets
+  
+  
+  
+  
+  
 h_dijet_jet_pT->Fill( std::abs(p.pt()) );
 h_dijet_jet_E->Fill( p.energy() );
 h_dijet_jet_m0->Fill( p.mass() );
@@ -231,29 +259,6 @@ if ( iGen->numberOfMothers() != 2 ) continue;
 std::cout << " >> id:" << iGen->pdgId() << " status:" << iGen->status() << " nDaught:" << iGen->numberOfDaughters() << " pt:"<< iGen->pt() << " eta:" <<iGen->eta() << " phi:" <<iGen->phi() << " nMoms:" <<iGen->numberOfMothers()<< std::endl;
 
     // Loop over jets
-for ( unsigned iJ(0); iJ != jets->size(); ++iJ ) {
-//if ( debug ) // std::cout << " >>>>>> jet[" << iJ << "]" << std::endl;
-reco::PFJetRef iJet( jets, iJ );
-if ( std::abs(iJet->pt())  < minJetPt_ ) continue;
-if ( std::abs(iJet->eta()) > maxJetEta_ ) continue;
-dR = reco::deltaR( iJet->eta(),iJet->phi(), iGen->eta(),iGen->phi() );
-
-std::cout << " >>>>>> jet[" << iJ << "] Pt:" << iJet->pt() << " jetEta:" << iJet->eta() << " jetPhi:" << iJet->phi() << " dR:" << dR << std::endl;
-//vDijet_jet_pT_.push_back( std::abs(p.pt()) );
-//vDijet_jet_m0_.push_back(p.mass() );
-//vDijet_jet_eta_.push_back(p.eta() );
-if ( dR > 0.4 ) continue;
-//vJetIdxs.push_back( iJ );
-//v_jetPdgIds_.push_back( std::abs(iGen->pdgId()) );
-
-std::cout << " >>>>>> DR matched: jet[" << iJ << "] pdgId:" << std::abs(iGen->pdgId()) << std::endl;
-reco_Jet_pT->Fill( std::abs(iJet -> pt())); 
-reco_Jet_eta->Fill( iJet -> eta() );
-reco_Jet_phi->Fill(iJet -> phi());
-reco_Jet_R->Fill(dR);
-reco_Jet_m->Fill(iJet -> mass());
-break;
-} // reco jets
 
 }
 return i; 
