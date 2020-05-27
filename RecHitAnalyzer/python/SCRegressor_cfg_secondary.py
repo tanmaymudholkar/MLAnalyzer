@@ -41,7 +41,8 @@ print " >> Loaded",len(options.inputFiles),"input files from list."
 #evtsToProc = open('eta_evtsToProc.txt').read().splitlines()
 #print evtsToProc
 #slim_files = ['root://cmseos.fnal.gov//store/user/lpcml/mandrews/AODSIM/h24gamma_1j_1M_1GeV_PU2017_AODSIM_slim/190719_005502/0000/step_aodsim_slim_%d.root'%i for i in range(13,15)]
-slim_files = ['root://cmseos.fnal.gov//store/group/lpcml/mandrews/2017/DoubleEG/Run2017B_17Nov2017-v1_AOD_slim-ext_v2/191108_030956/0000/step_aodsim_slim-ext_367.root']
+#slim_files = ['root://cmseos.fnal.gov//store/group/lpcml/mandrews/2017/DoubleEG/Run2017B_17Nov2017-v1_AOD_slim-ext_v2/191108_030956/0000/step_aodsim_slim-ext_367.root']
+slim_files = ['root://cmseos.fnal.gov//store/user/lpchaa4g/mandrews/2017/Era2017_18May2020_AODslim-ecal_v1/DoubleEG/DoubleEG_2017B_Era2017_18May2020_AODslim-ecal_v1/200519_165159/0000/step_aodsim_slim-ecal_367.root']
 process.source = cms.Source("PoolSource",
     # replace 'myfile.root' with the source file you want to use
     fileNames = cms.untracked.vstring(
@@ -99,10 +100,11 @@ process.fevt = cms.EDAnalyzer('SCRegressor'
     #, genParticleCollection = cms.InputTag('genParticles')
     , genParticleCollection = cms.InputTag('prunedGenParticles')
     , genJetCollection = cms.InputTag('ak4GenJets')
-    , trackCollection = cms.InputTag("generalTracks")
-    #, trackCollection = cms.InputTag("isolatedTracks")
+    #, trackCollection = cms.InputTag("generalTracks")
+    , trackCollection = cms.InputTag("isolatedTracks")
     , rhoLabel = cms.InputTag("fixedGridRhoFastjetAll")
     , trgResults = cms.InputTag("TriggerResults","","HLT")
+    , trgObjects = cms.InputTag("slimmedPatTrigger", "", "")
     , generator = cms.InputTag("generator")
     , lhe = cms.InputTag("lhe")
     )
@@ -143,7 +145,16 @@ runMetCorAndUncFromMiniAOD (
         postfix = "ModifiedMET"
 )
 
+process.HLTFilter = cms.EDFilter("HLTHighLevel",
+                                          eventSetupPathsKey = cms.string(''),
+                                          TriggerResultsTag = cms.InputTag("TriggerResults","","HLT"),
+                                          HLTPaths = cms.vstring('HLT_Ele32_WPTight_Gsf_L1DoubleEG_v*'),
+                                          andOr = cms.bool(True), # True = OR, False = AND
+                                          throw = cms.bool(True) # Tolerate if triggers not available
+                                          )
+
 process.p = cms.Path(
+  #process.HLTFilter*
   #process.hltFilter*
   #process.fullPatMetSequenceModifiedMET*
   #process.egammaPostRecoSeq*

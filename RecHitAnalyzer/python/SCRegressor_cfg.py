@@ -94,10 +94,11 @@ process.fevt = cms.EDAnalyzer('SCRegressor'
     #, genParticleCollection = cms.InputTag('genParticles')
     , genParticleCollection = cms.InputTag('prunedGenParticles')
     , genJetCollection = cms.InputTag('ak4GenJets')
-    , trackCollection = cms.InputTag("generalTracks")
-    #, trackCollection = cms.InputTag("isolatedTracks")
+    #, trackCollection = cms.InputTag("generalTracks")
+    , trackCollection = cms.InputTag("isolatedTracks")
     , rhoLabel = cms.InputTag("fixedGridRhoFastjetAll")
     , trgResults = cms.InputTag("TriggerResults","","HLT")
+    , trgObjects = cms.InputTag("slimmedPatTrigger", "", "")
     , generator = cms.InputTag("generator")
     , lhe = cms.InputTag("lhe")
     )
@@ -138,7 +139,22 @@ runMetCorAndUncFromMiniAOD (
         postfix = "ModifiedMET"
 )
 
+process.TriggerObjectFilter = cms.EDFilter("PATTriggerObjectStandAloneSelector",
+                                          src = cms.InputTag("slimmedPatTrigger"),
+                                          cut = cms.string('coll("hltEGL1SingleEGOrFilter")')
+)
+
+process.HLTFilter = cms.EDFilter("HLTHighLevel",
+                                          eventSetupPathsKey = cms.string(''),
+                                          TriggerResultsTag = cms.InputTag("TriggerResults","","HLT"),
+                                          HLTPaths = cms.vstring('HLT_Ele32_WPTight_Gsf_L1DoubleEG_v*'),
+                                          andOr = cms.bool(True), # True = OR, False = AND
+                                          throw = cms.bool(True) # Tolerate if triggers not available
+                                          )
+
 process.p = cms.Path(
+  #process.TriggerObjectFilter*
+  #process.HLTFilter*
   #process.hltFilter*
   #process.fullPatMetSequenceModifiedMET*
   #process.egammaPostRecoSeq*
