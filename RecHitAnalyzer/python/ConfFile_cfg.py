@@ -108,5 +108,6 @@ process.TFileService = cms.Service("TFileService",
 #process.p = cms.Path(process.siStripMatchedRecHits*process.siPixelRecHits*process.fevt)
 process.p = cms.Path(process.siStripMatchedRecHits*process.siPixelRecHits*process.fevt)
 if options.UseAK8:
-    process.p = cms.Path(process.siStripMatchedRecHits*process.siPixelRecHits*process.genParticlesForJets*process.ak8PFJets*process.ak8GenJets*process.fevt)
+    #process.p = cms.Path(process.siStripMatchedRecHits*process.siPixelRecHits*process.genParticlesForJets*process.ak8PFJets*process.ak8GenJets*process.fevt)
+    process.p = cms.Path(process.genParticlesForJets*process.ak8PFJets*process.ak8GenJets*process.fevt)
     
