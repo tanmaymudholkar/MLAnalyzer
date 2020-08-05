@@ -64,6 +64,7 @@
 
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
 #include "SimDataFormats/GeneratorProducts/interface/LHEEventProduct.h"
+#include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
 //
 // class declaration
 //
@@ -77,6 +78,7 @@ using pat::JetRef;
 //using pat::PhotonRef;
 using reco::PhotonCollection;
 using reco::PhotonRef;
+using edm::PCaloHitContainer;
 
 // If the analyzer does not use TFileService, please remove
 // the template argument to the base class so the class inherits
@@ -104,6 +106,9 @@ class SCRegressor : public edm::one::EDAnalyzer<edm::one::SharedResources>  {
     edm::EDGetTokenT<MuonCollection> muonCollectionT_;
     edm::EDGetTokenT<PhotonCollection> photonCollectionT_;
     edm::EDGetTokenT<JetCollection> jetCollectionT_;
+    edm::EDGetTokenT<EBDigiCollection>     EBDigiCollectionT_;
+    edm::EDGetTokenT<PCaloHitContainer>    EBSimHitCollectionT_;
+    //edm::EDGetTokenT<std::vector<PCaloHit>>    EBSimHitCollectionT_;
     edm::EDGetTokenT<EcalRecHitCollection> EBRecHitCollectionT_;
     edm::EDGetTokenT<EcalRecHitCollection> EERecHitCollectionT_;
     edm::EDGetTokenT<ESRecHitCollection> ESRecHitCollectionT_;
@@ -279,6 +284,12 @@ class SCRegressor : public edm::one::EDAnalyzer<edm::one::SharedResources>  {
     std::vector<float> vSC_pT_;
     std::vector<float> vSC_eta_;
     std::vector<float> vSC_phi_;
+    std::vector<float> vSC_vtx_;
+    std::vector<float> vSC_vtxT_;
+    std::vector<float> vSC_vtxZ_;
+    std::vector<float> vSC_dvtx_;
+    std::vector<float> vSC_recoIdx_;
+    std::vector<float> vSC_boost_;
 
     std::vector<float> vA_E_;
     std::vector<float> vA_pT_;

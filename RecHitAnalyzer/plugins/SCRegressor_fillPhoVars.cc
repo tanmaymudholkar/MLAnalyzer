@@ -1,5 +1,8 @@
 #include "MLAnalyzer/RecHitAnalyzer/interface/SCRegressor.h"
 
+unsigned int nPhoEvent_;
+unsigned int nPhoRegress_;
+
 // Initialize branches _____________________________________________________//
 void SCRegressor::branchesPhoVars ( TTree* tree, edm::Service<TFileService> &fs )
 {
@@ -36,6 +39,9 @@ void SCRegressor::branchesPhoVars ( TTree* tree, edm::Service<TFileService> &fs 
   tree->Branch("pho_chgIsoCorr",     &vPho_chgIsoCorr_);
   tree->Branch("pho_bdt",            &vPho_bdt_);
 
+  tree->Branch("nPhoEvent",            &nPhoEvent_);
+  tree->Branch("nPhoRegress",            &nPhoRegress_);
+
 } // branchesPhoVars()
 
 // Fill PhoVars rechits _________________________________________________________________//
@@ -54,6 +60,9 @@ void SCRegressor::fillPhoVars ( const edm::Event& iEvent, const edm::EventSetup&
   iEvent.getByToken(photonCollectionT_, photons);
 
   ////////// Store kinematics //////////
+
+  nPhoEvent_ = photons->size();
+  nPhoRegress_ = vRegressPhoIdxs_.size();
 
   vPho_pT_.clear();
   vPho_E_.clear();

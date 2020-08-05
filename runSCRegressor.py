@@ -66,11 +66,21 @@ cfg='RecHitAnalyzer/python/SCRegressor_cfg.py'
 #root://cmsxrootd-site.fnal.gov
 #inputFiles_='/store/user/lpcml/mandrews/AODSIM/DoublePi0Pt1e2To1e3_m0To1600_Eta0To1p4_noPU_AODSIM/190809_200413/0000/step_AODSIM_noPU_ext4_1.root'
 #inputFiles_='/store/user/lpcml/mandrews/AODSIM/DoublePi0Pt10To200_m0To2600_Eta1p5To2p4_noPU_AODSIM/190708_223353/0000/step_AODSIM_noPU_ext4_1.root'
-inputFiles_='/store/user/lpcml/mandrews/AODSIM/OctoPi0Pt10To100_m0To1600_Eta1p6To2p4_noPU_AODSIM/191128_002514/0000/step_AODSIM_noPU_ext4_1.root'
+#inputFiles_='/store/user/lpcml/mandrews/AODSIM/OctoPi0Pt10To100_m0To1600_Eta1p6To2p4_noPU_AODSIM/191128_002514/0000/step_AODSIM_noPU_ext4_1.root'
+#inputFiles_='file:/uscms/home/mba2012/nobackup/GUN/CMSSW_9_4_13/src/step_AODSIM_noPU_ext4.root'
+#inputFiles_='file:/uscms/home/mba2012/nobackup/GUN/CMSSW_9_4_13/src/step_FEVTDEBUG_noPU_ext4_m0p2_pt60_tau2e1.root'
+#inputFiles_='file:/uscms/home/mba2012/nobackup/GUN/CMSSW_9_4_13/src/step_FEVTDEBUG_noPU_ext4_m0p2_pt60_tau2em5To2e1.root'
+#inputFiles_='file:/uscms/home/mba2012/nobackup/GUN/CMSSW_9_4_13/src/step_FEVTDEBUG_noPU_ext4_m0p2_pt60_tau2em5Exp.root'
+#inputFiles_='file:/uscms/home/mba2012/nobackup/GUN/CMSSW_9_4_13/src/step_FEVTDEBUG_noPU_ext4_m0p2_e60_tau2ep1.root'
+#inputFiles_='file:/uscms/home/mba2012/nobackup/GUN/CMSSW_9_4_13/src/step_FEVTDEBUG_noPU_ext4_m0p2_e60_tau2em5To2e1.root'
+#inputFiles_='file:/uscms/home/mba2012/nobackup/GUN/CMSSW_9_4_13/src/step_RECOSIM_noPU_ext4_m0p2_e60_tau2em5To5e2.root'
+#inputFiles_='file:/uscms/home/mba2012/nobackup/GUN/CMSSW_9_4_13/src/step_RECOSIM_noPU_ext4_m0p2_e60_tau2em5To2e1.root'
+#inputFiles_='/store/user/lpcml/mandrews/AODSIM/OctoPi0_e60_m200_ctau2em5To1p1e2_eta0To1p4_noPU_AODSIM/200728_061627/0000/step_AODSIM_noPU_ext4_1.root'
+inputFiles_='/store/user/lpcml/mandrews/AODSIM/OctoPi0_e60_m200_ctau0To4_eta0To1p4_noPU_AODSIM/200805_001308/0000/step_AODSIM_noPU_1.root'
 
 maxEvents_=-1
 #maxEvents_=1000
-maxEvents_=20
+#maxEvents_=10
 skipEvents_=0
 #outputFile_='output.root'
 #inputTag=inputFiles_.strip('file:').strip('_FEVTDEBUG.root')

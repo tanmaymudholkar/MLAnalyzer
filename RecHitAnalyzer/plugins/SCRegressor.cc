@@ -24,6 +24,8 @@ SCRegressor::SCRegressor(const edm::ParameterSet& iConfig)
   electronCollectionT_ = consumes<ElectronCollection>(iConfig.getParameter<edm::InputTag>("electronCollection"));
   photonCollectionT_ = consumes<PhotonCollection>(iConfig.getParameter<edm::InputTag>("photonCollection"));
   jetCollectionT_ = consumes<JetCollection>(iConfig.getParameter<edm::InputTag>("jetCollection"));
+  EBDigiCollectionT_ = consumes<EBDigiCollection>(iConfig.getParameter<edm::InputTag>("EBDigiCollection"));
+  EBSimHitCollectionT_ = consumes<PCaloHitContainer>(iConfig.getParameter<edm::InputTag>("EBSimHitCollection"));
   EBRecHitCollectionT_    = consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("reducedEBRecHitCollection"));
   EERecHitCollectionT_    = consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("reducedEERecHitCollection"));
   ESRecHitCollectionT_    = consumes<ESRecHitCollection>(iConfig.getParameter<edm::InputTag>("reducedESRecHitCollection"));
@@ -64,15 +66,15 @@ SCRegressor::SCRegressor(const edm::ParameterSet& iConfig)
   //branchesNJetsSel ( RHTree, fs );
   //branchesH2aaSel ( RHTree, fs );
   //branchesQCDSel ( RHTree, fs );
-  //branchesSC     ( RHTree, fs );
+  branchesSC     ( RHTree, fs );
   //branchesSCaod  ( RHTree, fs );
   //branchesSCreco ( RHTree, fs );
-  //branchesEB     ( RHTree, fs );
+  branchesEB     ( RHTree, fs );
   branchesEE     ( RHTree, fs );
-  branchesES     ( RHTree, fs );
+  //branchesES     ( RHTree, fs );
   //branchesTracksAtEBEE     ( RHTree, fs );
-  branchesEEAtES     ( RHTree, fs );
-  branchesTracksAtES     ( RHTree, fs );
+  //branchesEEAtES     ( RHTree, fs );
+  //branchesTracksAtES     ( RHTree, fs );
   branchesPhoVars     ( RHTree, fs );
   //branchesEvtWgt     ( RHTree, fs );
 
@@ -133,16 +135,17 @@ SCRegressor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   bool hasPassed;
   vPreselPhoIdxs_.clear();
   nTotal += nPhotons;
-  hasPassed = runPiSel ( iEvent, iSetup ); //TODO: add config-level switch
+  //hasPassed = runPiSel ( iEvent, iSetup ); //TODO: add config-level switch
   //hasPassed = runPhotonSel ( iEvent, iSetup );
   //hasPassed = runDiPhotonSel ( iEvent, iSetup );
   //hasPassed = runZJetsEleSel ( iEvent, iSetup );
   //hasPassed = runZJetsMuSel ( iEvent, iSetup );
   //hasPassed = runNJetsSel ( iEvent, iSetup );
   //hasPassed = runH2aaSel ( iEvent, iSetup );
-  if ( !hasPassed ) return;
+  //if ( !hasPassed ) return;
   //runDiPhotonSel ( iEvent, iSetup );
   //runH2aaSel ( iEvent, iSetup );
+  runPiSel ( iEvent, iSetup ); //TODO: add config-level switch
 
   nPreselPassed += vPreselPhoIdxs_.size();
 
@@ -256,7 +259,7 @@ SCRegressor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   // Enforce selection
   if ( debug ) std::cout << " >> nPho: " << nPho << std::endl;
-  if ( nPho == 0 ) return; // Pi/Photon gun selection
+  //if ( nPho == 0 ) return; // Pi/Photon gun selection
   //if ( nPho < 1 ) return; // ZJets physics selection
   //if ( nPho != 2 ) return; // Diphoton physics selection
   if ( debug ) std::cout << " >> Passed cropping. " << std::endl;
@@ -269,15 +272,15 @@ SCRegressor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   //fillNJetsSel ( iEvent, iSetup );
   //fillH2aaSel ( iEvent, iSetup );
   //fillQCDSel ( iEvent, iSetup );
-  //fillSC     ( iEvent, iSetup );
+  fillSC     ( iEvent, iSetup );
   //fillSCaod  ( iEvent, iSetup );
   //fillSCreco ( iEvent, iSetup );
-  //fillEB     ( iEvent, iSetup );
+  fillEB     ( iEvent, iSetup );
   fillEE     ( iEvent, iSetup );
-  fillES     ( iEvent, iSetup );
+  //fillES     ( iEvent, iSetup );
   //fillTracksAtEBEE     ( iEvent, iSetup );
-  fillEEAtES     ( iEvent, iSetup );
-  fillTracksAtES     ( iEvent, iSetup );
+  //fillEEAtES     ( iEvent, iSetup );
+  //fillTracksAtES     ( iEvent, iSetup );
   fillPhoVars     ( iEvent, iSetup );
   //fillEvtWgt     ( iEvent, iSetup );
 

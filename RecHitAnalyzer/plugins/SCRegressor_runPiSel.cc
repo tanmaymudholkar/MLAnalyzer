@@ -21,6 +21,12 @@ void SCRegressor::branchesPiSel ( TTree* tree, edm::Service<TFileService> &fs )
   tree->Branch("SC_pT",     &vSC_pT_);
   tree->Branch("SC_eta",    &vSC_eta_);
   tree->Branch("SC_phi",    &vSC_phi_);
+  tree->Branch("SC_vtx",    &vSC_vtx_);
+  tree->Branch("SC_vtxT",    &vSC_vtxT_);
+  tree->Branch("SC_vtxZ",    &vSC_vtxZ_);
+  tree->Branch("SC_dvtx",   &vSC_dvtx_);
+  tree->Branch("SC_recoIdx",   &vSC_recoIdx_);
+  tree->Branch("SC_boost",   &vSC_boost_);
 
 }
 
@@ -31,6 +37,15 @@ struct pi0_map {
   std::vector<unsigned int> matchedPreselPhoIdxs;
 };
 std::vector<pi0_map> vPi0s;
+
+// Calculate magnitude of distance vector from prodn vtx iGen to prodn vtx iGenPho
+float dv( reco::GenParticleRef iGen, const reco::Candidate* iGenPho ) {
+  float dx = abs(iGen->vx()-iGenPho->vx());
+  float dy = abs(iGen->vy()-iGenPho->vy());
+  float dz = abs(iGen->vz()-iGenPho->vz());
+  float dvtx_ = sqrt(dx*dx + dy*dy + dz*dz);
+  return dvtx_;
+}
 
 // Run event selection ___________________________________________________________________//
 bool SCRegressor::runPiSel ( const edm::Event& iEvent, const edm::EventSetup& iSetup ) {
@@ -47,17 +62,21 @@ bool SCRegressor::runPiSel ( const edm::Event& iEvent, const edm::EventSetup& iS
   // (Assumed that event contains multiple pi0 guns)
   // WARNING: the MINIAODSIM prunedGenParticles collection clips particles with pt < 10 GeV from the truth table!
   float dR;
+  float vtx, dvtx;
   std::vector<unsigned int> vGenPi0Idxs;
   for ( unsigned int iG = 0; iG < genParticles->size(); iG++ ) {
 
     reco::GenParticleRef iGen( genParticles, iG );
     // ID cuts
-    if ( debug ) std::cout << " >> pdgId:"<< iGen->pdgId() << " status:" << iGen->status() << " nDaughters:" << iGen->numberOfDaughters() << std::endl;
+    //if ( debug ) std::cout << " >> pdgId:"<< iGen->pdgId() << " status:" << iGen->status() << " nDaughters:" << iGen->numberOfDaughters() << " vtx:" << vtx <<std::endl;
     if ( std::abs(iGen->pdgId()) != 111 ) continue;
-    if ( debug ) std::cout << " >> pdgId:111 nDaughters:" << iGen->numberOfDaughters() << " pt:" << iGen->pt() << " eta:" << iGen->eta() << std::endl;
+    vtx = sqrt( iGen->vx()*iGen->vx() + iGen->vy()*iGen->vy() + iGen->vz()*iGen->vz() );
+    if ( debug ) std::cout << " >> pdgId:111 nDaughters:" << iGen->numberOfDaughters() << " mass:" << iGen->mass() << " pt:" << iGen->pt() << " eta:" << iGen->eta() << " vtx:" << vtx << std::endl;
     for ( unsigned int iD = 0; iD < iGen->numberOfDaughters(); iD++ ) {
       const reco::Candidate* iGenPho = iGen->daughter(iD);
-      if ( debug ) std::cout << "  >> iD[" << iD <<"]: pdgId:" << iGenPho->pdgId() << " pt:" << iGenPho->pt() << " eta:" << iGenPho->eta() << std::endl;
+      vtx = sqrt( iGenPho->vx()*iGenPho->vx() + iGenPho->vy()*iGenPho->vy() + iGenPho->vz()*iGenPho->vz() );
+      dvtx = dv( iGen, iGenPho );
+      if ( debug ) std::cout << "  >> iD[" << iD <<"]: pdgId:" << iGenPho->pdgId() << " pt:" << iGenPho->pt() << " eta:" << iGenPho->eta() << " vtx:" << vtx << " dvtx:" << dvtx << std::endl;
     }
     if ( iGen->numberOfDaughters() != 2 ) continue;
     //if ( iGen->mass() < 0.8 ) continue;
@@ -65,7 +84,8 @@ bool SCRegressor::runPiSel ( const edm::Event& iEvent, const edm::EventSetup& iS
     // Minimize producing images where second reco photon is out of image window
     // Work backwards from: image window size => reco DR requirement => gen DR requirement
     dR = reco::deltaR( iGen->daughter(0)->eta(),iGen->daughter(0)->phi(), iGen->daughter(1)->eta(),iGen->daughter(1)->phi() );
-    if ( dR > 10*.0174 ) continue;
+    if ( debug ) std::cout << "  >> dR(daughters,xtals):" << dR/0.0174 << std::endl;
+    //if ( dR > 10*.0174 ) continue;
 
     vGenPi0Idxs.push_back( iG );
 
@@ -146,6 +166,7 @@ bool SCRegressor::runPiSel ( const edm::Event& iEvent, const edm::EventSetup& iS
       // minDR only needs to be generous enough so that one of the gen photons match to a reco photon for analysis
       if ( debug && minDR > 0.04 && minDR < 0.08 ) std::cout << "   !!!! minDR > 0.04 && minDR < 0.08" << std::endl;
       if ( minDR > 2*0.04 ) continue;
+      //if ( minDR > 2*0.08 ) continue;
 
       // Declare reco photon matching to gen pi0: only store unique reco idxs
       if ( std::find(vMatchedRecoPhoIdxs.begin(), vMatchedRecoPhoIdxs.end(), minDR_idx) != vMatchedRecoPhoIdxs.end() ) continue;
@@ -155,19 +176,17 @@ bool SCRegressor::runPiSel ( const edm::Event& iEvent, const edm::EventSetup& iS
       // Check if matched reco photon passes preselection:
       PhotonRef iPho( photons, minDR_idx );
       if ( std::abs(iPho->pt()) <= ptCut ) continue;
-      //if ( std::abs(iPho->eta()) >= etaCut ) continue;
-      if ( std::abs(iPho->eta()) > 2.4 ) continue;
-      if ( std::abs(iPho->eta()) < 1.7 ) continue;
+      if ( std::abs(iPho->eta()) >= etaCut ) continue;
+      //if ( std::abs(iPho->eta()) > 2.4 ) continue;
+      //if ( std::abs(iPho->eta()) < 1.7 ) continue;
 
-      /*
+      ///*
       if ( iPho->full5x5_r9() <= 0.5 ) continue;
       if ( iPho->hadTowOverEm() >= 0.08 ) continue;
       if ( iPho->hasPixelSeed() == true ) continue;
-      */
       //if ( iPho->passElectronVeto() == true ) continue;
       //if ( iPho->userFloat("phoChargedIsolation")/std::abs(iPho->pt()) > 0.3 ) continue;
 
-      /*
       if ( iPho->full5x5_r9() <= 0.85 ) {
         if ( iPho->full5x5_sigmaIetaIeta() >= 0.015 ) continue;
         //if ( iPho->userFloat("phoPhotonIsolation") >= 4.0 ) continue;
@@ -175,7 +194,7 @@ bool SCRegressor::runPiSel ( const edm::Event& iEvent, const edm::EventSetup& iS
         if ( iPho->trkSumPtHollowConeDR03() >= 6. ) continue;
         //if ( iPho->trackIso() >= 6. ) continue;
       }
-      */
+      //*/
       vMatchedPreselPhoIdxs.push_back( minDR_idx );
       if ( debug ) std::cout << " >> presel photon: pT: " << iPho->pt() << " eta: " << iPho->eta() << std::endl;
 
@@ -210,8 +229,8 @@ bool SCRegressor::runPiSel ( const edm::Event& iEvent, const edm::EventSetup& iS
     if ( iPi0.matchedRecoPhoIdxs.size() == 2 ) {
       PhotonRef iPho( photons, iPi0.matchedRecoPhoIdxs[0] );
       PhotonRef jPho( photons, iPi0.matchedRecoPhoIdxs[1] );
-      dR = reco::deltaR( iPho->eta(),iPho->phi(), jPho->eta(),jPho->phi() );
-      if ( dR > 16*.0174 ) continue;
+      dR = std::abs( reco::deltaR( iPho->eta(),iPho->phi(), jPho->eta(),jPho->phi() ) );
+      if ( dR > 16*.0174 ) continue; // outside of image window
     }
     vPreselPhoIdxs_.push_back( iPi0.matchedPreselPhoIdxs[0] );
 
@@ -242,19 +261,29 @@ void SCRegressor::fillPiSel ( const edm::Event& iEvent, const edm::EventSetup& i
   vSC_pT_.clear();
   vSC_eta_.clear();
   vSC_phi_.clear();
+  vSC_vtx_.clear();
+  vSC_vtxT_.clear();
+  vSC_vtxZ_.clear();
+  vSC_dvtx_.clear();
+  vSC_recoIdx_.clear();
+  vSC_boost_.clear();
+  float vtx, dvtx;
+  float vtxT, vtxZ;
   float dEta, dPhi, dR, mPi0, ptPi0;
+  float recoDR;
+  int recoDR_idx;
   for ( auto const& iPi0 : vPi0s ) {
 
     // Skip pi0s which are not valid for regression
-    if ( iPi0.matchedPreselPhoIdxs.empty() || iPi0.matchedPreselPhoIdxs.size() > 1 ) continue;
-    if ( std::find(vRegressPhoIdxs_.begin(), vRegressPhoIdxs_.end(), iPi0.matchedPreselPhoIdxs[0]) == vRegressPhoIdxs_.end() ) continue;
+    //if ( iPi0.matchedPreselPhoIdxs.empty() || iPi0.matchedPreselPhoIdxs.size() > 1 ) continue;
+    //if ( std::find(vRegressPhoIdxs_.begin(), vRegressPhoIdxs_.end(), iPi0.matchedPreselPhoIdxs[0]) == vRegressPhoIdxs_.end() ) continue;
 
     reco::GenParticleRef iGen( genParticles, iPi0.idx );
     mPi0 = iGen->mass();
     ptPi0 = iGen->pt();
-    dR = reco::deltaR( iGen->daughter(0)->eta(),iGen->daughter(0)->phi(), iGen->daughter(1)->eta(),iGen->daughter(1)->phi() );
+    dR = std::abs( reco::deltaR( iGen->daughter(0)->eta(),iGen->daughter(0)->phi(), iGen->daughter(1)->eta(),iGen->daughter(1)->phi() ) );
     dEta = std::abs( iGen->daughter(0)->eta() - iGen->daughter(1)->eta() );
-    dPhi = reco::deltaPhi( iGen->daughter(0)->phi(), iGen->daughter(1)->phi() );
+    dPhi = std::abs( reco::deltaPhi( iGen->daughter(0)->phi(), iGen->daughter(1)->phi() ) );
     //if ( debug ) std::cout << " >> m0:" << mPi0 << " dR:" << dR << " dPhi:" << dPhi << std::endl;
     std::cout << " >> m0:" << mPi0 << " eta:" << iGen->eta() << " dRxtal:" << dR/0.0174 << " dPhixtal:" << dPhi/0.0174 << " dEtaxtal:" << dEta/0.0174 << std::endl;
     //std::cout << " >> m0:" << mPi0 << " eta:" << iGen->eta() << " dX:" << std::abs(iGen->daughter(0)->x()-iGen->daughter(1)->x()) 
@@ -267,11 +296,45 @@ void SCRegressor::fillPiSel ( const edm::Event& iEvent, const edm::EventSetup& i
     vSC_eta_.push_back( iGen->eta() );
     vSC_phi_.push_back( iGen->phi() );
 
+    // WARNING: vertex coords in cmssw are in units of cm
+    // whereas in Pythia ctau units are in mm!
+    for ( unsigned int iD = 0; iD < iGen->numberOfDaughters(); iD++ ) {
+      const reco::Candidate* iGenPho = iGen->daughter(iD);
+      // Get distance from IP(0,0,0) to diphoton prodn vtx (same as pi0 decay vtx)
+      vtx = sqrt( iGenPho->vx()*iGenPho->vx() + iGenPho->vy()*iGenPho->vy() + iGenPho->vz()*iGenPho->vz() ); // cm
+      vtxT = sqrt( iGenPho->vx()*iGenPho->vx() + iGenPho->vy()*iGenPho->vy() ); // cm
+      vtxZ = sqrt( iGenPho->vz()*iGenPho->vz() ); // cm
+      // Get distance from pi0 prod vtx to pi0 decay vtx -> actual pi0 decay length in lab frame cT = gamma*cTau
+      // where gamma is the Lorentz gamma and Tau is the proper lifetime (i.e. lifetime of pi0 in its rest frame)
+      dvtx = dv( iGen, iGenPho ); // cm
+    }
+    vSC_vtx_.push_back( vtx );
+    vSC_vtxT_.push_back( vtxT );
+    vSC_vtxZ_.push_back( vtxZ );
+    vSC_dvtx_.push_back( dvtx );
+    vSC_boost_.push_back( iGen->energy()/mPi0 ); // Lorentz gamma
+
     //hPt->Fill( ptPi0 );
     hdPhidEtaM->Fill( dPhi, dEta, mPi0 );
     //hnPho->Fill( mPi0, iGen->pt() );
     hnPho->Fill( mPi0, ptPi0 );
     //hSC_mass->Fill( mPi0 );
+
+    // Get index to dR-matched preselected photon
+    recoDR = 2*0.04;
+    recoDR_idx = -1;
+    // Want vA_recoIdx_ to store vector index in vRegressPhoIdxs_
+    // i.e., vRegressPhoIdxs_[0]:leading reco pho, vRegressPhoIdxs_[1]:sub-leading reco pho
+    // not position in original photon collection
+    for ( unsigned int iP = 0; iP < vRegressPhoIdxs_.size(); iP++ ) {
+      PhotonRef iPho( photons, vRegressPhoIdxs_[iP] );
+      dR = std::abs( reco::deltaR(iGen->eta(),iGen->phi(), iPho->eta(),iPho->phi()) );
+      if ( dR < recoDR ) {
+        recoDR = dR;
+        recoDR_idx = iP;
+      }
+    } // reco pho
+    vSC_recoIdx_.push_back( recoDR_idx );
 
   } // gen pi0s
 
