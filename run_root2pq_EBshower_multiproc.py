@@ -32,8 +32,9 @@ wgt_files = args.wgt_files
 #xrootd='root://cmsxrootd.fnal.gov' # FNAL
 xrootd='root://cmseos.fnal.gov' # FNAL
 #xrootd='root://eoscms.cern.ch' # CERN
-eosDir='/eos/uscms/store/user/lpcml/mandrews/IMG'
+#eosDir='/eos/uscms/store/user/lpcml/mandrews/IMG'
 #eosDir='/eos/uscms/store/user/lpcml/mandrews'
+eosDir='/eos/uscms/store/user/lpcml/mandrews/2017/LLGuns_v1'
 
 # a vs jet tagging
 #decay = 'GJet_Pt-20to40_DoubleEMEnriched_MGG-80toInf_TuneCP5_13TeV_Pythia8_MINIAODSIM_pt20'
@@ -44,10 +45,12 @@ eosDir='/eos/uscms/store/user/lpcml/mandrews/IMG'
 #date_str = '190807_191707'
 #date_str = '190809_012432'
 #date_str = '190814_223546'
-decay = 'DoublePi0Pt10To100_m0To1600_pythia8_ReAOD_PU2017_MINIAODSIM_wrapfix'
+#decay = 'DoublePi0Pt10To100_m0To1600_pythia8_ReAOD_PU2017_MINIAODSIM_wrapfix'
 #decay = 'DoublePhotonPt10To100_pythia8_ReAOD_PU2017_MINIAODSIM_wrapfix'
-date_str = '190615_070741'
+#date_str = '190615_070741'
 #date_str = '190615_235251'
+decay = 'OctoPi0_e60_m200_ctau0To4_eta0To1p4_noPU_AODSIM'
+date_str = '200807_222729'
 
 # Paths to input files
 rhFileList = '%s/%s/%s/*/output_*.root'%(eosDir, decay, date_str)
@@ -75,7 +78,8 @@ if not os.path.isdir(outDir):
     os.makedirs(outDir)
 print(' >> Output directory: %s'%outDir)
 
-proc_file = 'convert_root2pq_EBshower.py'
+#proc_file = 'convert_root2pq_EBshower.py'
+proc_file = 'convert_root2pq_EBshower_LL.py'
 if wgt_files is not None:
     #processes = ['%s -i %s -o %s -d %s -n %d -w %s'%(proc_file, rhFile, outDir, decay, i+1, wgt_files) for i,rhFile in enumerate(rhFileList)]
     #processes = ['%s -i %s -o %s -d %s -n %d -w %s'%(proc_file, rhFile, outDir, decay, i+1, ' '.join(wgt_files)) for i,rhFile in enumerate(rhFileList)]

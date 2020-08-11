@@ -275,8 +275,8 @@ void SCRegressor::fillPiSel ( const edm::Event& iEvent, const edm::EventSetup& i
   for ( auto const& iPi0 : vPi0s ) {
 
     // Skip pi0s which are not valid for regression
-    //if ( iPi0.matchedPreselPhoIdxs.empty() || iPi0.matchedPreselPhoIdxs.size() > 1 ) continue;
-    //if ( std::find(vRegressPhoIdxs_.begin(), vRegressPhoIdxs_.end(), iPi0.matchedPreselPhoIdxs[0]) == vRegressPhoIdxs_.end() ) continue;
+    if ( iPi0.matchedPreselPhoIdxs.empty() || iPi0.matchedPreselPhoIdxs.size() > 1 ) continue;
+    if ( std::find(vRegressPhoIdxs_.begin(), vRegressPhoIdxs_.end(), iPi0.matchedPreselPhoIdxs[0]) == vRegressPhoIdxs_.end() ) continue;
 
     reco::GenParticleRef iGen( genParticles, iPi0.idx );
     mPi0 = iGen->mass();
@@ -285,7 +285,7 @@ void SCRegressor::fillPiSel ( const edm::Event& iEvent, const edm::EventSetup& i
     dEta = std::abs( iGen->daughter(0)->eta() - iGen->daughter(1)->eta() );
     dPhi = std::abs( reco::deltaPhi( iGen->daughter(0)->phi(), iGen->daughter(1)->phi() ) );
     //if ( debug ) std::cout << " >> m0:" << mPi0 << " dR:" << dR << " dPhi:" << dPhi << std::endl;
-    std::cout << " >> m0:" << mPi0 << " eta:" << iGen->eta() << " dRxtal:" << dR/0.0174 << " dPhixtal:" << dPhi/0.0174 << " dEtaxtal:" << dEta/0.0174 << std::endl;
+    //if ( debug ) std::cout << " >> m0:" << mPi0 << " eta:" << iGen->eta() << " dRxtal:" << dR/0.0174 << " dPhixtal:" << dPhi/0.0174 << " dEtaxtal:" << dEta/0.0174 << std::endl;
     //std::cout << " >> m0:" << mPi0 << " eta:" << iGen->eta() << " dX:" << std::abs(iGen->daughter(0)->x()-iGen->daughter(1)->x()) 
     //  << " dY:" << std::abs(iGen->daughter(0)->y()-iGen->daughter(1)->y()) << std::endl;
 
