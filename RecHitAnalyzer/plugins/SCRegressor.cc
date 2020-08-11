@@ -135,17 +135,17 @@ SCRegressor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   bool hasPassed;
   vPreselPhoIdxs_.clear();
   nTotal += nPhotons;
-  //hasPassed = runPiSel ( iEvent, iSetup ); //TODO: add config-level switch
+  hasPassed = runPiSel ( iEvent, iSetup ); //TODO: add config-level switch
   //hasPassed = runPhotonSel ( iEvent, iSetup );
   //hasPassed = runDiPhotonSel ( iEvent, iSetup );
   //hasPassed = runZJetsEleSel ( iEvent, iSetup );
   //hasPassed = runZJetsMuSel ( iEvent, iSetup );
   //hasPassed = runNJetsSel ( iEvent, iSetup );
   //hasPassed = runH2aaSel ( iEvent, iSetup );
-  //if ( !hasPassed ) return;
+  if ( !hasPassed ) return;
   //runDiPhotonSel ( iEvent, iSetup );
   //runH2aaSel ( iEvent, iSetup );
-  runPiSel ( iEvent, iSetup ); //TODO: add config-level switch
+  //runPiSel ( iEvent, iSetup ); //TODO: add config-level switch
 
   nPreselPassed += vPreselPhoIdxs_.size();
 
@@ -259,7 +259,7 @@ SCRegressor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   // Enforce selection
   if ( debug ) std::cout << " >> nPho: " << nPho << std::endl;
-  //if ( nPho == 0 ) return; // Pi/Photon gun selection
+  if ( nPho == 0 ) return; // Pi/Photon gun selection
   //if ( nPho < 1 ) return; // ZJets physics selection
   //if ( nPho != 2 ) return; // Diphoton physics selection
   if ( debug ) std::cout << " >> Passed cropping. " << std::endl;
