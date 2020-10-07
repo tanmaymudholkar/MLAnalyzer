@@ -60,9 +60,8 @@ SCRegressor::SCRegressor(const edm::ParameterSet& iConfig)
   branchesDiPhotonSel ( RHTree, fs );
   //branchesZJetsEleSel ( RHTree, fs );
   //branchesZJetsMuSel ( RHTree, fs );
-  //branchesNJetsSel ( RHTree, fs );
-  //branchesH2aaSel ( RHTree, fs );
-  //branchesQCDSel ( RHTree, fs );
+  //branchesNJetsSel ( RHTree, fs );// branchesH2aaSel ( RHTree, fs );
+   branchesH2aaSel ( RHTree, fs );
   branchesSC     ( RHTree, fs );
   //branchesSCaod  ( RHTree, fs );
   //branchesSCreco ( RHTree, fs );
@@ -134,7 +133,7 @@ SCRegressor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   //hasPassed = runH2aaSel ( iEvent, iSetup );
   if ( !hasPassed ) return;
   //runDiPhotonSel ( iEvent, iSetup );
-  //runH2aaSel ( iEvent, iSetup );
+  runH2aaSel ( iEvent, iSetup );
 
   nPreselPassed += vPreselPhoIdxs_.size();
 
@@ -210,8 +209,9 @@ SCRegressor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   if ( debug ) std::cout << " >> nPho: " << nPho << std::endl;
   //if ( nPho == 0 ) return; // Pi/Photon gun selection
   //if ( nPho < 1 ) return; // ZJets physics selection
-  if ( nPho != 2 ) return; // Diphoton physics selection
-  if ( debug ) std::cout << " >> Passed cropping. " << std::endl;
+  //if ( nPho != 2 ) return; // Diphoton physics selection
+  if ( nPho != 1 ) return; // Ab Merged 
+if ( debug ) std::cout << " >> Passed cropping. " << std::endl;
 
   //fillPiSel ( iEvent, iSetup );
   //fillPhotonSel ( iEvent, iSetup );
@@ -219,7 +219,7 @@ SCRegressor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   //fillZJetsEleSel ( iEvent, iSetup );
   //fillZJetsMuSel ( iEvent, iSetup );
   //fillNJetsSel ( iEvent, iSetup );
-  //fillH2aaSel ( iEvent, iSetup );
+  fillH2aaSel ( iEvent, iSetup );
   //fillQCDSel ( iEvent, iSetup );
   fillSC     ( iEvent, iSetup );
   //fillSCaod  ( iEvent, iSetup );

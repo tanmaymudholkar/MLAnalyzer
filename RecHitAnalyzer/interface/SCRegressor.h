@@ -72,10 +72,10 @@ using pat::ElectronCollection;
 using pat::ElectronRef;
 using pat::JetCollection;
 using pat::JetRef;
-using pat::PhotonCollection;
-using pat::PhotonRef;
-//using reco::PhotonCollection;
-//using reco::PhotonRef;
+//using pat::PhotonCollection;
+//using pat::PhotonRef;
+using reco::PhotonCollection;
+using reco::PhotonRef;
 
 // If the analyzer does not use TFileService, please remove
 // the template argument to the base class so the class inherits
@@ -268,11 +268,15 @@ class SCRegressor : public edm::one::EDAnalyzer<edm::one::SharedResources>  {
     std::vector<float> vA_phi_;
     std::vector<float> vA_mass_;
     std::vector<float> vA_DR_;
+    std::vector<float> vAA_DR_;
     std::vector<float> vA_recoIdx_;
     std::vector<float> vA_pdgId_;
     std::vector<float> vA_mothPdgId_;
     std::vector<float> vA_jetM_;
     std::vector<float> vA_status_;
+    std::vector<float> vdPhi_;
+    std::vector<float> vdEta_;
+    std::vector<float> vGen_E_;
     float mHgen_;
 
     std::vector<float> vOutPart_pdgId_;
@@ -290,7 +294,10 @@ class SCRegressor : public edm::one::EDAnalyzer<edm::one::SharedResources>  {
     TH1F * hNpassed_nRecoPho;
     TH1F * hNpassed_hlt;
     TH1F * hNpassed_img;
-
+    TH1F * hNpassed_pt0mGG;
+    TH1F * hFill_PairMatch;
+    TH1F * hFill_Gmatch;
+    TH1F * hFill_Amatch;
     //TProfile2D * hnPho;
     TH2F * hnPho;
     TH2F * hnPhoGt2;
@@ -303,6 +310,12 @@ class SCRegressor : public edm::one::EDAnalyzer<edm::one::SharedResources>  {
     TH1F * hJetNeuM;
 
     float m0_;
+   // float mA_;
+   // float mA1_; 
+    std::vector<float> vGenMatch_;
+    std::vector<float> mA_;
+    std::vector<float> mA1_;
+    std::vector<float> mA2_;
     std::vector<float> vFC_inputs_;
     int hltAccept_;
     unsigned int nRecoPho_;

@@ -93,7 +93,7 @@ bool SCRegressor::runZJetsEleSel ( const edm::Event& iEvent, const edm::EventSet
     ///*
     if ( iPho->full5x5_r9() <= 0.85 ) {
       if ( iPho->full5x5_sigmaIetaIeta() >= 0.015 ) continue;
-      if ( iPho->userFloat("phoPhotonIsolation") >= 4.0 ) continue;
+      //if ( iPho->userFloat("phoPhotonIsolation") >= 4.0 ) continue;
       //if ( iPho->photonIso() >= 4.0 ) continue;
       if ( iPho->trkSumPtHollowConeDR03() >= 6. ) continue;
       //if ( iPho->trackIso() >= 6. ) continue;

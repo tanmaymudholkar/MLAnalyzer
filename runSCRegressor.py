@@ -65,6 +65,9 @@ inputFiles_='/store/mc/RunIIFall17MiniAODv2/DiPhotonJets_MGG-80toInf_13TeV_amcat
 #inputFiles_='/store/mc/RunIIFall17MiniAODv2/QCD_Pt-40toInf_DoubleEMEnriched_MGG-80toInf_TuneCP5_13TeV_Pythia8/MINIAODSIM/PU2017_12Apr2018_94X_mc2017_realistic_v14-v1/10000/0C57DB95-FA41-E811-B58D-008CFAFBEBF2.root'
 #root://cmsxrootd-site.fnal.gov
 
+inputFiles_= 'file:/RecHitAnalyzer/python/40DFD167-1075-E811-921B-02163E01A0B1.root'
+
+
 maxEvents_=-1
 #maxEvents_=1000
 #maxEvents_=100

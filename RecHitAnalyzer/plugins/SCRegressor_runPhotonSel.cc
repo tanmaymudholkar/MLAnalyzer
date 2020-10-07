@@ -124,7 +124,7 @@ bool SCRegressor::runPhotonSel ( const edm::Event& iEvent, const edm::EventSetup
     ///*
     if ( iRecoPho->full5x5_r9() <= 0.85 ) {
       if ( iRecoPho->full5x5_sigmaIetaIeta() >= 0.015 ) continue;
-      if ( iRecoPho->userFloat("phoPhotonIsolation") >= 4.0 ) continue;
+      //if ( iRecoPho->userFloat("phoPhotonIsolation") >= 4.0 ) continue;
       //if ( iRecoPho->photonIso() >= 4.0 ) continue;
       if ( iRecoPho->trkSumPtHollowConeDR03() >= 6. ) continue;
       //if ( iRecoPho->trackIso() >= 6. ) continue;

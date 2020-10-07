@@ -1,5 +1,4 @@
 #include "MLAnalyzer/RecHitAnalyzer/interface/SCRegressor.h"
-
 // Initialize branches _____________________________________________________//
 void SCRegressor::branchesPhoVars ( TTree* tree, edm::Service<TFileService> &fs )
 {
@@ -68,7 +67,7 @@ void SCRegressor::fillPhoVars ( const edm::Event& iEvent, const edm::EventSetup&
     vPho_E_.push_back( iPho->energy() );
     vPho_eta_.push_back( iPho->eta() );
     vPho_phi_.push_back( iPho->phi() );
-    vPho_ecalEPostCorr_.push_back( iPho->userFloat("ecalEnergyPostCorr") );
+    //vPho_ecalEPostCorr_.push_back( iPho->userFloat("ecalEnergyPostCorr") );
     //std::cout << ">> PRESEL pho["<<iP<<"]: pt:" << iPho->pt() << " eta:" << iPho->eta() << " phi:" << iPho->phi() << std::endl;
   } // photons
 
@@ -123,7 +122,7 @@ void SCRegressor::fillPhoVars ( const edm::Event& iEvent, const edm::EventSetup&
     vPho_chgIso_.push_back(         iPho->chargedHadronIso() );
     vPho_chgIsoWrongVtx_.push_back( iPho->chargedHadronIsoWrongVtx() );
     */
-    ///*
+    /*
     // Only valid for ECAL barrel
     float EAPho = iPho->eta() < 1.0 ? 0.1113 : 0.0953;
     float EAChg = iPho->eta() < 1.0 ? 0.0112 : 0.0108;
@@ -139,9 +138,9 @@ void SCRegressor::fillPhoVars ( const edm::Event& iEvent, const edm::EventSetup&
 
     vPho_neuIsoCorr_.push_back(     std::max(iPho->userFloat("phoNeutralHadronIsolation") - rho*EANeu, (float)0.) );
     vPho_chgIsoCorr_.push_back(     std::max(iPho->userFloat("phoChargedIsolation") - rho*EAChg, (float)0.) );
-    vPho_bdt_.push_back(            iPho->userFloat("PhotonMVAEstimatorRunIIFall17v2Values")); // need to run EGamma post-reco tools
-    //vPho_bdt_.push_back(            iPho->userFloat("PhotonMVAEstimatorRunIIFall17v1p1Values"));
-    //*/
+    //vPho_bdt_.push_back(            iPho->userFloat("PhotonMVAEstimatorRunIIFall17v2Values")); // need to run EGamma post-reco tools
+    vPho_bdt_.push_back(            iPho->userFloat("PhotonMVAEstimatorRunIIFall17v1p1Values"));
+    */
 
     /*
     std::cout << "HoE:" << iPho->hadTowOverEm() << std::endl;

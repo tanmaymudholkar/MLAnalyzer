@@ -26,5 +26,5 @@ cmd="cmsRun %s inputFiles_load=%s maxEvents=%d skipEvents=%d outputFile=%s/IMGs/
 #cmd="cmsRun %s inputFiles_load=%s maxEvents=%d skipEvents=%d outputFile=test_IMG.root"%(cfg,listname,maxEvents_,skipEvents_)
 #print '%s'%cmd
 os.system(cmd)
-
+#test
 #os.system('mv cEB*.eps %s/'%(inputTag))
