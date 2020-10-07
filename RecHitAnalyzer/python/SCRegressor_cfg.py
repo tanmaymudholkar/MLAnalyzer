@@ -45,7 +45,8 @@ process.source = cms.Source("PoolSource",
       #'file:SinglePhotonPt50_FEVTDEBUG.root'
       #'file:SingleElectronPt50_FEVTDEBUG.root'
       #'file:/eos/uscms/store/user/mba2012/FEVTDEBUG/H125GGgluonfusion_13TeV_TuneCUETP8M1_FEVTDEBUG/*/*/step_full_*.root'
-      options.inputFiles
+       #'file:15GeV_Ma_MC_MiniAOD.root'
+       options.inputFiles
       )
     , skipEvents = cms.untracked.uint32(options.skipEvents)
     #, eventsToProcess = cms.untracked.VEventRange('1:6931:1723687928','1:6932:1723895372')
@@ -66,9 +67,9 @@ process.es_prefer_GlobalTag = cms.ESPrefer('PoolDBESSource','GlobalTag')
 process.fevt = cms.EDAnalyzer('SCRegressor'
     #, EBRecHitCollection = cms.InputTag('ecalRecHit:EcalRecHitsEB')
     , gsfElectronCollection = cms.InputTag('gedGsfElectrons')
-    #, photonCollection = cms.InputTag('gedPhotons')
-    , photonCollection = cms.InputTag('slimmedPhotons')
-    , jetCollection = cms.InputTag('slimmedJets')
+    , photonCollection = cms.InputTag('gedPhotons')
+    #, photonCollection = cms.InputTag('slimmedPhotons')
+    , jetCollection = cms.InputTag('slimedJets')
     , muonCollection = cms.InputTag('slimmedMuons')
     , electronCollection = cms.InputTag('slimmedElectrons')
     , EBRecHitCollection = cms.InputTag('ecalRecHit:EcalRecHitsEB')
@@ -108,7 +109,9 @@ process.hltFilter = cms.EDFilter("HLTHighLevel",
                                           )
 
 ### fix a bug in the ECAL-Tracker momentum combination when applying the scale and smearing
-from RecoEgamma.EgammaTools.EgammaPostRecoTools import setupEgammaPostRecoSeq
+#from RecoEgamma.EgammaTools.EgammaPostRecoTools import setupEgammaPostRecoSeq
+#from EgammaUser.EgammaPostRecoTools.EgammaPostRecoTools import setupEgammaPostRecoSeq
+'''
 setupEgammaPostRecoSeq(process,
                        runVID=True,
                        era='2017-Nov17ReReco',
@@ -119,20 +122,21 @@ setupEgammaPostRecoSeq(process,
                        phoIDModules=['RecoEgamma.PhotonIdentification.Identification.mvaPhotonID_Fall17_94X_V2_cff',
                                      'RecoEgamma.PhotonIdentification.Identification.cutBasedPhotonID_Fall17_94X_V2_cff']
                        )
-
+'''
 ### reduce effect of high eta EE noise on the PF MET measurement
+'''
 from PhysicsTools.PatUtils.tools.runMETCorrectionsAndUncertainties import runMetCorAndUncFromMiniAOD
 runMetCorAndUncFromMiniAOD (
         process,
         isData = False, # false for MC
         fixEE2017 = True,
         fixEE2017Params = {'userawPt': True, 'ptThreshold':50.0, 'minEtaThreshold':2.65, 'maxEtaThreshold': 3.139} ,
-        postfix = "ModifiedMET"
+#        postfix = "ModifiedMET"
 )
-
+'''
 process.p = cms.Path(
   #process.hltFilter*
-  process.fullPatMetSequenceModifiedMET*
-  process.egammaPostRecoSeq*
+#  process.fullPatMetSequenceModifiedMET*
+ # process.egammaPostRecoSeq*
   process.fevt
 )
