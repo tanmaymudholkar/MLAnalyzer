@@ -20,7 +20,7 @@ TH1D *dRwb;
 TH1D *reco_Jet_m;
 
 TProfile2D  *meanGenLevelDeltaR;
-TProfile2D  *meanGenLevelDeltaR_1;
+TH2F  *meanGenLevelDeltaR_1;
 
 
 vector<float> vDijet_jet_pT_;
@@ -75,7 +75,7 @@ void RecHitAnalyzer::branchesEvtSel_jet_dijet( TTree* tree, edm::Service<TFileSe
 
   meanGenLevelDeltaR = fs->make<TProfile2D>("meanGenLevelDeltaR", "Profile of mean Gen_Level Delta R",10, 70.,270.,10,0.,1500.);
 
-  meanGenLevelDeltaR_1 = fs->make<TProfile2D>("meanGenLevelDeltaR", "Profile of mean Gen_Level Delta R",10, 70.,270.,10,0.,1500.);
+  meanGenLevelDeltaR_1 = fs->make<TH2F>("top_genptvm_occupancy", "Profile of mean Gen_Level Delta R",12, 43.5, 541.5, 12, 340., 1060.);
 
   tree->Branch("jetPt",  &vDijet_jet_pT_);
   tree->Branch("jetM",   &vDijet_jet_m0_);
