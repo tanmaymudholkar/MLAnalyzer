@@ -167,8 +167,8 @@ bool RecHitAnalyzer::runEvtSel_jet_dijet( const edm::Event& iEvent, const edm::E
     // Loop over reconstructed jets
     for ( unsigned iJ(0); iJ != jets->size(); ++iJ ) {
       reco::PFJetRef iJet( jets, iJ );
-      //if ( std::abs(iJet->pt())  < minJetPt_ ) continue;
-      //if ( std::abs(iJet->eta()) > maxJetEta_ ) continue;
+      if ( std::abs(iJet->pt())  < minJetPt_ ) continue;
+      if ( std::abs(iJet->eta()) > maxJetEta_ ) continue;
       dR = reco::deltaR( iJet->eta(),iJet->phi(), iGen->eta(), iGen->phi() );
       ir += 1;
       dR_sum +=dR;

@@ -3,7 +3,7 @@ config = config()
 # See parameter defintions here: https://twiki.cern.ch/twiki/bin/view/CMSPublic/CRAB3ConfigurationFile#CRAB_configuration_parameters
 
 idx = '00000'
-CFG = 'QCD_Pt_80_170_%s'%idx
+CFG = 'QCD_Pt_80_170_v2_%s'%idx
 
 # To submit to crab:
 # crab submit -c crabConfig_data.py
@@ -36,5 +36,5 @@ config.Data.publication = False
 config.Site.storageSite = 'T3_US_FNALLPC'
 #config.Site.storageSite = 'T2_CH_CERN'
 config.Data.outLFNDirBase = '/store/group/lpcml/' # add your username as subdirectory
-config.Data.outputPrimaryDataset = 'Run2017_v1'
+config.Data.outputPrimaryDataset = 'Run2017_v2'
 config.Data.outputDatasetTag = config.General.requestName
