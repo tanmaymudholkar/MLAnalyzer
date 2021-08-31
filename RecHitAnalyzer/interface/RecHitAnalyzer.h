@@ -28,10 +28,10 @@
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 
-#include "DataFormats/SiStripDetId/interface/TOBDetId.h"
-#include "DataFormats/SiStripDetId/interface/TECDetId.h"
-#include "DataFormats/SiStripDetId/interface/TIBDetId.h"
-#include "DataFormats/SiStripDetId/interface/TIDDetId.h"
+/* #include "DataFormats/SiStripDetId/interface/TOBDetId.h" */
+/* #include "DataFormats/SiStripDetId/interface/TECDetId.h" */
+/* #include "DataFormats/SiStripDetId/interface/TIBDetId.h" */
+/* #include "DataFormats/SiStripDetId/interface/TIDDetId.h" */
 #include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
 #include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
@@ -203,10 +203,10 @@ class RecHitAnalyzer : public edm::one::EDAnalyzer<edm::one::SharedResources>  {
 static const bool debug = false;
 
 static const int nEE = 2;
-static const int nTOB = 6;
-static const int nTEC = 9;
-static const int nTIB = 4;
-static const int nTID = 3;
+/* static const int nTOB = 6; */
+/* static const int nTEC = 9; */
+/* static const int nTIB = 4; */
+/* static const int nTID = 3; */
 static const int nBPIX = 4;
 static const int nFPIX = 3;
 
