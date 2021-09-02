@@ -14,6 +14,8 @@
 
 // system include files
 #include <memory>
+#include <cmath>
+#include <cassert>
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -61,9 +63,11 @@
 #include "DataFormats/Math/interface/deltaPhi.h"
 #include "Calibration/IsolatedParticles/interface/DetIdFromEtaPhi.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterLazyTools.h"
+#include "Calibration/IsolatedParticles/interface/CaloConstants.h"
 
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
 #include "SimDataFormats/GeneratorProducts/interface/LHEEventProduct.h"
+
 //
 // class declaration
 //
@@ -279,6 +283,21 @@ class SCRegressor : public edm::one::EDAnalyzer<edm::one::SharedResources>  {
     std::vector<float> vSC_pT_;
     std::vector<float> vSC_eta_;
     std::vector<float> vSC_phi_;
+    std::vector<float> vSC_genX_;
+    std::vector<float> vSC_genY_;
+    std::vector<float> vSC_genZ_;
+    std::vector<float> vSC_daughter1_E_;
+    std::vector<float> vSC_daughter1_pT_;
+    std::vector<float> vSC_daughter1_eta_;
+    std::vector<float> vSC_daughter1_phi_;
+    std::vector<float> vSC_daughter1_projEE_X_;
+    std::vector<float> vSC_daughter1_projEE_Y_;
+    std::vector<float> vSC_daughter2_E_;
+    std::vector<float> vSC_daughter2_pT_;
+    std::vector<float> vSC_daughter2_eta_;
+    std::vector<float> vSC_daughter2_phi_;
+    std::vector<float> vSC_daughter2_projEE_X_;
+    std::vector<float> vSC_daughter2_projEE_Y_;
 
     std::vector<float> vA_E_;
     std::vector<float> vA_pT_;
@@ -329,6 +348,7 @@ class SCRegressor : public edm::one::EDAnalyzer<edm::one::SharedResources>  {
 
     ESDetId ESId_from_EtaPhi( float& eta, float& phi, const CaloGeometry* caloGeom );
 
+    std::tuple<float, float> get_xy_at_given_z_from_eta_phi(const float & z, const float & eta, const float & phi);
 };
 
 //

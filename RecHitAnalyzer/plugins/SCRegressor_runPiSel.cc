@@ -21,7 +21,21 @@ void SCRegressor::branchesPiSel ( TTree* tree, edm::Service<TFileService> &fs )
   tree->Branch("SC_pT",     &vSC_pT_);
   tree->Branch("SC_eta",    &vSC_eta_);
   tree->Branch("SC_phi",    &vSC_phi_);
-
+  tree->Branch("SC_genX",    &vSC_genX_);
+  tree->Branch("SC_genY",    &vSC_genY_);
+  tree->Branch("SC_genZ",    &vSC_genZ_);
+  tree->Branch("SC_daughter1_E",      &vSC_daughter1_E_);
+  tree->Branch("SC_daughter1_pT",     &vSC_daughter1_pT_);
+  tree->Branch("SC_daughter1_eta",    &vSC_daughter1_eta_);
+  tree->Branch("SC_daughter1_phi",    &vSC_daughter1_phi_);
+  tree->Branch("SC_daughter1_projEE_X",     &vSC_daughter1_projEE_X_);
+  tree->Branch("SC_daughter1_projEE_Y",     &vSC_daughter1_projEE_Y_);
+  tree->Branch("SC_daughter2_E",      &vSC_daughter2_E_);
+  tree->Branch("SC_daughter2_pT",     &vSC_daughter2_pT_);
+  tree->Branch("SC_daughter2_eta",    &vSC_daughter2_eta_);
+  tree->Branch("SC_daughter2_phi",    &vSC_daughter2_phi_);
+  tree->Branch("SC_daughter2_projEE_X",     &vSC_daughter2_projEE_X_);
+  tree->Branch("SC_daughter2_projEE_Y",     &vSC_daughter2_projEE_Y_);
 }
 
 // Define struct to handle mapping for gen pi0<->matched reco photons<->matched presel photons
@@ -225,6 +239,19 @@ bool SCRegressor::runPiSel ( const edm::Event& iEvent, const edm::EventSetup& iS
 
 } // runPiSel()
 
+// Helper function
+std::tuple<float, float> SCRegressor::get_xy_at_given_z_from_eta_phi(const float & z, const float & eta, const float & phi) {
+  assert(z > 0.);
+  assert(eta > 0.);
+  float theta = 2.0*std::atan(std::exp(-eta));
+  // tan(theta) = r_cyl / z
+  float r_cyl = z * std::tan(theta);
+  assert(r_cyl > 0.);
+  float x = r_cyl * std::cos(phi);
+  float y = r_cyl * std::sin(phi);
+  return std::make_tuple(x, y);
+}
+
 // Fill branches ___________________________________________________________________//
 void SCRegressor::fillPiSel ( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 {
@@ -242,6 +269,21 @@ void SCRegressor::fillPiSel ( const edm::Event& iEvent, const edm::EventSetup& i
   vSC_pT_.clear();
   vSC_eta_.clear();
   vSC_phi_.clear();
+  vSC_genX_.clear();
+  vSC_genY_.clear();
+  vSC_genZ_.clear();
+  vSC_daughter1_E_.clear();
+  vSC_daughter1_pT_.clear();
+  vSC_daughter1_eta_.clear();
+  vSC_daughter1_phi_.clear();
+  vSC_daughter1_projEE_X_.clear();
+  vSC_daughter1_projEE_Y_.clear();
+  vSC_daughter2_E_.clear();
+  vSC_daughter2_pT_.clear();
+  vSC_daughter2_eta_.clear();
+  vSC_daughter2_phi_.clear();
+  vSC_daughter2_projEE_X_.clear();
+  vSC_daughter2_projEE_Y_.clear();
   float dEta, dPhi, dR, mPi0, ptPi0;
   for ( auto const& iPi0 : vPi0s ) {
 
@@ -266,6 +308,17 @@ void SCRegressor::fillPiSel ( const edm::Event& iEvent, const edm::EventSetup& i
     vSC_pT_.push_back( iGen->pt() );
     vSC_eta_.push_back( iGen->eta() );
     vSC_phi_.push_back( iGen->phi() );
+    vSC_genX_.push_back( iGen->vx() );
+    vSC_genY_.push_back( iGen->vy() );
+    vSC_genZ_.push_back( iGen->vz() );
+    bool incident_on_eeplus = false;
+    // int zside = 0;
+    if (iGen->eta() > 0) incident_on_eeplus = true;
+    // else zside = -1;
+    float distance_from_plane = -1.0;
+    assert (std::fabs(iGen->vz()) < spr::zFrontEE);
+    if (incident_on_eeplus) distance_from_plane = spr::zFrontEE - iGen->vz();
+    else distance_from_plane = spr::zFrontEE + iGen->vz();
 
     //hPt->Fill( ptPi0 );
     hdPhidEtaM->Fill( dPhi, dEta, mPi0 );
@@ -273,6 +326,20 @@ void SCRegressor::fillPiSel ( const edm::Event& iEvent, const edm::EventSetup& i
     hnPho->Fill( mPi0, ptPi0 );
     //hSC_mass->Fill( mPi0 );
 
+    vSC_daughter1_E_.push_back(iGen->daughter(0)->energy());
+    vSC_daughter1_pT_.push_back(iGen->daughter(0)->pt());
+    vSC_daughter1_eta_.push_back(iGen->daughter(0)->eta());
+    vSC_daughter1_phi_.push_back(iGen->daughter(0)->phi());
+    std::tuple<float, float> xy_daughter1 = get_xy_at_given_z_from_eta_phi(distance_from_plane, std::fabs(iGen->daughter(0)->eta()), iGen->daughter(0)->phi());
+    vSC_daughter1_projEE_X_.push_back(std::get<0>(xy_daughter1));
+    vSC_daughter1_projEE_Y_.push_back(std::get<1>(xy_daughter1));
+    vSC_daughter2_E_.push_back(iGen->daughter(1)->energy());
+    vSC_daughter2_pT_.push_back(iGen->daughter(1)->pt());
+    vSC_daughter2_eta_.push_back(iGen->daughter(1)->eta());
+    vSC_daughter2_phi_.push_back(iGen->daughter(1)->phi());
+    std::tuple<float, float> xy_daughter2 = get_xy_at_given_z_from_eta_phi(distance_from_plane, std::fabs(iGen->daughter(1)->eta()), iGen->daughter(1)->phi());
+    vSC_daughter2_projEE_X_.push_back(std::get<0>(xy_daughter2));
+    vSC_daughter2_projEE_Y_.push_back(std::get<1>(xy_daughter2));
   } // gen pi0s
 
 } // fillPiSel()
