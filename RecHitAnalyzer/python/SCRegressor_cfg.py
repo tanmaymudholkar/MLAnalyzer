@@ -92,7 +92,8 @@ process.fevt = cms.EDAnalyzer('SCRegressor'
     , trgResults = cms.InputTag("TriggerResults","","HLT")
     , generator = cms.InputTag("generator")
     , lhe = cms.InputTag("lhe")
-    )
+    , selection_type = cms.untracked.string("none")
+)
 
 process.TFileService = cms.Service("TFileService",
     #fileName = cms.string('histo.root')

@@ -47,6 +47,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Utilities/interface/RegexMatch.h"
+#include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "TH1.h"
@@ -213,6 +214,8 @@ class SCRegressor : public edm::one::EDAnalyzer<edm::one::SharedResources>  {
     std::vector<int> vRegressPhoIdxs_;
     std::vector<float> vIphi_Emax_;
     std::vector<float> vIeta_Emax_;
+    std::vector<float> vX_Emax_;
+    std::vector<float> vY_Emax_;
     std::vector<float> vIz_Emax_;
     std::vector<float> vSubdet_Emax_;
 
@@ -286,6 +289,8 @@ class SCRegressor : public edm::one::EDAnalyzer<edm::one::SharedResources>  {
     std::vector<float> vSC_genX_;
     std::vector<float> vSC_genY_;
     std::vector<float> vSC_genZ_;
+    std::vector<float> vSC_projEE_X_;
+    std::vector<float> vSC_projEE_Y_;
     std::vector<float> vSC_daughter1_E_;
     std::vector<float> vSC_daughter1_pT_;
     std::vector<float> vSC_daughter1_eta_;
@@ -346,14 +351,29 @@ class SCRegressor : public edm::one::EDAnalyzer<edm::one::SharedResources>  {
     std::vector<float> vMinDR_;
     double evtWeight_;
 
+    enum class selectionType{pi0=0, gamma, nSelectionTypes};
+    std::map<std::string, selectionType> str_to_selectionType = {
+      {"pi0", selectionType::pi0},
+      {"gamma", selectionType::gamma}
+    };
+    std::map<selectionType, std::string> selectionType_to_str = {
+      {selectionType::pi0, "pi0"},
+      {selectionType::gamma, "gamma"}
+    };
+    selectionType selection_type_;
+
     ESDetId ESId_from_EtaPhi( float& eta, float& phi, const CaloGeometry* caloGeom );
 
     std::tuple<float, float> get_xy_at_given_z_from_eta_phi(const float & z, const float & eta, const float & phi);
+    void branchesSel(TTree*, edm::Service<TFileService>&);
+    bool runSel(const edm::Event&, const edm::EventSetup&);
+    void fillSel(const edm::Event&, const edm::EventSetup&);
 };
 
 //
 // constants, enums and typedefs
 //
+
 static const float zs = 0.;
 
 static const int crop_size = 32;

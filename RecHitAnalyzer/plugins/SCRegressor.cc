@@ -41,6 +41,13 @@ SCRegressor::SCRegressor(const edm::ParameterSet& iConfig)
   trgResultsT_ = consumes<edm::TriggerResults>(iConfig.getParameter<edm::InputTag>("trgResults"));
   genInfoT_ = consumes<GenEventInfoProduct>(iConfig.getParameter<edm::InputTag>("generator"));
   lheEventT_ = consumes<LHEEventProduct>(iConfig.getParameter<edm::InputTag>("lhe"));
+  std::string selection_type_raw = iConfig.getParameter<std::string>("selection_type");
+  try {
+    selection_type_ = str_to_selectionType.at(selection_type_raw);
+  }
+  catch (const std::out_of_range & oor_error_handle) {
+    throw cms::Exception("UnknownSelectionType") << "ERROR: cfg contains unsupported selection_type: " << selection_type_raw;
+  }
 
   //now do what ever initialization is needed
   usesResource("TFileService");
@@ -54,9 +61,12 @@ SCRegressor::SCRegressor(const edm::ParameterSet& iConfig)
 
   RHTree->Branch("SC_iphi", &vIphi_Emax_);
   RHTree->Branch("SC_ieta", &vIeta_Emax_);
+  RHTree->Branch("SC_X", &vX_Emax_);
+  RHTree->Branch("SC_Y", &vY_Emax_);
   RHTree->Branch("SC_iz",   &vIz_Emax_);
 
-  branchesPiSel ( RHTree, fs );
+  branchesSel( RHTree, fs );
+  // branchesPiSel ( RHTree, fs );
   //branchesPhotonSel ( RHTree, fs );
   //branchesDiPhotonSel ( RHTree, fs );
   //branchesZJetsEleSel ( RHTree, fs );
@@ -91,6 +101,50 @@ SCRegressor::~SCRegressor()
 // member functions
 //
 //
+
+void
+SCRegressor::branchesSel ( TTree* tree, edm::Service<TFileService> &fs )
+{
+  switch(selection_type_) {
+  case selectionType::pi0:
+    branchesPiSel(tree, fs);
+    break;
+  case selectionType::gamma:
+    branchesPhotonSel(tree, fs);
+    break;
+  default:
+    throw cms::Exception("Unexpected exception, something's gone wrong.");
+  }
+}
+
+bool
+SCRegressor::runSel ( const edm::Event& iEvent, const edm::EventSetup& iSetup )
+{
+  switch(selection_type_) {
+  case selectionType::pi0:
+    return runPiSel(iEvent, iSetup);
+  case selectionType::gamma:
+    return runPhotonSel(iEvent, iSetup);
+  default:
+    throw cms::Exception("Unexpected exception, something's gone wrong.");
+  }
+}
+
+void
+SCRegressor::fillSel ( const edm::Event& iEvent, const edm::EventSetup& iSetup )
+{
+  switch(selection_type_) {
+  case selectionType::pi0:
+    fillPiSel(iEvent, iSetup);
+    break;
+  case selectionType::gamma:
+    fillPhotonSel(iEvent, iSetup);
+    break;
+  default:
+    throw cms::Exception("Unexpected exception, something's gone wrong.");
+  }
+}
+
 // ------------ method called for each event  ------------
 void
 SCRegressor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
@@ -133,7 +187,8 @@ SCRegressor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   bool hasPassed;
   vPreselPhoIdxs_.clear();
   nTotal += nPhotons;
-  hasPassed = runPiSel ( iEvent, iSetup ); //TODO: add config-level switch
+  hasPassed = runSel( iEvent, iSetup );
+  //hasPassed = runPiSel ( iEvent, iSetup ); //TODO: add config-level switch
   //hasPassed = runPhotonSel ( iEvent, iSetup );
   //hasPassed = runDiPhotonSel ( iEvent, iSetup );
   //hasPassed = runZJetsEleSel ( iEvent, iSetup );
@@ -149,12 +204,14 @@ SCRegressor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   // Get coordinates of photon supercluster seed
   hNpassed_img->Fill(0.);
   nPho = 0;
-  int iphi_Emax, ieta_Emax, iz_Emax, subdet_Emax;
+  int iphi_Emax, ieta_Emax, x_Emax, y_Emax, iz_Emax, subdet_Emax;
   float Emax, energy_;
   GlobalPoint pos_, pos_Emax;
   std::vector<GlobalPoint> vPos_Emax;
   vIphi_Emax_.clear();
   vIeta_Emax_.clear();
+  vX_Emax_.clear();
+  vY_Emax_.clear();
   vIz_Emax_.clear();
   vSubdet_Emax_.clear();
   vRegressPhoIdxs_.clear();
@@ -176,6 +233,8 @@ SCRegressor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     Emax = 0.;
     iphi_Emax = -1;
     ieta_Emax = -1;
+    x_Emax = 0.;
+    y_Emax = 0.;
     iz_Emax = -99;
     subdet_Emax = -1;
 
@@ -232,6 +291,8 @@ SCRegressor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
         ieta_Emax = ieta_;
         iz_Emax = iz_;
         pos_Emax = pos_;
+	x_Emax = pos_.x();
+	y_Emax = pos_.y();
         subdet_Emax = subdet_;
       }
       //std::cout << " >> " << iH << ": iphi_,ieta_,E: " << iphi_ << ", " << ieta_ << ", " << iRHit->energy() << std::endl;
@@ -244,6 +305,8 @@ SCRegressor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     //if ( ieta_Emax > 169 - 16 || ieta_Emax < 15 ) continue; // seed centered on [15,15] so must be padded by 15 below and 16 above
     vIphi_Emax_.push_back( iphi_Emax );
     vIeta_Emax_.push_back( ieta_Emax );
+    vX_Emax_.push_back(x_Emax);
+    vY_Emax_.push_back(y_Emax);
     vIz_Emax_.push_back( iz_Emax );
     vPos_Emax.push_back( pos_Emax );
     vSubdet_Emax_.push_back( subdet_Emax );
@@ -261,7 +324,8 @@ SCRegressor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   //if ( nPho != 2 ) return; // Diphoton physics selection
   if ( debug ) std::cout << " >> Passed cropping. " << std::endl;
 
-  fillPiSel ( iEvent, iSetup );
+  //fillPiSel ( iEvent, iSetup );
+  fillSel ( iEvent, iSetup );
   //fillPhotonSel ( iEvent, iSetup );
   //fillDiPhotonSel ( iEvent, iSetup );
   //fillZJetsEleSel ( iEvent, iSetup );

@@ -158,12 +158,14 @@ for iEvt in range(iEvtStart,iEvtEnd):
         data['pt'] = rhTree.SC_pT[i]
         data['iphi'] = rhTree.SC_iphi[i]
         data['ieta'] = rhTree.SC_ieta[i]
+        data['crystal_maxE_X'] = rhTree.SC_X[i]
+        data['crystal_maxE_Y'] = rhTree.SC_Y[i]
         data['iz'] = rhTree.SC_iz[i]
         data['SC_genZ'] = rhTree.SC_genZ[i]
-        data['SC_daughter1_projEE_X'] = rhTree.SC_daughter1_projEE_X[i]
-        data['SC_daughter1_projEE_Y'] = rhTree.SC_daughter1_projEE_Y[i]
-        data['SC_daughter2_projEE_X'] = rhTree.SC_daughter2_projEE_X[i]
-        data['SC_daughter2_projEE_Y'] = rhTree.SC_daughter2_projEE_Y[i]
+        data['SC_daughter1_projEE'] = [rhTree.SC_daughter1_projEE_X[i], rhTree.SC_daughter1_projEE_Y[i]]
+        data['SC_daughter1_pT'] = rhTree.SC_daughter1_pT[i]
+        data['SC_daughter2_projEE'] = [rhTree.SC_daughter2_projEE_X[i], rhTree.SC_daughter2_projEE_Y[i]]
+        data['SC_daughter2_pT'] = rhTree.SC_daughter2_pT[i]
 
         #if rhTree.pho_pT[i] > 100.: continue
 
@@ -180,6 +182,9 @@ for iEvt in range(iEvtStart,iEvtEnd):
             ,rhTree.SC_eta[i]
             ,rhTree.SC_phi[i]
             ]
+
+        data['A_projEE'] = [rhTree.SC_projEE_X[i], rhTree.SC_projEE_Y[i]]
+        data['A_pT'] = rhTree.SC_pT[i]
 
         data['pho_p4'] = [rhTree.pho_E[i], rhTree.pho_pT[i], rhTree.pho_eta[i], rhTree.pho_phi[i]]
         data['pho_id'] = [

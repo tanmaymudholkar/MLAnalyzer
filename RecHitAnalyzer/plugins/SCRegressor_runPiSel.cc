@@ -24,6 +24,8 @@ void SCRegressor::branchesPiSel ( TTree* tree, edm::Service<TFileService> &fs )
   tree->Branch("SC_genX",    &vSC_genX_);
   tree->Branch("SC_genY",    &vSC_genY_);
   tree->Branch("SC_genZ",    &vSC_genZ_);
+  tree->Branch("SC_projEE_X",    &vSC_projEE_X_);
+  tree->Branch("SC_projEE_Y",    &vSC_projEE_Y_);
   tree->Branch("SC_daughter1_E",      &vSC_daughter1_E_);
   tree->Branch("SC_daughter1_pT",     &vSC_daughter1_pT_);
   tree->Branch("SC_daughter1_eta",    &vSC_daughter1_eta_);
@@ -272,6 +274,8 @@ void SCRegressor::fillPiSel ( const edm::Event& iEvent, const edm::EventSetup& i
   vSC_genX_.clear();
   vSC_genY_.clear();
   vSC_genZ_.clear();
+  vSC_projEE_X_.clear();
+  vSC_projEE_Y_.clear();
   vSC_daughter1_E_.clear();
   vSC_daughter1_pT_.clear();
   vSC_daughter1_eta_.clear();
@@ -319,6 +323,9 @@ void SCRegressor::fillPiSel ( const edm::Event& iEvent, const edm::EventSetup& i
     assert (std::fabs(iGen->vz()) < spr::zFrontEE);
     if (incident_on_eeplus) distance_from_plane = spr::zFrontEE - iGen->vz();
     else distance_from_plane = spr::zFrontEE + iGen->vz();
+    std::tuple<float, float> xy_A = get_xy_at_given_z_from_eta_phi(distance_from_plane, std::fabs(iGen->eta()), iGen->phi());
+    vSC_projEE_X_.push_back(std::get<0>(xy_A));
+    vSC_projEE_Y_.push_back(std::get<1>(xy_A));
 
     //hPt->Fill( ptPi0 );
     hdPhidEtaM->Fill( dPhi, dEta, mPi0 );
