@@ -38,6 +38,7 @@
 #include "DataFormats/PatCandidates/interface/Jet.h"
 #include "DataFormats/PatCandidates/interface/Muon.h"
 #include "DataFormats/PatCandidates/interface/IsolatedTrack.h"
+#include "DataFormats/PatCandidates/interface/PATObject.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 
 #include "FWCore/Framework/interface/Event.h"
@@ -303,6 +304,8 @@ class SCRegressor : public edm::one::EDAnalyzer<edm::one::SharedResources>  {
     std::vector<float> vSC_daughter2_phi_;
     std::vector<float> vSC_daughter2_projEE_X_;
     std::vector<float> vSC_daughter2_projEE_Y_;
+    std::vector<float> vSC_gen_photon_projEE_X_;
+    std::vector<float> vSC_gen_photon_projEE_Y_;
 
     std::vector<float> vA_E_;
     std::vector<float> vA_pT_;
@@ -364,10 +367,9 @@ class SCRegressor : public edm::one::EDAnalyzer<edm::one::SharedResources>  {
 
     ESDetId ESId_from_EtaPhi( float& eta, float& phi, const CaloGeometry* caloGeom );
 
-    std::tuple<float, float> get_xy_at_given_z_from_eta_phi(const float & z, const float & eta, const float & phi);
-    void branchesSel(TTree*, edm::Service<TFileService>&);
-    bool runSel(const edm::Event&, const edm::EventSetup&);
-    void fillSel(const edm::Event&, const edm::EventSetup&);
+    void (SCRegressor::*branchesSel)(TTree*, edm::Service<TFileService>&);
+    bool (SCRegressor::*runSel)(const edm::Event&, const edm::EventSetup&);
+    void (SCRegressor::*fillSel)(const edm::Event&, const edm::EventSetup&);
 };
 
 //

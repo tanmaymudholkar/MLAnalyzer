@@ -8,6 +8,11 @@ options.register('skipEvents',
     mult=VarParsing.VarParsing.multiplicity.singleton,
     mytype=VarParsing.VarParsing.varType.int,
     info = "skipEvents")
+options.register('selectionType',
+    default="none",
+    mult=VarParsing.VarParsing.multiplicity.singleton,
+    mytype=VarParsing.VarParsing.varType.string,
+    info = "Selection type. Currently accepted: \"pi0\" or \"gamma\".")
 options.parseArguments()
 
 process = cms.Process("FEVTAnalyzer")
@@ -92,7 +97,7 @@ process.fevt = cms.EDAnalyzer('SCRegressor'
     , trgResults = cms.InputTag("TriggerResults","","HLT")
     , generator = cms.InputTag("generator")
     , lhe = cms.InputTag("lhe")
-    , selection_type = cms.untracked.string("none")
+    , selectionType = cms.untracked.string(options.selectionType)
 )
 
 process.TFileService = cms.Service("TFileService",

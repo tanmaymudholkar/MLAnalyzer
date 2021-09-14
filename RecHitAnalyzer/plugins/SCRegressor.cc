@@ -41,12 +41,26 @@ SCRegressor::SCRegressor(const edm::ParameterSet& iConfig)
   trgResultsT_ = consumes<edm::TriggerResults>(iConfig.getParameter<edm::InputTag>("trgResults"));
   genInfoT_ = consumes<GenEventInfoProduct>(iConfig.getParameter<edm::InputTag>("generator"));
   lheEventT_ = consumes<LHEEventProduct>(iConfig.getParameter<edm::InputTag>("lhe"));
-  std::string selection_type_raw = iConfig.getParameter<std::string>("selection_type");
+  std::string selection_type_raw = iConfig.getUntrackedParameter<std::string>("selectionType");
   try {
     selection_type_ = str_to_selectionType.at(selection_type_raw);
   }
   catch (const std::out_of_range & oor_error_handle) {
     throw cms::Exception("UnknownSelectionType") << "ERROR: cfg contains unsupported selection_type: " << selection_type_raw;
+  }
+  switch(selection_type_) {
+  case selectionType::pi0:
+    branchesSel = &SCRegressor::branchesPiSel;
+    runSel = &SCRegressor::runPiSel;
+    fillSel = &SCRegressor::fillPiSel;
+    break;
+  case selectionType::gamma:
+    branchesSel = &SCRegressor::branchesPhotonSel;
+    runSel = &SCRegressor::runPhotonSel;
+    fillSel = &SCRegressor::fillPhotonSel;
+    break;
+  default:
+    throw cms::Exception("Unexpected exception, something's gone wrong.");
   }
 
   //now do what ever initialization is needed
@@ -65,7 +79,7 @@ SCRegressor::SCRegressor(const edm::ParameterSet& iConfig)
   RHTree->Branch("SC_Y", &vY_Emax_);
   RHTree->Branch("SC_iz",   &vIz_Emax_);
 
-  branchesSel( RHTree, fs );
+  (this->*branchesSel)( RHTree, fs );
   // branchesPiSel ( RHTree, fs );
   //branchesPhotonSel ( RHTree, fs );
   //branchesDiPhotonSel ( RHTree, fs );
@@ -101,49 +115,6 @@ SCRegressor::~SCRegressor()
 // member functions
 //
 //
-
-void
-SCRegressor::branchesSel ( TTree* tree, edm::Service<TFileService> &fs )
-{
-  switch(selection_type_) {
-  case selectionType::pi0:
-    branchesPiSel(tree, fs);
-    break;
-  case selectionType::gamma:
-    branchesPhotonSel(tree, fs);
-    break;
-  default:
-    throw cms::Exception("Unexpected exception, something's gone wrong.");
-  }
-}
-
-bool
-SCRegressor::runSel ( const edm::Event& iEvent, const edm::EventSetup& iSetup )
-{
-  switch(selection_type_) {
-  case selectionType::pi0:
-    return runPiSel(iEvent, iSetup);
-  case selectionType::gamma:
-    return runPhotonSel(iEvent, iSetup);
-  default:
-    throw cms::Exception("Unexpected exception, something's gone wrong.");
-  }
-}
-
-void
-SCRegressor::fillSel ( const edm::Event& iEvent, const edm::EventSetup& iSetup )
-{
-  switch(selection_type_) {
-  case selectionType::pi0:
-    fillPiSel(iEvent, iSetup);
-    break;
-  case selectionType::gamma:
-    fillPhotonSel(iEvent, iSetup);
-    break;
-  default:
-    throw cms::Exception("Unexpected exception, something's gone wrong.");
-  }
-}
 
 // ------------ method called for each event  ------------
 void
@@ -187,7 +158,7 @@ SCRegressor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   bool hasPassed;
   vPreselPhoIdxs_.clear();
   nTotal += nPhotons;
-  hasPassed = runSel( iEvent, iSetup );
+  hasPassed = (this->*runSel)( iEvent, iSetup );
   //hasPassed = runPiSel ( iEvent, iSetup ); //TODO: add config-level switch
   //hasPassed = runPhotonSel ( iEvent, iSetup );
   //hasPassed = runDiPhotonSel ( iEvent, iSetup );
@@ -324,8 +295,8 @@ SCRegressor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   //if ( nPho != 2 ) return; // Diphoton physics selection
   if ( debug ) std::cout << " >> Passed cropping. " << std::endl;
 
+  (this->*fillSel)( iEvent, iSetup );
   //fillPiSel ( iEvent, iSetup );
-  fillSel ( iEvent, iSetup );
   //fillPhotonSel ( iEvent, iSetup );
   //fillDiPhotonSel ( iEvent, iSetup );
   //fillZJetsEleSel ( iEvent, iSetup );

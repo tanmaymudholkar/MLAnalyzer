@@ -1,4 +1,5 @@
 #include "MLAnalyzer/RecHitAnalyzer/interface/SCRegressor.h"
+#include "MLAnalyzer/RecHitAnalyzer/interface/SCRegressorHelpers.h"
 
 // Initialize branches _____________________________________________________//
 void SCRegressor::branchesPiSel ( TTree* tree, edm::Service<TFileService> &fs )
@@ -81,7 +82,7 @@ bool SCRegressor::runPiSel ( const edm::Event& iEvent, const edm::EventSetup& iS
     // Minimize producing images where second reco photon is out of image window
     // Work backwards from: image window size => reco DR requirement => gen DR requirement
     dR = reco::deltaR( iGen->daughter(0)->eta(),iGen->daughter(0)->phi(), iGen->daughter(1)->eta(),iGen->daughter(1)->phi() );
-    if ( dR > 10*.0174 ) continue;
+    if ( dR > (10*0.0174) ) continue;
 
     vGenPi0Idxs.push_back( iG );
 
@@ -109,8 +110,9 @@ bool SCRegressor::runPiSel ( const edm::Event& iEvent, const edm::EventSetup& iS
 
   ////////// Build gen pi0-reco photon mapping //////////
 
-  float ptCut = 15., etaCut = 1.44;
+  // float ptCut = 15., etaCut = 1.44;
   //float ptCut = 10., etaCut = 1.44;
+  // float ptCut = 10., etaCut = 2.5;
 
   // Create mapping between gen pi0<->matched reco photons<->matched presel photons
   // For each pi0, first find "reco" photons matched to pi0's daughter gen photons,
@@ -143,7 +145,7 @@ bool SCRegressor::runPiSel ( const edm::Event& iEvent, const edm::EventSetup& iS
 
         // Definition of a "reco" photon--highly subject to interpretation
         //if ( iPho->pt() < 5. ) continue;
-        if ( iPho->pt() < 10. ) continue; // pat/miniaod threshold is pt > 10 GeV
+        if ( iPho->pt() < 25. ) continue; // pat/miniaod threshold is pt > 10 GeV
 
         dR = reco::deltaR( iPho->eta(),iPho->phi(), iGenPho->eta(),iGenPho->phi() );
         if ( dR > minDR ) continue;
@@ -170,28 +172,30 @@ bool SCRegressor::runPiSel ( const edm::Event& iEvent, const edm::EventSetup& iS
 
       // Check if matched reco photon passes preselection:
       PhotonRef iPho( photons, minDR_idx );
-      if ( std::abs(iPho->pt()) <= ptCut ) continue;
-      //if ( std::abs(iPho->eta()) >= etaCut ) continue;
-      if ( std::abs(iPho->eta()) > 2.4 ) continue;
-      if ( std::abs(iPho->eta()) < 1.7 ) continue;
+      bool passes_preselection = SCRegressorHelpers::passesTriggerInspiredPreselection(iPho);
+      if (!passes_preselection) continue;
+    // if ( std::fabs(iPho->pt()) <= ptCut ) continue;
+      // //if ( std::abs(iPho->eta()) >= etaCut ) continue;
+      // if ( std::fabs(iPho->eta()) > 2.5 ) continue;
+      // if ( std::fabs(iPho->eta()) < 1.75 ) continue;
 
-      /*
-      if ( iPho->full5x5_r9() <= 0.5 ) continue;
-      if ( iPho->hadTowOverEm() >= 0.08 ) continue;
-      if ( iPho->hasPixelSeed() == true ) continue;
-      */
-      //if ( iPho->passElectronVeto() == true ) continue;
-      //if ( iPho->userFloat("phoChargedIsolation")/std::abs(iPho->pt()) > 0.3 ) continue;
+      // /*
+      // if ( iPho->full5x5_r9() <= 0.5 ) continue;
+      // if ( iPho->hadTowOverEm() >= 0.08 ) continue;
+      // if ( iPho->hasPixelSeed() == true ) continue;
+      // */
+      // //if ( iPho->passElectronVeto() == true ) continue;
+      // //if ( iPho->userFloat("phoChargedIsolation")/std::abs(iPho->pt()) > 0.3 ) continue;
 
-      /*
-      if ( iPho->full5x5_r9() <= 0.85 ) {
-        if ( iPho->full5x5_sigmaIetaIeta() >= 0.015 ) continue;
-        //if ( iPho->userFloat("phoPhotonIsolation") >= 4.0 ) continue;
-        if ( iPho->photonIso() >= 4.0 ) continue;
-        if ( iPho->trkSumPtHollowConeDR03() >= 6. ) continue;
-        //if ( iPho->trackIso() >= 6. ) continue;
-      }
-      */
+      // /*
+      // if ( iPho->full5x5_r9() <= 0.85 ) {
+      //   if ( iPho->full5x5_sigmaIetaIeta() >= 0.015 ) continue;
+      //   //if ( iPho->userFloat("phoPhotonIsolation") >= 4.0 ) continue;
+      //   if ( iPho->photonIso() >= 4.0 ) continue;
+      //   if ( iPho->trkSumPtHollowConeDR03() >= 6. ) continue;
+      //   //if ( iPho->trackIso() >= 6. ) continue;
+      // }
+      // */
       vMatchedPreselPhoIdxs.push_back( minDR_idx );
       if ( debug ) std::cout << " >> presel photon: pT: " << iPho->pt() << " eta: " << iPho->eta() << std::endl;
 
@@ -240,19 +244,6 @@ bool SCRegressor::runPiSel ( const edm::Event& iEvent, const edm::EventSetup& iS
   return true;
 
 } // runPiSel()
-
-// Helper function
-std::tuple<float, float> SCRegressor::get_xy_at_given_z_from_eta_phi(const float & z, const float & eta, const float & phi) {
-  assert(z > 0.);
-  assert(eta > 0.);
-  float theta = 2.0*std::atan(std::exp(-eta));
-  // tan(theta) = r_cyl / z
-  float r_cyl = z * std::tan(theta);
-  assert(r_cyl > 0.);
-  float x = r_cyl * std::cos(phi);
-  float y = r_cyl * std::sin(phi);
-  return std::make_tuple(x, y);
-}
 
 // Fill branches ___________________________________________________________________//
 void SCRegressor::fillPiSel ( const edm::Event& iEvent, const edm::EventSetup& iSetup )
@@ -323,7 +314,7 @@ void SCRegressor::fillPiSel ( const edm::Event& iEvent, const edm::EventSetup& i
     assert (std::fabs(iGen->vz()) < spr::zFrontEE);
     if (incident_on_eeplus) distance_from_plane = spr::zFrontEE - iGen->vz();
     else distance_from_plane = spr::zFrontEE + iGen->vz();
-    std::tuple<float, float> xy_A = get_xy_at_given_z_from_eta_phi(distance_from_plane, std::fabs(iGen->eta()), iGen->phi());
+    std::tuple<float, float> xy_A = SCRegressorHelpers::get_xy_at_given_z_from_eta_phi(distance_from_plane, std::fabs(iGen->eta()), iGen->phi());
     vSC_projEE_X_.push_back(std::get<0>(xy_A));
     vSC_projEE_Y_.push_back(std::get<1>(xy_A));
 
@@ -337,14 +328,14 @@ void SCRegressor::fillPiSel ( const edm::Event& iEvent, const edm::EventSetup& i
     vSC_daughter1_pT_.push_back(iGen->daughter(0)->pt());
     vSC_daughter1_eta_.push_back(iGen->daughter(0)->eta());
     vSC_daughter1_phi_.push_back(iGen->daughter(0)->phi());
-    std::tuple<float, float> xy_daughter1 = get_xy_at_given_z_from_eta_phi(distance_from_plane, std::fabs(iGen->daughter(0)->eta()), iGen->daughter(0)->phi());
+    std::tuple<float, float> xy_daughter1 = SCRegressorHelpers::get_xy_at_given_z_from_eta_phi(distance_from_plane, std::fabs(iGen->daughter(0)->eta()), iGen->daughter(0)->phi());
     vSC_daughter1_projEE_X_.push_back(std::get<0>(xy_daughter1));
     vSC_daughter1_projEE_Y_.push_back(std::get<1>(xy_daughter1));
     vSC_daughter2_E_.push_back(iGen->daughter(1)->energy());
     vSC_daughter2_pT_.push_back(iGen->daughter(1)->pt());
     vSC_daughter2_eta_.push_back(iGen->daughter(1)->eta());
     vSC_daughter2_phi_.push_back(iGen->daughter(1)->phi());
-    std::tuple<float, float> xy_daughter2 = get_xy_at_given_z_from_eta_phi(distance_from_plane, std::fabs(iGen->daughter(1)->eta()), iGen->daughter(1)->phi());
+    std::tuple<float, float> xy_daughter2 = SCRegressorHelpers::get_xy_at_given_z_from_eta_phi(distance_from_plane, std::fabs(iGen->daughter(1)->eta()), iGen->daughter(1)->phi());
     vSC_daughter2_projEE_X_.push_back(std::get<0>(xy_daughter2));
     vSC_daughter2_projEE_Y_.push_back(std::get<1>(xy_daughter2));
   } // gen pi0s
