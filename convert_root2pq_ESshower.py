@@ -16,6 +16,7 @@ parser.add_argument('-d', '--decay', default='test', type=str, help='Decay name.
 parser.add_argument('-n', '--idx', default=0, type=int, help='Input root file index.')
 #parser.add_argument('-w', '--wgt_file', default=None, type=str, help='Weight file.')
 parser.add_argument('-w', '--wgt_files', default=None, nargs='+', type=str, help='Weight file.')
+parser.add_argument('-t', '--selection_type', required=True, type=str, choices=["pi0", "gamma"], help='Selection type.')
 args = parser.parse_args()
 
 nXY = 40
@@ -47,8 +48,8 @@ def crop_ESshower(es_img, ix, iy, window=7*nSTRIP):
 
 def crop_EEshower(ee_img, ix, iy, window=16):
     off = window//2
-    seed_x = int(ix) # upper side of center for even window
-    seed_y = int(iy) # upper side of center for even window
+    seed_x = int(0.5 + ix) # upper side of center for even window
+    seed_y = int(0.5 + iy) # upper side of center for even window
     ee_shower = ee_img[seed_y-off:seed_y+off,seed_x-off:seed_x+off] # x:cols, y:rows
     return ee_shower
 
@@ -115,7 +116,7 @@ for iEvt in range(iEvtStart,iEvtEnd):
     # Initialize event
     rhTree.GetEntry(iEvt)
 
-    if iEvt % 10000 == 0:
+    if iEvt % 100 == 0:
         print " .. Processing entry",iEvt
 
     #if rhTree.m0 < 100. or rhTree.m0 > 110.:
@@ -162,10 +163,16 @@ for iEvt in range(iEvtStart,iEvtEnd):
         data['crystal_maxE_Y'] = rhTree.SC_Y[i]
         data['iz'] = rhTree.SC_iz[i]
         data['SC_genZ'] = rhTree.SC_genZ[i]
-        data['SC_daughter1_projEE'] = [rhTree.SC_daughter1_projEE_X[i], rhTree.SC_daughter1_projEE_Y[i]]
-        data['SC_daughter1_pT'] = rhTree.SC_daughter1_pT[i]
-        data['SC_daughter2_projEE'] = [rhTree.SC_daughter2_projEE_X[i], rhTree.SC_daughter2_projEE_Y[i]]
-        data['SC_daughter2_pT'] = rhTree.SC_daughter2_pT[i]
+        if (args.selection_type == "gamma"):
+            data['SC_gen_photon_projEE'] = [rhTree.SC_gen_photon_projEE_X[i], rhTree.SC_gen_photon_projEE_Y[i]]
+            data['SC_gen_photon_pT'] = rhTree.SC_pT[i]
+        elif (args.selection_type == "pi0"):
+            data['SC_daughter1_projEE'] = [rhTree.SC_daughter1_projEE_X[i], rhTree.SC_daughter1_projEE_Y[i]]
+            data['SC_daughter1_pT'] = rhTree.SC_daughter1_pT[i]
+            data['SC_daughter2_projEE'] = [rhTree.SC_daughter2_projEE_X[i], rhTree.SC_daughter2_projEE_Y[i]]
+            data['SC_daughter2_pT'] = rhTree.SC_daughter2_pT[i]
+        else:
+            sys.exit("ERROR: unexpected argument \"selection_type\": {t}".format(t=args.selection_type))
 
         #if rhTree.pho_pT[i] > 100.: continue
 
@@ -183,8 +190,9 @@ for iEvt in range(iEvtStart,iEvtEnd):
             ,rhTree.SC_phi[i]
             ]
 
-        data['A_projEE'] = [rhTree.SC_projEE_X[i], rhTree.SC_projEE_Y[i]]
-        data['A_pT'] = rhTree.SC_pT[i]
+        if (args.selection_type == "pi0"):
+            data['A_projEE'] = [rhTree.SC_projEE_X[i], rhTree.SC_projEE_Y[i]]
+            data['A_pT'] = rhTree.SC_pT[i]
 
         data['pho_p4'] = [rhTree.pho_E[i], rhTree.pho_pT[i], rhTree.pho_eta[i], rhTree.pho_phi[i]]
         data['pho_id'] = [
